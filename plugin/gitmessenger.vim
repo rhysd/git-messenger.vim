@@ -40,4 +40,5 @@ endfunction
 command! -nargs=0 GitMessengerBalloonToggle call GitMessengerBalloonToggle()
 
 nnoremap <silent><Plug>(git-messenger-commit-summary) :<C-u>call gitmessenger#echo()<CR>
+nnoremap <silent><Plug>(git-messenger-commit-message) :<C-u>echo gitmessenger#commit_message(expand('%'), line('.'))<CR>
 
