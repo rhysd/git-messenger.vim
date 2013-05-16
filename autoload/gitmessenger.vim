@@ -34,7 +34,8 @@ endfunction
 
 function! gitmessenger#commit_summary(file, line)
     let git_blame = split(s:system('git --no-pager blame '.a:file.' -L '.a:line.',+1 --porcelain'), "\n")
-    if v:shell_error && git_blame[0] =~# '^fatal: Not a git repository'
+    let shell_error = s:has_vimproc() ? vimproc#get_last_status() : v:shell_error
+    if shell_error && git_blame[0] =~# '^fatal: Not a git repository'
         return 'Error: Not a git repository'
     endif
 
@@ -106,7 +107,8 @@ endfunction
 
 function! gitmessenger#blame_porcelain(file)
     let git_blame = split(s:system('git --no-pager blame '.a:file.' --porcelain'), "\n")
-    if v:shell_error && git_blame[0] =~# '^fatal: Not a git repository'
+    let shell_error = s:has_vimproc() ? vimproc#get_last_status() : v:shell_error
+    if shell_error && git_blame[0] =~# '^fatal: Not a git repository'
         " FIXME
         let s:line_cache[0] = 'dummy'
         return
