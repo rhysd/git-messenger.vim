@@ -141,15 +141,7 @@ function! s:popup__open() dict abort
 
     " TODO: Add autocmd to clear self.pupup_bufnr when this window is closed
 
-    " TODO: Choose nice background color by modifying current background color slightly
-    if &background ==# 'dark'
-        hi GitMessengerPopupNormal term=None guifg=#eeeeee guibg=#333333 ctermfg=255 ctermbg=234
-        hi GitMessengerEndOfBuffer term=None guifg=#333333 guibg=#333333 ctermfg=234 ctermbg=234
-    else
-        hi GitMessengerPopupNormal term=None guibg=#eeeeee guifg=#333333 ctermbg=255 ctermfg=234
-        hi GitMessengerEndOfBuffer term=None guibg=#333333 guifg=#333333 ctermbg=234 ctermfg=234
-    endif
-    setlocal winhighlight=Normal:GitMessengerPopupNormal,EndOfBuffer:GitMessengerEndOfBuffer
+    setlocal winhighlight=Normal:gitmessengerPopupNormal,EndOfBuffer:gitmessengerEndOfBuffer
 
     " Ensure to close popup
     let b:__gitmessenger_popup = self

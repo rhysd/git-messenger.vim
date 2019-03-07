@@ -31,7 +31,7 @@ function! s:blame__after_cmd(git) dict abort
     let summary = matchstr(stdout[9], '^summary \zs.*')
     let lines += ['', ' ' . summary, '']
 
-    let opts = {}
+    let opts = { 'filetype': 'gitmessengerpopup' }
     if has_key(self.opts, 'did_close')
         let opts.did_close = self.opts.did_close
     endif
