@@ -42,3 +42,14 @@ command! -nargs=0 GitMessengerBalloonToggle call GitMessengerBalloonToggle()
 nnoremap <silent><Plug>(git-messenger-commit-summary) :<C-u>call gitmessenger#legacy#echo()<CR>
 nnoremap <silent><Plug>(git-messenger-commit-message) :<C-u>echo gitmessenger#legacy#commit_message(expand('%'), line('.'))<CR>
 
+" Next
+
+command! -nargs=0 -bar GitMessenger call gitmessenger#new(expand('%:p'), line('.'), bufnr('%'), {'close_on_cursor_moved': v:true})
+command! -nargs=0 -bar GitMessengerClose call gitmessenger#close_popup(bufnr('%'))
+
+nnoremap <silent><Plug>(git-messenger) :<C-u>call gitmessenger#new(expand('%:p'), line('.'), bufnr('%'), {'close_on_cursor_moved': v:true})<CR>
+nnoremap <silent><Plug>(git-messenger-close) :<C-u>call gitmessenger#close_popup(bufnr('%'))<CR>
+
+if !exists('g:git_messenger_no_default_mappings')
+    nmap <Leader>gm <Plug>(git-messenger)
+endif
