@@ -12,11 +12,11 @@ function! GitMessengerToggle()
     if s:gitmessenger_is_running
         autocmd! GitMessenger
     else
-        call gitmessenger#echo()
+        call gitmessenger#legacy#echo()
         let s:prev_line = line('.')
         autocmd! GitMessenger CursorMoved,CursorMovedI * 
                     \  if s:prev_line != line('.')
-                    \|     call gitmessenger#echo()
+                    \|     call gitmessenger#legacy#echo()
                     \|     let s:prev_line = line('.')
                     \| endif
     endif
@@ -28,7 +28,7 @@ command! -nargs=0 GitMessengerToggle call GitMessengerToggle()
 function! GitMessengerBalloonToggle()
     if empty(&balloonexpr)
         " not active
-        set balloonexpr=gitmessenger#balloon_expr()
+        set balloonexpr=gitmessenger#legacy#balloon_expr()
         set ballooneval
     else
         " active
@@ -39,6 +39,6 @@ endfunction
 
 command! -nargs=0 GitMessengerBalloonToggle call GitMessengerBalloonToggle()
 
-nnoremap <silent><Plug>(git-messenger-commit-summary) :<C-u>call gitmessenger#echo()<CR>
-nnoremap <silent><Plug>(git-messenger-commit-message) :<C-u>echo gitmessenger#commit_message(expand('%'), line('.'))<CR>
+nnoremap <silent><Plug>(git-messenger-commit-summary) :<C-u>call gitmessenger#legacy#echo()<CR>
+nnoremap <silent><Plug>(git-messenger-commit-message) :<C-u>echo gitmessenger#legacy#commit_message(expand('%'), line('.'))<CR>
 
