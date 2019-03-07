@@ -53,10 +53,31 @@ function! gitmessenger#new(file, line, bufnr, ...) abort
     call blame.start()
 endfunction
 
-function! gitmessenger#close_popup(bufnr) abort
+function! s:popup_for(bufnr) abort
     if !has_key(s:all_popup, a:bufnr)
         echo 'No popup found'
-        return
+        return v:null
     endif
-    call s:all_popup[a:bufnr].close()
+    return s:all_popup[a:bufnr]
+endfunction
+
+function! gitmessenger#close_popup(bufnr) abort
+    let p = s:popup_for(a:bufnr)
+    if p isnot v:null
+        call p.close()
+    endif
+endfunction
+
+function! gitmessenger#scroll(bufnr, map) abort
+    let p = s:popup_for(a:bufnr)
+    if p isnot v:null
+        call p.scroll(a:map)
+    endif
+endfunction
+
+function! gitmessenger#into_popup(bufnr) abort
+    let p = s:popup_for(a:bufnr)
+    if p isnot v:null
+        call p.into()
+    endif
 endfunction

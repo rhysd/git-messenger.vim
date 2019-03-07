@@ -20,9 +20,33 @@ endfunction
 let s:popup.close = funcref('s:popup__close')
 
 function! s:popup__get_winnr() dict abort
+    if !has_key(self, 'bufnr')
+        return -1
+    endif
     return bufwinnr(self.bufnr)
 endfunction
 let s:popup.get_winnr = funcref('s:popup__get_winnr')
+
+function! s:popup__scroll(map) dict abort
+    let winnr = self.get_winnr()
+    if winnr < 0
+        return
+    endif
+    execute winnr . 'wincmd w'
+    sandbox let input = eval('"\<'.a:map.'>"')
+    execute "normal!" input
+    wincmd p
+endfunction
+let s:popup.scroll = funcref('s:popup__scroll')
+
+function! s:popup__into() dict abort
+    let winnr = self.get_winnr()
+    if winnr < 0
+        return
+    endif
+    execute winnr . 'wincmd w'
+endfunction
+let s:popup.into = funcref('s:popup__into')
 
 function! s:popup__open() dict abort
     " Note: Unlike col('.'), wincol() considers length of sign column
