@@ -10,6 +10,21 @@ function! s:git_cmd_failure(git) abort
         \ )
 endfunction
 
+function! s:blame__open_popup() dict abort
+    let opts = { 'filetype': 'gitmessengerpopup' }
+    if has_key(self.opts, 'did_close')
+        let opts.did_close = self.opts.did_close
+    endif
+
+    let self.popup = gitmessenger#popup#new(self.contents, opts)
+    call self.popup.open()
+
+    if has_key(self.opts, 'did_open')
+        call self.opts.did_open(self)
+    endif
+endfunction
+let s:blame.open_popup = funcref('s:blame__open_popup')
+
 function! s:blame__after_log(git) dict abort
     let self.failed = a:git.exit_status != 0
 
@@ -30,17 +45,7 @@ function! s:blame__after_log(git) dict abort
         endif
     endif
 
-    let opts = { 'filetype': 'gitmessengerpopup' }
-    if has_key(self.opts, 'did_close')
-        let opts.did_close = self.opts.did_close
-    endif
-
-    let self.popup = gitmessenger#popup#new(self.contents, opts)
-    call self.popup.open()
-
-    if has_key(self.opts, 'did_open')
-        call self.opts.did_open(self)
-    endif
+    call self.open_popup()
 endfunction
 
 function! s:blame__after_blame(git) dict abort
@@ -54,7 +59,7 @@ function! s:blame__after_blame(git) dict abort
     let stdout = a:git.stdout
     let hash = matchstr(stdout[0], '^\S\+')
     let author = matchstr(stdout[1], '^author \zs.\+')
-    let author_email = matchstr(stdout[2], '^author-email \zs\S\+')
+    let author_email = matchstr(stdout[2], '^author-mail \zs\S\+')
     let self.contents = [
         \   '',
         \   ' Commit: ' . hash,
@@ -68,8 +73,11 @@ function! s:blame__after_blame(git) dict abort
     let summary = matchstr(stdout[9], '^summary \zs.*')
     let self.contents += ['', ' ' . summary, '']
 
-    " TODO: Check hash is 0000000000000000000000 it means that the line is not
-    " commited yet
+    " Check hash is 0000000000000000000000 it means that the line is not commited yet
+    if hash =~# '^0\+$'
+        call self.open_popup()
+        return
+    endif
 
     let git = gitmessenger#git#new(g:git_messenger_git_command)
     let args = ['--no-pager', 'log', '-n', '1', '--pretty=format:%b', hash]

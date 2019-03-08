@@ -22,7 +22,7 @@ function! s:on_open(blame) dict abort
     let s:all_popup[opener_bufnr] = a:blame.popup
     if has_key(self, 'close_on_cursor_moved') && self.close_on_cursor_moved
         augroup plugin-git-messenger-close
-            autocmd CursorMoved,CursorMovedI <buffer> call <SID>on_cursor_moved()
+            autocmd CursorMoved,CursorMovedI,InsertEnter <buffer> call <SID>on_cursor_moved()
         augroup END
     endif
 endfunction
