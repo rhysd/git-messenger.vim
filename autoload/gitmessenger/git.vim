@@ -27,7 +27,6 @@ else
 
     function! s:on_output_vim(event, ch, msg) dict abort
         call extend(self[a:event], split(a:msg, "\n", 1))
-        echom a:event . ': ' . string(self[a:event])
         call self.may_finalize_vim(a:ch)
     endfunction
 

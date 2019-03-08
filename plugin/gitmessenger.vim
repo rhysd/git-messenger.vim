@@ -43,11 +43,13 @@ nnoremap <silent><Plug>(git-messenger-commit-summary) :<C-u>call gitmessenger#le
 nnoremap <silent><Plug>(git-messenger-commit-message) :<C-u>echo gitmessenger#legacy#commit_message(expand('%'), line('.'))<CR>
 
 " Next
+let g:git_messenger_close_on_cursor_moved = get(g:, 'git_messenger_close_on_cursor_moved', v:true)
+let g:git_messenger_git_command = get(g:, 'git_messenger_git_command', 'git')
 
-command! -nargs=0 -bar GitMessenger call gitmessenger#new(expand('%:p'), line('.'), bufnr('%'), {'close_on_cursor_moved': v:true})
+command! -nargs=0 -bar GitMessenger call gitmessenger#new(expand('%:p'), line('.'), bufnr('%'), {'close_on_cursor_moved' : g:git_messenger_close_on_cursor_moved})
 command! -nargs=0 -bar GitMessengerClose call gitmessenger#close_popup(bufnr('%'))
 
-nnoremap <silent><Plug>(git-messenger) :<C-u>call gitmessenger#new(expand('%:p'), line('.'), bufnr('%'), {'close_on_cursor_moved': v:true})<CR>
+nnoremap <silent><Plug>(git-messenger) :<C-u>GitMessenger<CR>
 nnoremap <silent><Plug>(git-messenger-close) :<C-u>call gitmessenger#close_popup(bufnr('%'))<CR>
 nnoremap <silent><Plug>(git-messenger-into-popup) :<C-u>call gitmessenger#into_popup(bufnr('%'))<CR>
 nnoremap <silent><Plug>(git-messenger-scroll-down-1) :<C-u>call gitmessenger#scroll(bufnr('%'), 'C-e')<CR>

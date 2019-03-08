@@ -48,7 +48,7 @@ function! s:blame__start() dict abort
     let args = ['--no-pager', 'blame', self.file, '-L', self.line . ',+1', '--porcelain']
     let cwd = fnamemodify(self.file, ':p:h')
     " TODO: Make git command customizable
-    let git = gitmessenger#git#new('git')
+    let git = gitmessenger#git#new(g:git_messenger_git_command)
     call git.spawn(args, cwd, funcref('s:blame__after_cmd', [], self))
 endfunction
 let s:blame.start = funcref('s:blame__start')
