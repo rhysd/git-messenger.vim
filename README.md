@@ -1,8 +1,8 @@
 git-messenger.vim
 =================
 
-[git-messenger.vim][repo] is a Vim/Neovim plugin for 'looking a commit message under the cursor'
-quickly.
+[git-messenger.vim][repo] is a Vim/Neovim plugin to reveal the hidden message by Git under the
+cursor quickly. It shows the last commit message under the cursor in popup window.
 
 When you modifying unfamiliar codes, you would sometimes wonder 'why was this line added?' or 'why
 this value was chosen?' in the source code. The answer sometimes lays in a commit message,
@@ -15,6 +15,8 @@ implemented in
 - Preview window on Vim 8+ or Neovim 0.3 or earlier
 
 The floating window is definitely recommended since it can shows the information near the cursor.
+
+This plugin supports both Neovim and Vim (8 or later).
 
 Screencast with Neovim v0.4.0-dev:
 
@@ -87,6 +89,8 @@ key sequences. For example:
 nmap <Leader>cm <Plug>(git-messenger)
 nmap <Leader>cM <Plug>(git-messenger-into-popup)
 ```
+
+I recommend to map `<Plug>(git-messenger)` in your `vimrc`.
 
 - `<Plug>(git-messenger)`: The same as running `:GitMessenger` command.
 - `<Plug>(git-messenger-close)`: The same as running `:GitMessengerClose` command.
