@@ -6,13 +6,16 @@ function! s:popup__close() dict abort
         " Already closed
         return
     endif
+
     let winnr = self.get_winnr()
     if winnr >= 0
         " Without this 'autocmd', the BufWipeout event will be triggered and
         " this function will be called again.
         noautocmd execute winnr . 'wincmd c'
     endif
+
     unlet self.bufnr
+
     if has_key(self, 'did_close')
         call self.did_close(self)
     endif
@@ -56,7 +59,7 @@ function! s:popup__open() dict abort
     let abs_cursor_line = (origin[0] - 1) + opener_pos[1] - line('w0')
     let abs_cursor_col = (origin[1] - 1) + wincol() - col('w0')
 
-    let width = has_key(self.opts, 'width') ? self.opts.width : 60
+    let width = 0
     let max_width = 100
     let height = 0
     for line in self.contents
