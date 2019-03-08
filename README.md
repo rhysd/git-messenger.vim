@@ -139,6 +139,29 @@ still defined since they don't make any conflict with existing mappings.
 When this value is set to `v:false`, run `:GitMessenger` or `<plug>(git-messenger)` again after
 showing a popup does not move the cursor in the window.
 
+### Popup window highlight
+
+This plugin sets sinsible highlight colors to popup menu for light and dark colorschemes by default.
+However, it may not match to your colorscheme. In the case, you can specify your own colors to
+popup window in `nvim/init.vim` by defining highlights as follows.. This is only available on
+Neovim.
+
+Example:
+
+```vim
+" Header such as 'Commit:', 'Author:'
+hi gitmessengerHeader term=None guifg=#88b8f6 ctermfg=111
+
+" Commit hash
+hi gitmessengerHash term=None guifg=#f0eaaa ctermfg=229
+
+" Normal color. This color is the most important
+hi gitmessengerPopupNormal term=None guifg=#eeeeee guibg=#333333 ctermfg=255 ctermbg=234
+
+" Color of 'end of buffer'. To hide '~' in popup window, I recommend to use the same background
+" color as gitmessengerPopupNormal.
+hi gitmessengerEndOfBuffer term=None guifg=#333333 guibg=#333333 ctermfg=234 ctermbg=234
+```
 
 ## License
 

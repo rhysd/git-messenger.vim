@@ -9,6 +9,7 @@ Install                 |git-messenger-install|
 Commands                |git-messenger-commands|
 Mappings                |git-messenger-mappings|
 Variables               |git-messenger-variables|
+Highlights              |git-messenger-highlights|
 Repository              |git-messenger-repository-page|
 License                 |git-messenger-license|
 
@@ -169,6 +170,30 @@ Some global variables are available to configure the behavior of this plugin.
   |<plug>(git-messenger)| again after showing a popup does not move the cursor
   in the window.
 
+
+==============================================================================
+HIGHLIGHTS                                            *git-messenger-highlights*
+
+|git-messenger.vim| sets sinsible highlight colors to popup menu for light and
+dark colorschemes by default. However, it may not match to your colorscheme.
+In the case, you can specify your own colors to popup window in nvim/init.vim
+by defining highlights as follows.. This is only available on Neovim.
+
+Example:
+>
+  " Header such as 'Commit:', 'Author:'
+  hi gitmessengerHeader term=None guifg=#88b8f6 ctermfg=111
+
+  " Commit hash
+  hi gitmessengerHash term=None guifg=#f0eaaa ctermfg=229
+
+  " Normal color. This color is the most important
+  hi gitmessengerPopupNormal term=None guifg=#eeeeee guibg=#333333 ctermfg=255 ctermbg=234
+
+  " Color of 'end of buffer'. To hide '~' in popup window, I recommend to use the same background
+  " color as gitmessengerPopupNormal.
+  hi gitmessengerEndOfBuffer term=None guifg=#333333 guibg=#333333 ctermfg=234 ctermbg=234
+<
 
 ==============================================================================
 REPOSITORY                                       *git-messenger-repository-page*
