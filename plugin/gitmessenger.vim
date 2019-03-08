@@ -6,6 +6,7 @@ let g:loaded_git_messenger = 1
 let g:git_messenger_close_on_cursor_moved = get(g:, 'git_messenger_close_on_cursor_moved', v:true)
 let g:git_messenger_git_command = get(g:, 'git_messenger_git_command', 'git')
 let g:git_messenger_no_default_mappings = get(g:, 'git_messenger_no_default_mappings', v:false)
+let g:git_messenger_into_popup_after_show = get(g:, 'git_messenger_into_popup_after_show', v:true)
 
 command! -nargs=0 -bar GitMessenger call gitmessenger#new(expand('%:p'), line('.'), bufnr('%'), {'close_on_cursor_moved' : g:git_messenger_close_on_cursor_moved})
 command! -nargs=0 -bar GitMessengerClose call gitmessenger#close_popup(bufnr('%'))

@@ -71,7 +71,13 @@ $ brew install neovim --HEAD
 ```
 
 It opens a popup window with the last commit message which modified the line at cursor. The popup
-window will be automatically closed when you move the cursor so you don't need to close it manually.
+window shows a commit hash, commit author, committer (if it's different from author), summary and
+body. The popup window will be automatically closed when you move the cursor so you don't need to
+close it manually.
+
+Running command again after the popup window shows up moves the cursor into the window. This
+behavior is useful when the commit message is too long and window cannot show the whole content.
+By moving the cursor into the popup window, you can see the rest of contents by scrolling it.
 
 ```
 :GitMessengerClose
@@ -128,6 +134,10 @@ please specify the path to the executable.
 When this value is set to `v:false`, it does not define any key mappings. `<Plug>` mappings are
 still defined since they don't make any conflict with existing mappings.
 
+#### `g:git_messenger_into_popup_after_show` (Default: `v:true`)
+
+When this value is set to `v:false`, run `:GitMessenger` or `<plug>(git-messenger)` again after
+showing a popup does not move the cursor in the window.
 
 
 ## License

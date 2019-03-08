@@ -38,6 +38,14 @@ endfunction
 "   close_on_cursor_moved?: boolean;
 " }
 function! gitmessenger#new(file, line, bufnr, ...) abort
+    if g:git_messenger_into_popup_after_show && has_key(s:all_popup, a:bufnr)
+        let p = s:all_popup[a:bufnr]
+        if has_key(p, 'bufnr')
+            call p.into()
+            return
+        endif
+    endif
+
     let opts = get(a:, 1, {})
     let opts.pos = getpos('.')
     " Close previous popup
