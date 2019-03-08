@@ -50,21 +50,32 @@ let s:popup.into = funcref('s:popup__into')
 
 function! s:popup__open() dict abort
     " Note: Unlike col('.'), wincol() considers length of sign column
-    let first_pos = getpos('.')
+    let opener_pos = getpos('.')
     let opener_bufnr = bufnr('%')
     let origin = win_screenpos(bufwinnr(opener_bufnr))
-    let abs_cursor_line = (origin[0] - 1) + (line('w0') - 1) + first_pos[1]
-    let abs_cursor_col = (origin[1] - 1) + (col('w0') - 1) + wincol()
+    let abs_cursor_line = (origin[0] - 1) + opener_pos[1] - line('w0')
+    let abs_cursor_col = (origin[1] - 1) + wincol() - col('w0')
 
     let width = has_key(self.opts, 'width') ? self.opts.width : 60
-    let contents_height = 0
+    let max_width = 100
+    let height = 0
     for line in self.contents
-        let contents_height += strdisplaywidth(line) / width + 1
+        let lw = strdisplaywidth(line)
+        if lw > width
+            if lw > max_width
+                let height += lw / max_width + 1
+                let width = max_width
+                continue
+            endif
+            let width = lw
+        endif
+        let height += 1
     endfor
+    let width += 1 " right margin
 
     " Open window
     if s:floating_window_available
-        if abs_cursor_line + contents_height <= line('w$')
+        if opener_pos[1] + height <= line('w$')
             let vert = 'N'
             let row = 1
         else
@@ -72,7 +83,7 @@ function! s:popup__open() dict abort
             let row = 0
         endif
 
-        if abs_cursor_col + width <= &columns
+        if opener_pos[2] + width <= &columns
             let hor = 'W'
             let col = 0
         else
@@ -90,7 +101,7 @@ function! s:popup__open() dict abort
     else
         pedit!
         wincmd P
-        execute contents_height . 'wincmd _'
+        execute height . 'wincmd _'
         let self.type = 'preview'
     endif
 
@@ -117,7 +128,7 @@ function! s:popup__open() dict abort
 
     let self.bufnr = popup_bufnr
     let self.opener_bufnr = opener_bufnr
-    let self.opened_at = first_pos
+    let self.opened_at = opener_pos
 endfunction
 let s:popup.open = funcref('s:popup__open')
 
