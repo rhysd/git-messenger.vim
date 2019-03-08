@@ -11,8 +11,8 @@ especially in message of the last commit which modifies the line.
 This plugin shows the message of the last commit in a 'popup window'. The popup window is
 implemented in
 
-- Floating window on Neovim 0.4 or later
-- Preview window on Vim 8+ or Neovim 0.3 or earlier
+- Floating window on Neovim (0.4 or later)
+- Preview window on Vim (8 or later) or Neovim (0.3 or earlier)
 
 The floating window is definitely recommended since it can shows the information near the cursor.
 
@@ -141,7 +141,7 @@ showing a popup does not move the cursor in the window.
 
 ### Popup window highlight
 
-This plugin sets sinsible highlight colors to popup menu for light and dark colorschemes by default.
+This plugin sets sensible highlight colors to popup menu for light and dark colorschemes by default.
 However, it may not match to your colorscheme. In the case, you can specify your own colors to
 popup window in `nvim/init.vim` by defining highlights as follows.. This is only available on
 Neovim.
