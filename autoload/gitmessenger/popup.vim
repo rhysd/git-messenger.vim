@@ -114,8 +114,10 @@ function! s:popup__open() dict abort
     endif
 
     if !s:floating_window_available
-        " TODO
-        throw 'gitmessenger: TODO: Fall back into preview window'
+        pedit!
+        wincmd P
+        execute height . 'wincmd _'
+        let self.type = 'preview'
     else
         call nvim_open_win(
             \   opener_bufnr,
@@ -128,6 +130,7 @@ function! s:popup__open() dict abort
             \       'col': left,
             \   }
             \ )
+        let self.type = 'floating'
     endif
 
     enew!
@@ -141,7 +144,9 @@ function! s:popup__open() dict abort
 
     " TODO: Add autocmd to clear self.pupup_bufnr when this window is closed
 
-    setlocal winhighlight=Normal:gitmessengerPopupNormal,EndOfBuffer:gitmessengerEndOfBuffer
+    if has('nvim')
+        setlocal winhighlight=Normal:gitmessengerPopupNormal,EndOfBuffer:gitmessengerEndOfBuffer
+    endif
 
     " Ensure to close popup
     let b:__gitmessenger_popup = self
