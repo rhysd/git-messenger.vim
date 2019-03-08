@@ -15,11 +15,15 @@ if has('nvim')
     endfunction
 else
     function! s:git__may_finalize_vim(ch) dict abort
+        if has_key(self, 'finalized') && self.finalized
+            return
+        endif
         let out_status = ch_status(a:ch, {'part': 'out'})
         let err_status = ch_status(a:ch, {'part': 'err'})
         if out_status !=# 'open' && out_status !=# 'buffered' &&
          \ err_status !=# 'open' && err_status !=# 'buffered' &&
          \ has_key(self, 'exit_status')
+            let self.finalized = v:true
             call self.on_exit(self)
         endif
     endfunction
