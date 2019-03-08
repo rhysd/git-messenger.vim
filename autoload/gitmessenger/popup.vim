@@ -107,7 +107,10 @@ function! s:popup__open() dict abort
 
     " Setup content
     enew!
-    setlocal buftype=nofile bufhidden=wipe nomodified nobuflisted noswapfile nonumber nocursorline wrap nonumber norelativenumber signcolumn=no
+    setlocal
+    \ buftype=nofile bufhidden=wipe nomodified nobuflisted noswapfile nonumber
+    \ nocursorline wrap nonumber norelativenumber signcolumn=no nofoldenable
+    \ nospell nolist nomodeline
     if has_key(self.opts, 'filetype')
         let &l:filetype = self.opts.filetype
     endif
