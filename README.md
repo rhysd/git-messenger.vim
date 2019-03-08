@@ -99,6 +99,8 @@ I recommend to map `<Plug>(git-messenger)` in your `vimrc`.
 - `<Plug>(git-messenger-scroll-up-1)`: Scroll up the popup window by 1 line directly
 - `<Plug>(git-messenger-scroll-down-page)`: Scroll down the popup window by 1 page directly
 - `<Plug>(git-messenger-scroll-up-page)`: Scroll up the popup window by 1 page directly
+- `<Plug>(git-messenger-scroll-down-half)`: Scroll down the popup window by half page directly
+- `<Plug>(git-messenger-scroll-up-half)`: Scroll up the popup window by half page directly
 
 If `g:git_messenger_no_default_mappings` is not set to `v:false`, this plugin also defines
 following default mapping.

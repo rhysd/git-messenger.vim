@@ -17,6 +17,8 @@ nnoremap <silent><Plug>(git-messenger-scroll-down-1) :<C-u>call gitmessenger#scr
 nnoremap <silent><Plug>(git-messenger-scroll-up-1) :<C-u>call gitmessenger#scroll(bufnr('%'), 'C-y')<CR>
 nnoremap <silent><Plug>(git-messenger-scroll-down-page) :<C-u>call gitmessenger#scroll(bufnr('%'), 'C-f')<CR>
 nnoremap <silent><Plug>(git-messenger-scroll-up-page) :<C-u>call gitmessenger#scroll(bufnr('%'), 'C-b')<CR>
+nnoremap <silent><Plug>(git-messenger-scroll-down-half) :<C-u>call gitmessenger#scroll(bufnr('%'), 'C-d')<CR>
+nnoremap <silent><Plug>(git-messenger-scroll-up-half) :<C-u>call gitmessenger#scroll(bufnr('%'), 'C-u')<CR>
 
 if !g:git_messenger_no_default_mappings
     nmap <Leader>gm <Plug>(git-messenger)

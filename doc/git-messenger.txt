@@ -124,6 +124,14 @@ key sequences. For example:
 
   Scroll up the popup window by 1 page directly.
 
+*<Plug>(git-messenger-scroll-down-half)*
+
+  Scroll down the popup window by half page directly.
+
+*<Plug>(git-messenger-scroll-up-half)*
+
+  Scroll up the popup window by half page directly.
+
 
 ==============================================================================
 VARIABLES                                              *git-messenger-variables*
