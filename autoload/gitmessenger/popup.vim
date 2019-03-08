@@ -51,82 +51,50 @@ let s:popup.into = funcref('s:popup__into')
 function! s:popup__open() dict abort
     " Note: Unlike col('.'), wincol() considers length of sign column
     let first_pos = getpos('.')
-    let cursor = has_key(self.opts, 'cursor') ? self.opts.cursor : [first_pos[1], wincol()]
-    let opener_bufnr = has_key(self.opts, 'bufnr') ? self.opts.bufnr : bufnr('%')
+    let opener_bufnr = bufnr('%')
     let origin = win_screenpos(bufwinnr(opener_bufnr))
-    let win_top_line = has_key(self.opts, 'win_top_line') ? self.opts.win_top_line : line('w0')
-    let win_top_col = has_key(self.opts, 'win_top_col') ? self.opts.win_top_col : col('w0')
-    let abs_cursor_line = (origin[0] - 1) + (win_top_line - 1) + cursor[0]
-    let abs_cursor_col = (origin[1] - 1) + (win_top_col - 1) + cursor[1]
-    let total_lines = &lines
-    let total_cols = &columns
+    let abs_cursor_line = (origin[0] - 1) + (line('w0') - 1) + first_pos[1]
+    let abs_cursor_col = (origin[1] - 1) + (col('w0') - 1) + wincol()
 
-    let shown_above = abs_cursor_line > total_lines / 2
-    let max_height = has_key(self.opts, 'height') ? self.opts.height : 30
-
-    if shown_above
-        let height = abs_cursor_line
-        if height > max_height
-            let height = max_height
-        endif
-        let top = abs_cursor_line - height - 1
-    else
-        let height = total_lines - abs_cursor_line
-        if height > max_height
-            let height = max_height
-        end
-        let top = abs_cursor_line
-    endif
-    if top < 0
-        let top = 0
-    endif
-
-    let shown_left = abs_cursor_col > total_cols / 2
-    let max_width = has_key(self.opts, 'width') ? self.opts.width : 60
-
-    if shown_left
-        let width = abs_cursor_col
-        if width > max_width
-            let width = max_width
-        endif
-        let left = abs_cursor_col - width + 1
-    else
-        let width = total_cols - abs_cursor_col
-        if width > max_width
-            let width = max_width
-        end
-        let left = abs_cursor_col
-    endif
-    if left < 0
-        let left = 0
-    endif
-
-    " Consider line wrapping
-    let num_lines = 0
+    let width = has_key(self.opts, 'width') ? self.opts.width : 60
+    let contents_height = 0
     for line in self.contents
-        let num_lines += strdisplaywidth(line) / width + 1
+        let contents_height += strdisplaywidth(line) / width + 1
     endfor
-    if num_lines < height
-        if shown_above
-            let top += height - num_lines
-        endif
-        let height = num_lines
-    endif
 
+    " Open window
     if s:floating_window_available
+        if abs_cursor_line + contents_height <= line('w$')
+            let vert = 'N'
+            let row = 1
+        else
+            let vert = 'S'
+            let row = 0
+        endif
+
+        if abs_cursor_col + width <= &columns
+            let hor = 'W'
+            let col = 0
+        else
+            let hor = 'E'
+            let col = 1
+        endif
+
         call nvim_open_win(opener_bufnr, v:true, width, height, {
-            \   'relative': 'editor',
-            \   'row': top,
-            \   'col': left,
+            \   'relative': 'cursor',
+            \   'anchor': vert . hor,
+            \   'row': row,
+            \   'col': col,
             \ })
         let self.type = 'floating'
     else
         pedit!
         wincmd P
-        execute height . 'wincmd _'
+        execute contents_height . 'wincmd _'
         let self.type = 'preview'
     endif
 
+    " Setup content
     enew!
     setlocal buftype=nofile bufhidden=wipe nomodified nobuflisted noswapfile nonumber nocursorline wrap
     if has_key(self.opts, 'filetype')
@@ -136,6 +104,7 @@ function! s:popup__open() dict abort
     call setline(1, self.contents)
     setlocal nomodified nomodifiable
 
+    " Setup highlights
     if has('nvim')
         setlocal winhighlight=Normal:gitmessengerPopupNormal,EndOfBuffer:gitmessengerEndOfBuffer
     endif
