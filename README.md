@@ -2,14 +2,16 @@ git-messenger.vim
 =================
 
 [git-messenger.vim][repo] is a Vim/Neovim plugin to reveal the hidden message by Git under the
-cursor quickly. It shows the last commit message under the cursor in popup window.
+cursor quickly. It shows the hisotry of commits under the cursor in popup window.
 
 When you modifying unfamiliar codes, you would sometimes wonder 'why was this line added?' or 'why
 this value was chosen?' in the source code. The answer sometimes lays in a commit message,
 especially in message of the last commit which modifies the line.
 
-This plugin shows the message of the last commit in a 'popup window'. The popup window is
-implemented in
+This plugin shows the message of the last commit in a 'popup window'. If the last commit is not
+convenient, you can explore older commits in the popup window.
+
+The popup window is implemented in
 
 - Floating window on Neovim (0.4 or later)
 - Preview window on Vim (8 or later) or Neovim (0.3 or earlier)
@@ -18,7 +20,7 @@ The floating window is definitely recommended since it can shows the information
 
 This plugin supports both Neovim and Vim (8 or later).
 
-Screencast with Neovim v0.4.0-dev:
+- Screencast with Neovim v0.4.0-dev:
 
 <img alt=screencast src="https://github.com/rhysd/ss/blob/master/git-messenger.vim/demo.gif?raw=true" width=763 height=556/>
 
@@ -72,13 +74,30 @@ To check if Neovim's floating window feature is available, try ```:echo exists('
 ```
 
 It opens a popup window with the last commit message which modified the line at cursor. The popup
-window shows a commit hash, commit author, committer (if it's different from author), summary and
-body. The popup window will be automatically closed when you move the cursor so you don't need to
-close it manually.
+window shows following contents:
+
+- **History:** `History: {page number}` In popup window, `h`/`l` navigates to previous/next commit.
+- **Commit:** `Commit: {hash}` The commit hash
+- **Author:** `Author: {name}<{email}>` Author name and mail address of the commit
+- **Committer:** `Committer: {name}<{email}>` Committer name and mail address of the commit when
+  comitter is different from author
+- **Summary:** First line after `Committer:` header line is a summary of commit
+- **Body:** After summary, commit body is put (if the commit has body)
+
+The popup window will be automatically closed when you move the cursor so you don't need to close
+it manually.
 
 Running command again after the popup window shows up moves the cursor into the window. This
 behavior is useful when the commit message is too long and window cannot show the whole content.
 By moving the cursor into the popup window, you can see the rest of contents by scrolling it.
+
+Following mappings are defined within popup window.
+
+| Mapping | Description                         |
+|---------|-------------------------------------|
+| `q`     | Close the popup window              |
+| `h`     | Back to older commit at the line    |
+| `l`     | Forward to newer commit at the line |
 
 ```
 :GitMessengerClose
@@ -93,8 +112,7 @@ Some `<Plug>` mappings are available to operate a popup window. They can be mapp
 key sequences. For example:
 
 ```vim
-nmap <Leader>cm <Plug>(git-messenger)
-nmap <Leader>cM <Plug>(git-messenger-into-popup)
+nmap <Leader>m <Plug>(git-messenger)
 ```
 
 I recommend to map `<Plug>(git-messenger)` in your `vimrc`.
