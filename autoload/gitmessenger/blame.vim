@@ -21,12 +21,12 @@ function! s:blame__back() dict abort
         return
     endif
 
-    if self.oldest_commit =~# '^0\+$'
+    if self.prev_commit ==# '' || self.oldest_commit =~# '^0\+$'
         echom 'git-messenger: No older commit found'
         return
     endif
 
-    let args = ['--no-pager', 'blame', self.oldest_commit, self.file, '-L', self.line . ',+1', '--porcelain']
+    let args = ['--no-pager', 'blame', self.prev_commit, self.file, '-L', self.line . ',+1', '--porcelain']
     let cwd = fnamemodify(self.file, ':p:h')
     let git = gitmessenger#git#new(g:git_messenger_git_command)
     call git.spawn(args, cwd, funcref('s:blame__after_blame', [], self))
@@ -134,9 +134,11 @@ function! s:blame__after_blame(git) dict abort
         let self.contents += [' Committer: ' . committer . ' ' . committer_email]
     endif
     let summary = matchstr(stdout[9], '^summary \zs.*')
+    let prev_hash = matchstr(stdout[10], '^previous \zs[[:xdigit:]]\+')
     let self.contents += ['', ' ' . summary, '']
 
     let self.oldest_commit = hash
+    let self.prev_commit = prev_hash
 
     " Check hash is 0000000000000000000000 it means that the line is not commited yet
     if hash =~# '^0\+$'
