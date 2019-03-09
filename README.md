@@ -106,6 +106,7 @@ Following mappings are defined within popup window.
 | `q`     | Close the popup window              |
 | `h`     | Back to older commit at the line    |
 | `l`     | Forward to newer commit at the line |
+| `?`     | Show mappings help                  |
 
 ```
 :GitMessengerClose

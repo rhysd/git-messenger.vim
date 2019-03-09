@@ -141,8 +141,9 @@ function! s:popup__open() dict abort
 
     if has_key(self.opts, 'mappings')
         for m in keys(self.opts.mappings)
-            execute printf('nnoremap <buffer><silent>%s :<C-u>call b:__gitmessenger_popup.opts.mappings["%s"]()<CR>', m, m)
+            execute printf('nnoremap <buffer><silent>%s :<C-u>call b:__gitmessenger_popup.opts.mappings["%s"][0]()<CR>', m, m)
         endfor
+        nnoremap <buffer>? :<C-u>call b:__gitmessenger_popup.echo_help()<CR>
     endif
 
     " Ensure to close popup
@@ -207,6 +208,16 @@ function! s:popup__update() dict abort
 endfunction
 let s:popup.update = funcref('s:popup__update')
 
+function! s:popup__echo_help() dict abort
+    if has_key(self.opts, 'mappings')
+        for kv in items(self.opts.mappings)
+            echo printf('%s: %s', kv[0], kv[1][1])
+        endfor
+    endif
+    echo '?: Show this help'
+endfunction
+let s:popup.echo_help = funcref('s:popup__echo_help')
+
 " contents: string[] // lines of contents
 " opts: {
 "   floating?: boolean;
@@ -215,7 +226,7 @@ let s:popup.update = funcref('s:popup__update')
 "   filetype?: string;
 "   did_close?: (pupup: Popup) => void;
 "   mappings?: {
-"     [keyseq: string]: () => void;
+"     [keyseq: string]: [() => void, string];
 "   };
 " }
 function! gitmessenger#popup#new(contents, opts) abort

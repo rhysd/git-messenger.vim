@@ -59,9 +59,9 @@ function! s:blame__open_popup() dict abort
     let opts = {
         \   'filetype': 'gitmessengerpopup',
         \   'mappings': {
-        \       'q': {-> execute('close')},
-        \       'h': funcref(self.back, [], self),
-        \       'l': funcref(self.forward, [], self),
+        \       'q': [{-> execute('close')}, 'Close popup window'],
+        \       'h': [funcref(self.back, [], self), 'Back to older commit'],
+        \       'l': [funcref(self.forward, [], self), 'Forward to newer commit'],
         \   },
         \ }
     if has_key(self.opts, 'did_close')
