@@ -188,6 +188,11 @@ Some global variables are available to configure the behavior of this plugin.
   |<plug>(git-messenger)| again after showing a popup does not move the cursor
   in the window.
 
+*g:git_messenger_always_into_popup* (Default: |v:false|)
+
+  When this value is set to `v:true`, the cursor goes into a popup window when
+  running |:GitMessenger| or |<Plug>(git-messenger)|.
+
 
 ==============================================================================
 HIGHLIGHTS                                            *git-messenger-highlights*

@@ -164,8 +164,13 @@ still defined since they don't make any conflict with existing mappings.
 
 #### `g:git_messenger_into_popup_after_show` (Default: `v:true`)
 
-When this value is set to `v:false`, run `:GitMessenger` or `<plug>(git-messenger)` again after
+When this value is set to `v:false`, running `:GitMessenger` or `<plug>(git-messenger)` again after
 showing a popup does not move the cursor in the window.
+
+#### `g:git_messenger_always_into_popup` (Default: `v:false`)
+
+When this value is set to `v:true`, the cursor goes into a popup window when running `:GitMessenger`
+or `<Plug>(git-messenger)`.
 
 ### Popup window highlight
 

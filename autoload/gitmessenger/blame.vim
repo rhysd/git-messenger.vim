@@ -67,6 +67,9 @@ function! s:blame__open_popup() dict abort
     if has_key(self.opts, 'did_close')
         let opts.did_close = self.opts.did_close
     endif
+    if has_key(self.opts, 'enter_popup')
+        let opts.enter = self.opts.enter_popup
+    endif
 
     let self.history = [self.contents]
     let self.popup = gitmessenger#popup#new(self.contents, opts)
@@ -163,8 +166,9 @@ let s:blame.start = funcref('s:blame__start')
 " file: string
 " line: number
 " opts: {
-"   did_open: (b: Blame) => void
-"   did_close: (p: Popup) => void
+"   did_open: (b: Blame) => void;
+"   did_close: (p: Popup) => void;
+"   enter_popup: boolean;
 " }
 function! gitmessenger#blame#new(file, line, opts) abort
     let b = deepcopy(s:blame)

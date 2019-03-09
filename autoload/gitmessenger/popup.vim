@@ -150,7 +150,9 @@ function! s:popup__open() dict abort
     let b:__gitmessenger_popup = self
     execute 'autocmd BufWipeout <buffer> call getbufvar(' . popup_bufnr . ', "__gitmessenger_popup").close()'
 
-    wincmd p
+    if has_key(self.opts, 'enter') && !self.opts.enter
+        wincmd p
+    endif
 
     let self.bufnr = popup_bufnr
 endfunction
@@ -228,6 +230,7 @@ let s:popup.echo_help = funcref('s:popup__echo_help')
 "   mappings?: {
 "     [keyseq: string]: [() => void, string];
 "   };
+"   enter?: boolean
 " }
 function! gitmessenger#popup#new(contents, opts) abort
     let p = deepcopy(s:popup)
