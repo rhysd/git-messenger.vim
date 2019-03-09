@@ -51,12 +51,10 @@ function! s:popup__into() dict abort
 endfunction
 let s:popup.into = funcref('s:popup__into')
 
-function! s:popup__open() dict abort
+function! s:popup__window_size() dict abort
     " Note: Unlike col('.'), wincol() considers length of sign column
-    let opener_pos = getpos('.')
-    let opener_bufnr = bufnr('%')
-    let origin = win_screenpos(bufwinnr(opener_bufnr))
-    let abs_cursor_line = (origin[0] - 1) + opener_pos[1] - line('w0')
+    let origin = win_screenpos(bufwinnr(self.opener_bufnr))
+    let abs_cursor_line = (origin[0] - 1) + self.opened_at[1] - line('w0')
     let abs_cursor_col = (origin[1] - 1) + wincol() - col('w0')
 
     let width = 0
@@ -76,40 +74,56 @@ function! s:popup__open() dict abort
     endfor
     let width += 1 " right margin
 
+    return [width, height]
+endfunction
+let s:popup.window_size = funcref('s:popup__window_size')
+
+function! s:popup__floating_win_opts(width, height) dict abort
+    if self.opened_at[1] + a:height <= line('w$')
+        let vert = 'N'
+        let row = 1
+    else
+        let vert = 'S'
+        let row = 0
+    endif
+
+    if self.opened_at[2] + a:width <= &columns
+        let hor = 'W'
+        let col = 0
+    else
+        let hor = 'E'
+        let col = 1
+    endif
+
+    return {
+    \   'relative': 'cursor',
+    \   'anchor': vert . hor,
+    \   'row': row,
+    \   'col': col,
+    \ }
+endfunction
+let s:popup.floating_win_opts = funcref('s:popup__floating_win_opts')
+
+function! s:popup__open() dict abort
+    let self.opened_at = getpos('.')
+    let self.opener_bufnr = bufnr('%')
+    let self.type = s:floating_window_available ? 'floating' : 'preview'
+
+    let [width, height] = self.window_size()
+
     " Open window
-    if s:floating_window_available
-        if opener_pos[1] + height <= line('w$')
-            let vert = 'N'
-            let row = 1
-        else
-            let vert = 'S'
-            let row = 0
-        endif
-
-        if opener_pos[2] + width <= &columns
-            let hor = 'W'
-            let col = 0
-        else
-            let hor = 'E'
-            let col = 1
-        endif
-
-        call nvim_open_win(opener_bufnr, v:true, width, height, {
-            \   'relative': 'cursor',
-            \   'anchor': vert . hor,
-            \   'row': row,
-            \   'col': col,
-            \ })
-        let self.type = 'floating'
+    if self.type ==# 'floating'
+        let opts = self.floating_win_opts(width, height)
+        call nvim_open_win(self.opener_bufnr, v:true, width, height, opts)
     else
         pedit!
         wincmd P
         execute height . 'wincmd _'
-        let self.type = 'preview'
     endif
 
     " Setup content
     enew!
+    let popup_bufnr = bufnr('%')
     setlocal
     \ buftype=nofile bufhidden=wipe nomodified nobuflisted noswapfile nonumber
     \ nocursorline wrap nonumber norelativenumber signcolumn=no nofoldenable
@@ -117,13 +131,18 @@ function! s:popup__open() dict abort
     if has_key(self.opts, 'filetype')
         let &l:filetype = self.opts.filetype
     endif
-    let popup_bufnr = bufnr('%')
     call setline(1, self.contents)
     setlocal nomodified nomodifiable
 
     " Setup highlights
     if has('nvim')
         setlocal winhighlight=Normal:gitmessengerPopupNormal,EndOfBuffer:gitmessengerEndOfBuffer
+    endif
+
+    if has_key(self.opts, 'mappings')
+        for m in keys(self.opts.mappings)
+            execute printf('nnoremap <buffer><silent>%s :<C-u>call b:__gitmessenger_popup.opts.mappings["%s"]()<CR>', m, m)
+        endfor
     endif
 
     " Ensure to close popup
@@ -133,10 +152,60 @@ function! s:popup__open() dict abort
     wincmd p
 
     let self.bufnr = popup_bufnr
-    let self.opener_bufnr = opener_bufnr
-    let self.opened_at = opener_pos
 endfunction
 let s:popup.open = funcref('s:popup__open')
+
+function! s:popup__update() dict abort
+    let prev_winnr = winnr()
+
+    let popup_winnr = bufwinnr(self.bufnr)
+    if popup_winnr < 0
+        return
+    endif
+    let opener_winnr = bufwinnr(self.opener_bufnr)
+    if opener_winnr < 0
+        return
+    endif
+
+    if opener_winnr != prev_winnr
+        execute opener_winnr . 'wincmd w'
+    endif
+
+    try
+        let [width, height] = self.window_size()
+
+        " Window must be configured in opener buffer since the window position
+        " is relative to cursor
+        if self.type ==# 'floating'
+            let id = win_getid(popup_winnr)
+            if id == 0
+                return
+            endif
+            let opts = self.floating_win_opts(width, height)
+            call nvim_win_config(id, width, height, opts)
+
+            " Window is not repainted due to bug of Neovim
+            "   https://github.com/neovim/neovim/issues/9699
+            call timer_start(50, {_-> execute("normal! \<C-l>")})
+        endif
+
+        execute popup_winnr . 'wincmd w'
+
+        if self.type ==# 'preview'
+            execute height . 'wincmd _'
+        endif
+
+        setlocal modifiable
+        silent %delete _
+        call setline(1, self.contents)
+        setlocal nomodified nomodifiable
+    finally
+        if winnr() != prev_winnr
+            execute prev_winnr . 'wincmd w'
+        endif
+    endtry
+endfunction
+let s:popup.update = funcref('s:popup__update')
 
 " contents: string[] // lines of contents
 " opts: {
@@ -145,6 +214,9 @@ let s:popup.open = funcref('s:popup__open')
 "   cursor?: [number, number]; // (line, col)
 "   filetype?: string;
 "   did_close?: (pupup: Popup) => void;
+"   mappings?: {
+"     [keyseq: string]: () => void;
+"   };
 " }
 function! gitmessenger#popup#new(contents, opts) abort
     let p = deepcopy(s:popup)

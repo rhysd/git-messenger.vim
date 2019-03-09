@@ -10,12 +10,65 @@ function! s:git_cmd_failure(git) abort
         \ )
 endfunction
 
+function! s:blame__back() dict abort
+    let next_index = self.index + 1
+
+    if len(self.history) > next_index
+        let self.index = next_index
+        let self.contents = self.history[next_index]
+        let self.popup.contents = self.contents
+        call self.popup.update()
+        return
+    endif
+
+    if self.oldest_commit =~# '^0\+$'
+        echom 'git-messenger: No older commit found'
+        return
+    endif
+
+    let args = ['--no-pager', 'blame', self.oldest_commit, self.file, '-L', self.line . ',+1', '--porcelain']
+    let cwd = fnamemodify(self.file, ':p:h')
+    let git = gitmessenger#git#new(g:git_messenger_git_command)
+    call git.spawn(args, cwd, funcref('s:blame__after_blame', [], self))
+endfunction
+let s:blame.back = funcref('s:blame__back')
+
+function! s:blame__forward() dict abort
+    let next_index = self.index - 1
+    if next_index < 0
+        echom 'git-messenger: The latest commit'
+        return
+    endif
+
+    let self.index = next_index
+    let self.contents = self.history[next_index]
+    let self.popup.contents = self.contents
+    call self.popup.update()
+endfunction
+let s:blame.forward = funcref('s:blame__forward')
+
 function! s:blame__open_popup() dict abort
-    let opts = { 'filetype': 'gitmessengerpopup' }
+    if has_key(self, 'popup') && has_key(self.popup, 'bufnr')
+        let self.history += [self.contents]
+        let self.index = len(self.history) - 1
+        let self.popup.contents = self.contents
+        call self.popup.update()
+        return
+    endif
+
+    let opts = {
+        \   'filetype': 'gitmessengerpopup',
+        \   'mappings': {
+        \       'q': {-> execute('close')},
+        \       'h': funcref(self.back, [], self),
+        \       'l': funcref(self.forward, [], self),
+        \   },
+        \ }
     if has_key(self.opts, 'did_close')
         let opts.did_close = self.opts.did_close
     endif
 
+    let self.history = [self.contents]
     let self.popup = gitmessenger#popup#new(self.contents, opts)
     call self.popup.open()
 
@@ -52,12 +105,21 @@ function! s:blame__after_blame(git) dict abort
     let self.failed = a:git.exit_status != 0
 
     if self.failed
+        if a:git.stderr[0] =~# 'has only \d\+ lines'
+            echom 'git-messenger: ' . get(self, 'oldest_commit', 'It') . ' is the oldest commit2'
+            return
+        endif
         throw s:git_cmd_failure(a:git)
     endif
 
     " Parse `blame --porcelain` output
     let stdout = a:git.stdout
     let hash = matchstr(stdout[0], '^\S\+')
+    if has_key(self, 'oldest_commit') && self.oldest_commit ==# hash
+        echom 'git-messenger: ' . hash . ' is the oldest commit'
+        return
+    endif
+
     let author = matchstr(stdout[1], '^author \zs.\+')
     let author_email = matchstr(stdout[2], '^author-mail \zs\S\+')
     let self.contents = [
@@ -72,6 +134,8 @@ function! s:blame__after_blame(git) dict abort
     endif
     let summary = matchstr(stdout[9], '^summary \zs.*')
     let self.contents += ['', ' ' . summary, '']
+
+    let self.oldest_commit = hash
 
     " Check hash is 0000000000000000000000 it means that the line is not commited yet
     if hash =~# '^0\+$'
@@ -104,6 +168,6 @@ function! gitmessenger#blame#new(file, line, opts) abort
     let b.line = a:line
     let b.file = a:file
     let b.opts = a:opts
-    let b.contents = []
+    let b.index = 0
     return b
 endfunction
