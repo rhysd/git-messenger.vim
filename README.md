@@ -20,9 +20,17 @@ The floating window is definitely recommended since it can shows the information
 
 This plugin supports both Neovim and Vim (8 or later).
 
-- Screencast with Neovim v0.4.0-dev:
 
-<img alt=screencast src="https://github.com/rhysd/ss/blob/master/git-messenger.vim/demo.gif?raw=true" width=763 height=556/>
+
+## Screenshot
+
+- Show popup window with Neovim v0.4.0-dev:
+
+<img alt="screencast" src="https://github.com/rhysd/ss/blob/master/git-messenger.vim/demo.gif?raw=true" width=763 height=556 />
+
+- Screencast for exploring older commits:
+
+<img alt="history" src="https://github.com/rhysd/ss/blob/master/git-messenger.vim/history.gif?raw=true" width=510 height=252 />
 
 
 
