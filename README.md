@@ -153,8 +153,11 @@ Example:
 " Header such as 'Commit:', 'Author:'
 hi gitmessengerHeader term=None guifg=#88b8f6 ctermfg=111
 
-" Commit hash
+" Commit hash at 'Commit:' header
 hi gitmessengerHash term=None guifg=#f0eaaa ctermfg=229
+
+" History number at 'History:' header
+hi def gitmessengerHistory term=None guifg=#fd8489 ctermfg=210
 
 " Normal color. This color is the most important
 hi gitmessengerPopupNormal term=None guifg=#eeeeee guibg=#333333 ctermfg=255 ctermbg=234

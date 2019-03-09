@@ -124,6 +124,7 @@ function! s:blame__after_blame(git) dict abort
     let author_email = matchstr(stdout[2], '^author-mail \zs\S\+')
     let self.contents = [
         \   '',
+        \   ' History: #' . len(self.history),
         \   ' Commit: ' . hash,
         \   ' Author: ' . author . ' ' . author_email,
         \ ]
@@ -169,5 +170,6 @@ function! gitmessenger#blame#new(file, line, opts) abort
     let b.file = a:file
     let b.opts = a:opts
     let b.index = 0
+    let b.history = []
     return b
 endfunction
