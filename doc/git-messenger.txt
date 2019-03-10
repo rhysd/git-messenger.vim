@@ -102,12 +102,12 @@ COMMANDS                                                *git-messenger-commands*
 
   Following mappings are defined within popup window.
 
-  | Mapping | Description                         |
-  | ------- | ----------------------------------- |
-  |    q    | Close the popup window              |
-  |    h    | Back to older commit at the line    |
-  |    l    | Forward to newer commit at the line |
-  |    ?    | Show mappings help                  |
+  | Mapping | Description                                            |
+  | ------- | ------------------------------------------------------ |
+  | q       | Close the popup window                                 |
+  | o       | "o"lder. Back to older commit at the line              |
+  | O       | Opposite to older. Forward to newer commit at the line |
+  | ?       | Show mappings help                                     |
 
 *:GitMessengerClose*
 

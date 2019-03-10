@@ -84,7 +84,7 @@ To check if Neovim's floating window feature is available, try ```:echo exists('
 It opens a popup window with the last commit message which modified the line at cursor. The popup
 window shows following contents:
 
-- **History:** `History: {page number}` In popup window, `h`/`l` navigates to previous/next commit.
+- **History:** `History: {page number}` In popup window, `o`/`O` navigates to previous/next commit.
 - **Commit:** `Commit: {hash}` The commit hash
 - **Author:** `Author: {name}<{email}>` Author name and mail address of the commit
 - **Committer:** `Committer: {name}<{email}>` Committer name and mail address of the commit when
@@ -101,12 +101,12 @@ By moving the cursor into the popup window, you can see the rest of contents by 
 
 Following mappings are defined within popup window.
 
-| Mapping | Description                         |
-|---------|-------------------------------------|
-| `q`     | Close the popup window              |
-| `h`     | Back to older commit at the line    |
-| `l`     | Forward to newer commit at the line |
-| `?`     | Show mappings help                  |
+| Mapping | Description                                          |
+|---------|------------------------------------------------------|
+| `q`     | Close the popup window                               |
+| `o`     | **o**lder. Back to older commit at the line          |
+| `O`     | Opposite to `o`. Forward to newer commit at the line |
+| `?`     | Show mappings help                                   |
 
 ```
 :GitMessengerClose
