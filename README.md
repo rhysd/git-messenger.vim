@@ -18,7 +18,8 @@ The popup window is implemented in
 
 The floating window is definitely recommended since it can shows the information near the cursor.
 
-This plugin supports both Neovim and Vim (8 or later).
+This plugin supports both Neovim and Vim (8 or later). I wrote
+[a Japanese blogpost for this plugin](https://rhysd.hatenablog.com/entry/2019/03/10/230119).
 
 
 
@@ -50,7 +51,7 @@ With [dein.vim](https://github.com/Shougo/dein.vim):
 call dein#add('rhysd/git-messenger.vim', {
             \   'lazy' : 1,
             \   'on_cmd' : 'GitMessenger',
-            \   'on_map' : '<Plug>(git-messenger-',
+            \   'on_map' : '<Plug>(git-messenger',
             \ })
 ```
 
