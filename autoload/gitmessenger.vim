@@ -57,7 +57,7 @@ function! gitmessenger#new(file, line, bufnr, ...) abort
     let blame = gitmessenger#blame#new(a:file, a:line, {
             \   'did_open': funcref('s:on_open', [], opts),
             \   'did_close': funcref('s:on_close', [], opts),
-            \   'enter_popup': !g:git_messenger_always_into_popup,
+            \   'enter_popup': g:git_messenger_always_into_popup,
             \ })
     call blame.start()
 endfunction
