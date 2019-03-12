@@ -173,6 +173,14 @@ showing a popup does not move the cursor in the window.
 When this value is set to `v:true`, the cursor goes into a popup window when running `:GitMessenger`
 or `<Plug>(git-messenger)`.
 
+#### `g:git_messenger_preview_mods` (Deafult: `""`)
+
+This variable is effective only when opening preview window (on Neovim (0.3.0 or earlier) or Vim).
+
+Command modifiers for opening preview window. The value will be passed as prefix of `:pedit` command.
+For example, setting `"botright"` to the variable opens a preview window at bottom of the current
+window. Please see `:help <mods>` for more details.
+
 ### Popup window highlight
 
 This plugin sets sensible highlight colors to popup menu for light and dark colorschemes by default.
@@ -199,6 +207,8 @@ hi gitmessengerPopupNormal term=None guifg=#eeeeee guibg=#333333 ctermfg=255 cte
 " color as gitmessengerPopupNormal.
 hi gitmessengerEndOfBuffer term=None guifg=#333333 guibg=#333333 ctermfg=234 ctermbg=234
 ```
+
+
 
 ## License
 

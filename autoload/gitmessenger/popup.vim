@@ -116,7 +116,11 @@ function! s:popup__open() dict abort
         let opts = self.floating_win_opts(width, height)
         call nvim_open_win(self.opener_bufnr, v:true, width, height, opts)
     else
-        pedit!
+        let cmd = 'pedit!'
+        if g:git_messenger_preview_mods !=# ''
+            let cmd = g:git_messenger_preview_mods . ' ' . cmd
+        endif
+        execute cmd
         wincmd P
         execute height . 'wincmd _'
     endif

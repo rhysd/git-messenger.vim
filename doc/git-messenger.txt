@@ -193,6 +193,16 @@ Some global variables are available to configure the behavior of this plugin.
   When this value is set to `v:true`, the cursor goes into a popup window when
   running |:GitMessenger| or |<Plug>(git-messenger)|.
 
+*g:git_messenger_preview_mods* (Default: "")
+
+Command modifiers for opening preview window. The value will be passed as
+prefix of |:pedit| command.
+For example, setting "botright" to the variable opens a preview window at
+bottom of the current window. Please see |<mods>| for more details.
+
+NOTE: This variable is effective only when opening preview window (on Neovim
+      (0.3.0 or earlier) or Vim).
+
 
 ==============================================================================
 HIGHLIGHTS                                            *git-messenger-highlights*
