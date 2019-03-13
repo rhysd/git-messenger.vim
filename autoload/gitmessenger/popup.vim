@@ -79,7 +79,8 @@ endfunction
 let s:popup.window_size = funcref('s:popup__window_size')
 
 function! s:popup__floating_win_opts(width, height) dict abort
-    if self.opened_at[1] + a:height <= line('w$')
+    let bottom_line = line('w0') + winheight(0) - 1
+    if self.opened_at[1] + a:height <= bottom_line
         let vert = 'N'
         let row = 1
     else
