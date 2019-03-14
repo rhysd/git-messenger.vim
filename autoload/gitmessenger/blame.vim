@@ -111,6 +111,9 @@ function! s:blame__after_blame(git) dict abort
         if a:git.stderr[0] =~# 'has only \d\+ lines'
             echom 'git-messenger: ' . get(self, 'oldest_commit', 'It') . ' is the oldest commit2'
             return
+        elseif a:git.stderr[0] =~# "no such path '.*' in HEAD"
+            echom 'git-messenger: ' . a:git.stderr[0]
+            return
         endif
         throw s:git_cmd_failure(a:git)
     endif
