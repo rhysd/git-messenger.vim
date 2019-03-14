@@ -33,7 +33,9 @@ endfunction
 
 function! s:on_error(errmsg) abort
     echohl ErrorMsg
-    echomsg a:errmsg
+    for line in split(a:errmsg, "\n")
+        echomsg line
+    endfor
     echohl None
 endfunction
 
