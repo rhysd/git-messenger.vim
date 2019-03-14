@@ -2,13 +2,22 @@ let s:blame = {}
 
 function! s:git_cmd_failure(git) abort
     return printf(
-        \   '`%s %s` exited with non-zero status %d: %s',
+        \   'git-messenger: %s: `%s %s` exited with non-zero status %d',
+        \   join(a:git.stderr, ' '),
         \   a:git.cmd,
         \   join(a:git.args, ' '),
-        \   a:git.exit_status,
-        \   join(a:git.stderr, ' ')
+        \   a:git.exit_status
         \ )
 endfunction
+
+function! s:blame__error(msg) dict abort
+    if has_key(self.opts, 'on_error')
+        call self.opts.on_error(a:msg)
+    else
+        throw a:msg
+    endif
+endfunction
+let s:blame.error = funcref('s:blame__error')
 
 function! s:blame__back() dict abort
     let next_index = self.index + 1
@@ -85,7 +94,8 @@ function! s:blame__after_log(git) dict abort
     let self.failed = a:git.exit_status != 0
 
     if self.failed
-        throw s:git_cmd_failure(a:git)
+        call self.error(s:git_cmd_failure(a:git))
+        return
     endif
 
     if a:git.stdout != ['']
@@ -112,7 +122,8 @@ function! s:blame__after_blame(git) dict abort
             echom 'git-messenger: ' . get(self, 'oldest_commit', 'It') . ' is the oldest commit2'
             return
         endif
-        throw s:git_cmd_failure(a:git)
+        call self.error(s:git_cmd_failure(a:git))
+        return
     endif
 
     " Parse `blame --porcelain` output
@@ -149,17 +160,24 @@ function! s:blame__after_blame(git) dict abort
         return
     endif
 
-    let git = gitmessenger#git#new(g:git_messenger_git_command)
-    let args = ['--no-pager', 'log', '-n', '1', '--pretty=format:%b', hash]
-    let cwd = fnamemodify(self.file, ':p:h')
-    call git.spawn(args, cwd, funcref('s:blame__after_log', [], self))
+    call self.spawn_git(['--no-pager', 'log', '-n', '1', '--pretty=format:%b', hash], 's:blame__after_log')
 endfunction
 
-function! s:blame__start() dict abort
-    let args = ['--no-pager', 'blame', self.file, '-L', self.line . ',+1', '--porcelain']
+function! s:blame__spawn_git(args, callback) dict abort
     let cwd = fnamemodify(self.file, ':p:h')
     let git = gitmessenger#git#new(g:git_messenger_git_command)
-    call git.spawn(args, cwd, funcref('s:blame__after_blame', [], self))
+    try
+        call git.spawn(a:args, cwd, funcref(a:callback, [], self))
+    catch /^git-messenger: /
+        call self.error(v:exception)
+    endtry
+endfunction
+let s:blame.spawn_git = funcref('s:blame__spawn_git')
+
+function! s:blame__start() dict abort
+    call self.spawn_git(
+        \ ['--no-pager', 'blame', self.file, '-L', self.line . ',+1', '--porcelain'],
+        \ 's:blame__after_blame')
 endfunction
 let s:blame.start = funcref('s:blame__start')
 
@@ -168,6 +186,7 @@ let s:blame.start = funcref('s:blame__start')
 " opts: {
 "   did_open: (b: Blame) => void;
 "   did_close: (p: Popup) => void;
+"   on_error: (errmsg: string) => void;
 "   enter_popup: boolean;
 " }
 function! gitmessenger#blame#new(file, line, opts) abort

@@ -31,6 +31,12 @@ function! s:on_close(popup) dict abort
     unlet! s:all_popup[a:popup.opener_bufnr]
 endfunction
 
+function! s:on_error(errmsg) abort
+    echohl ErrorMsg
+    echomsg a:errmsg
+    echohl None
+endfunction
+
 " file: string
 " line: number
 " bufnr: number
@@ -63,6 +69,7 @@ function! gitmessenger#new(file, line, bufnr, ...) abort
     let blame = gitmessenger#blame#new(a:file, a:line, {
             \   'did_open': funcref('s:on_open', [], opts),
             \   'did_close': funcref('s:on_close', [], opts),
+            \   'on_error': funcref('s:on_error'),
             \   'enter_popup': g:git_messenger_always_into_popup,
             \ })
     call blame.start()

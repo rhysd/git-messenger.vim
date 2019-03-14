@@ -52,9 +52,9 @@ function! s:git__spawn(args, cwd, on_exit) dict abort
                     \   'on_exit' : funcref('s:on_exit_nvim', [], self),
                     \ })
         if job_id == 0
-            throw 'gitmessenger: Invalid arguments: ' . string(a:args)
+            throw 'git-messenger: Invalid arguments: ' . string(a:args)
         elseif job_id == -1
-            throw 'gitmessenger: Command does not exist: ' . self.cmd
+            throw 'git-messenger: Command does not exist: ' . self.cmd
         endif
     else
         let self.stdout = []
