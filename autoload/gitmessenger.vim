@@ -77,6 +77,9 @@ function! s:popup_for(bufnr) abort
 endfunction
 
 function! gitmessenger#close_popup(bufnr) abort
+    if gitmessenger#popup#close_current_popup()
+        return
+    endif
     let p = s:popup_for(a:bufnr)
     if p isnot v:null
         call p.close()
