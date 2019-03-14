@@ -245,3 +245,15 @@ function! gitmessenger#popup#new(contents, opts) abort
     let p.contents = a:contents
     return p
 endfunction
+
+
+" When current window is popup, close the window.
+" Returns true when popup window was closed
+function! gitmessenger#popup#close_current_popup() abort
+    if !exists('b:__gitmessenger_popup')
+        return 0
+    endif
+    call b:__gitmessenger_popup.close()
+    " TODO?: Back to opened_at pos by setpos()
+    return 1
+endfunction

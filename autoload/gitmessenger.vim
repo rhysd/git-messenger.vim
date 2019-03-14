@@ -38,6 +38,12 @@ endfunction
 "   close_on_cursor_moved?: boolean;
 " }
 function! gitmessenger#new(file, line, bufnr, ...) abort
+    " When cursor is in popup window, close the window
+    if gitmessenger#popup#close_current_popup()
+        return
+    endif
+
+    " Just after opening a popup window, move cursor into the window
     if g:git_messenger_into_popup_after_show && has_key(s:all_popup, a:bufnr)
         let p = s:all_popup[a:bufnr]
         if has_key(p, 'bufnr')

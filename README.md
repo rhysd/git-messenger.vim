@@ -1,12 +1,8 @@
 git-messenger.vim
 =================
 
-[git-messenger.vim][repo] is a Vim/Neovim plugin to reveal the hidden message by Git under the
+[git-messenger.vim][repo] is a Vim/Neovim plugin to reveal the hidden message from Git under the
 cursor quickly. It shows the hisotry of commits under the cursor in popup window.
-
-When you modifying unfamiliar codes, you would sometimes wonder 'why was this line added?' or 'why
-this value was chosen?' in the source code. The answer sometimes lays in a commit message,
-especially in message of the last commit which modifies the line.
 
 This plugin shows the message of the last commit in a 'popup window'. If the last commit is not
 convenient, you can explore older commits in the popup window.
@@ -18,8 +14,16 @@ The popup window is implemented in
 
 The floating window is definitely recommended since it can shows the information near the cursor.
 
-This plugin supports both Neovim and Vim (8 or later). I wrote
+This plugin supports both Neovim and Vim (8 or later). And I wrote
 [a Japanese blogpost for this plugin](https://rhysd.hatenablog.com/entry/2019/03/10/230119).
+
+
+
+## Why?
+
+When you're modifying unfamiliar codes, you would sometimes wonder 'why was this line added?' or
+'why this value was chosen?' in the source code. The answer sometimes lays in a commit message,
+especially in message of the last commit which modifies the line.
 
 
 
@@ -71,7 +75,8 @@ it's quite easy with Homebrew.
 $ brew install neovim --HEAD
 ```
 
-To check if Neovim's floating window feature is available, try ```:echo exists('*nvim_open_win')``` which should echo `1`.
+To check if Neovim's floating window feature is available, try `:echo exists('*nvim_open_win')`
+which should echo `1`.
 
 
 ## Usage
@@ -82,6 +87,13 @@ To check if Neovim's floating window feature is available, try ```:echo exists('
 :GitMessenger
 ```
 
+Behavior of this command is depending on the situation. You can do every operations only with this
+mapping.
+
+- Normally, it opens a popup window with the last commit message
+- When a popup window is already open, it moves cursor into the window
+- When a cursor is within a popup window, it closes the window
+
 It opens a popup window with the last commit message which modified the line at cursor. The popup
 window shows following contents:
 
@@ -89,16 +101,17 @@ window shows following contents:
 - **Commit:** `Commit: {hash}` The commit hash
 - **Author:** `Author: {name}<{email}>` Author name and mail address of the commit
 - **Committer:** `Committer: {name}<{email}>` Committer name and mail address of the commit when
-  comitter is different from author
+  committer is different from author
 - **Summary:** First line after `Committer:` header line is a summary of commit
 - **Body:** After summary, commit body is put (if the commit has body)
 
 The popup window will be automatically closed when you move the cursor so you don't need to close
 it manually.
 
-Running command again after the popup window shows up moves the cursor into the window. This
-behavior is useful when the commit message is too long and window cannot show the whole content.
+Running this command while a popup window is open, it moves the cursor into the window.
+This behavior is useful when the commit message is too long and window cannot show the whole content.
 By moving the cursor into the popup window, you can see the rest of contents by scrolling it.
+You can also see the older commits.
 
 Following mappings are defined within popup window.
 
@@ -125,7 +138,7 @@ key sequences. For example:
 nmap <Leader>m <Plug>(git-messenger)
 ```
 
-I recommend to map `<Plug>(git-messenger)` in your `vimrc`.
+I recommend to map `<Plug>(git-messenger)` in your `vimrc` or use default `<Leader>gm` mapping.
 
 - `<Plug>(git-messenger)`: The same as running `:GitMessenger` command.
 - `<Plug>(git-messenger-close)`: The same as running `:GitMessengerClose` command.
@@ -137,7 +150,7 @@ I recommend to map `<Plug>(git-messenger)` in your `vimrc`.
 - `<Plug>(git-messenger-scroll-down-half)`: Scroll down the popup window by half page directly
 - `<Plug>(git-messenger-scroll-up-half)`: Scroll up the popup window by half page directly
 
-If `g:git_messenger_no_default_mappings` is not set to `v:false`, this plugin also defines
+If `g:git_messenger_no_default_mappings` is not set to `v:true`, this plugin also defines
 following default mapping.
 
 ```vim
