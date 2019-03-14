@@ -128,6 +128,12 @@ function! s:blame__after_blame(git) dict abort
 
     " Parse `blame --porcelain` output
     let stdout = a:git.stdout
+    if len(stdout) < 10
+        " Note: '\n' is not "\n", it's intentional
+        call self.error("Unexpected `git blame` output: " . join(stdout, '\n'))
+        return
+    endif
+
     let hash = matchstr(stdout[0], '^\S\+')
     if has_key(self, 'oldest_commit') && self.oldest_commit ==# hash
         echom 'git-messenger: ' . hash . ' is the oldest commit'
