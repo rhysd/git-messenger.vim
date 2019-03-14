@@ -119,7 +119,7 @@ function! s:blame__after_blame(git) dict abort
 
     if self.failed
         if a:git.stderr[0] =~# 'has only \d\+ lines'
-            echom 'git-messenger: ' . get(self, 'oldest_commit', 'It') . ' is the oldest commit2'
+            echom 'git-messenger: ' . get(self, 'oldest_commit', 'It') . ' is the oldest commit'
             return
         endif
         call self.error(s:git_cmd_failure(a:git))
