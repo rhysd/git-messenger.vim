@@ -9,15 +9,15 @@ function! s:popup__close() dict abort
 
     let winnr = self.get_winnr()
     if winnr >= 0
-        " Without this 'autocmd', the BufWipeout event will be triggered and
+        " Without this 'noautocmd', the BufWipeout event will be triggered and
         " this function will be called again.
         noautocmd execute winnr . 'wincmd c'
     endif
 
     unlet self.bufnr
 
-    if has_key(self, 'did_close')
-        call self.did_close(self)
+    if has_key(self.opts, 'did_close')
+        call self.opts.did_close(self)
     endif
 endfunction
 let s:popup.close = funcref('s:popup__close')
