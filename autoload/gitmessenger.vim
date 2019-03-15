@@ -14,17 +14,17 @@ function! s:on_cursor_moved() abort
     endif
 endfunction
 
-function! s:on_win_enter(bufnr) abort
+function! s:on_buf_enter(bufnr) abort
     let popup = s:popup_for(a:bufnr)
 
     if popup is v:null
-        autocmd! plugin-git-messenger-win-enter
+        autocmd! plugin-git-messenger-buf-enter
         return
     endif
 
-    let w = winnr()
+    let b = bufnr('%')
     " When entering/exiting popup window, do nothing
-    if bufwinnr(popup.bufnr) == winnr()
+    if popup.bufnr == b
         return
     endif
 
@@ -32,7 +32,7 @@ function! s:on_win_enter(bufnr) abort
     call popup.close()
 
     if empty(s:all_popup)
-        autocmd! plugin-git-messenger-win-enter
+        autocmd! plugin-git-messenger-buf-enter
     endif
 endfunction
 
@@ -52,8 +52,8 @@ function! s:on_open(blame) dict abort
         augroup END
     endif
 
-    augroup plugin-git-messenger-win-enter
-        execute 'autocmd WinEnter * call <SID>on_win_enter(' . opener_bufnr . ')'
+    augroup plugin-git-messenger-buf-enter
+        execute 'autocmd BufEnter * call <SID>on_buf_enter(' . opener_bufnr . ')'
     augroup END
 endfunction
 
