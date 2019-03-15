@@ -31,7 +31,7 @@ function! s:blame__back() dict abort
     endif
 
     if self.prev_commit ==# '' || self.oldest_commit =~# '^0\+$'
-        echom 'git-messenger: No older commit found'
+        echo 'git-messenger: No older commit found'
         return
     endif
 
@@ -45,7 +45,7 @@ let s:blame.back = funcref('s:blame__back')
 function! s:blame__forward() dict abort
     let next_index = self.index - 1
     if next_index < 0
-        echom 'git-messenger: The latest commit'
+        echo 'git-messenger: The latest commit'
         return
     endif
 
@@ -119,7 +119,7 @@ function! s:blame__after_blame(git) dict abort
 
     if self.failed
         if a:git.stderr[0] =~# 'has only \d\+ lines'
-            echom 'git-messenger: ' . get(self, 'oldest_commit', 'It') . ' is the oldest commit'
+            echo 'git-messenger: ' . get(self, 'oldest_commit', 'It') . ' is the oldest commit'
             return
         endif
         call self.error(s:git_cmd_failure(a:git))
@@ -136,7 +136,7 @@ function! s:blame__after_blame(git) dict abort
 
     let hash = matchstr(stdout[0], '^\S\+')
     if has_key(self, 'oldest_commit') && self.oldest_commit ==# hash
-        echom 'git-messenger: ' . hash . ' is the oldest commit'
+        echo 'git-messenger: ' . hash . ' is the oldest commit'
         return
     endif
 

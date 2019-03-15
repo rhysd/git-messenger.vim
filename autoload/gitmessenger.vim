@@ -96,7 +96,6 @@ function! gitmessenger#new(file, line, bufnr, ...) abort
     " Close previous popup
     if has_key(s:all_popup, a:bufnr)
         call s:all_popup[a:bufnr].close()
-        unlet! s:all_popup[a:bufnr]
     endif
 
     let blame = gitmessenger#blame#new(a:file, a:line, {
@@ -115,6 +114,7 @@ function! s:popup_for(bufnr) abort
 
     let popup = s:all_popup[a:bufnr]
     if !has_key(popup, 'bufnr')
+        " Here should be unreachable
         unlet! s:all_popup[a:bufnr]
         return v:null
     endif

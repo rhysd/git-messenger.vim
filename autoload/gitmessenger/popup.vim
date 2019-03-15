@@ -217,8 +217,8 @@ let s:popup.update = funcref('s:popup__update')
 
 function! s:popup__echo_help() dict abort
     if has_key(self.opts, 'mappings')
-        for kv in items(self.opts.mappings)
-            echo printf('%s: %s', kv[0], kv[1][1])
+        for [map, info] in items(self.opts.mappings)
+            echo printf('%s: %s', map, info[1])
         endfor
     endif
     echo '?: Show this help'
