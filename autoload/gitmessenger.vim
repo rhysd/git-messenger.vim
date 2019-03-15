@@ -1,3 +1,4 @@
+" All popup instances keyed by opener's bufnr to manage lifetime of popups
 let s:all_popup = {}
 
 function! s:on_cursor_moved() abort
@@ -13,18 +14,47 @@ function! s:on_cursor_moved() abort
     endif
 endfunction
 
+function! s:on_win_enter(bufnr) abort
+    let popup = s:popup_for(a:bufnr)
+
+    if popup is v:null
+        autocmd! plugin-git-messenger-win-enter
+        return
+    endif
+
+    let w = winnr()
+    " When entering/exiting popup window, do nothing
+    if bufwinnr(popup.bufnr) == winnr()
+        return
+    endif
+
+    " This triggers s:on_close()
+    call popup.close()
+
+    if empty(s:all_popup)
+        autocmd! plugin-git-messenger-win-enter
+    endif
+endfunction
+
 function! s:on_open(blame) dict abort
     if !has_key(a:blame.popup, 'bufnr')
         " For some reason, popup was already closed
+        unlet! a:all_popup[a:blame.popup.opener_bufnr]
         return
     endif
+
     let opener_bufnr = a:blame.popup.opener_bufnr
     let s:all_popup[opener_bufnr] = a:blame.popup
-    if has_key(self, 'close_on_cursor_moved') && self.close_on_cursor_moved
+
+    if get(self, 'close_on_cursor_moved', 1)
         augroup plugin-git-messenger-close
             autocmd CursorMoved,CursorMovedI,InsertEnter <buffer> call <SID>on_cursor_moved()
         augroup END
     endif
+
+    augroup plugin-git-messenger-win-enter
+        execute 'autocmd WinEnter * call <SID>on_win_enter(' . opener_bufnr . ')'
+    augroup END
 endfunction
 
 function! s:on_close(popup) dict abort
@@ -33,6 +63,7 @@ endfunction
 
 function! s:on_error(errmsg) abort
     echohl ErrorMsg
+    " Avoid ^@
     for line in split(a:errmsg, "\n")
         echomsg line
     endfor
@@ -79,10 +110,16 @@ endfunction
 
 function! s:popup_for(bufnr) abort
     if !has_key(s:all_popup, a:bufnr)
-        echo 'No popup found'
         return v:null
     endif
-    return s:all_popup[a:bufnr]
+
+    let popup = s:all_popup[a:bufnr]
+    if !has_key(popup, 'bufnr')
+        unlet! s:all_popup[a:bufnr]
+        return v:null
+    endif
+
+    return popup
 endfunction
 
 function! gitmessenger#close_popup(bufnr) abort
