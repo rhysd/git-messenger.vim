@@ -24,7 +24,10 @@ function! s:on_buf_enter(bufnr) abort
 
     let b = bufnr('%')
     " When entering/exiting popup window, do nothing
-    if popup.bufnr == b
+    if popup.bufnr == b || popup.opener_bufnr == b
+        " Note: Do not close popup when cursor moves into opener buffer.
+        " Otherwise, it accidentally closes the popup when updating the window
+        " for jumping to older commits.
         return
     endif
 
