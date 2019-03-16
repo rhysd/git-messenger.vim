@@ -10,6 +10,7 @@ Commands                |git-messenger-commands|
 Mappings                |git-messenger-mappings|
 Variables               |git-messenger-variables|
 Highlights              |git-messenger-highlights|
+Health Check            |git-messenger-health-check|
 Repository              |git-messenger-repository-page|
 License                 |git-messenger-license|
 
@@ -34,6 +35,8 @@ popup window is implemented in
 
 The floating window is definitely recommended since it can shows the
 information near the cursor.
+
+If you see some error message, please try |git-messenger-health-check|.
 
 Screencast with Neovim v0.4.0-dev:
   https://github.com/rhysd/ss/blob/master/git-messenger.vim/demo.gif?raw=true
@@ -227,6 +230,23 @@ Example:
   " color as gitmessengerPopupNormal.
   hi gitmessengerEndOfBuffer term=None guifg=#333333 guibg=#333333 ctermfg=234 ctermbg=234
 <
+
+==============================================================================
+HEALTH CHECK                                        *git-messenger-health-check*
+
+|git-messenger.vim| supports a health checker on Neovim. When you see some
+error, please run `:checkhealth` to check your environment is ready for use
+of this plugin.
+>
+  :checkhealth
+<
+On Vim, please install [vim-healthcheck]() and run `:CheckHealth`. It's a
+plugin to run `:checkhealth` on Vim.
+>
+  :CheckHealth
+<
+https://github.com/rhysd/vim-healthcheck
+
 
 ==============================================================================
 REPOSITORY                                       *git-messenger-repository-page*

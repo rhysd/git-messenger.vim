@@ -81,6 +81,9 @@ which should echo `1`.
 
 ## Usage
 
+Briefly, move cursor to the position and run `:GitMessenger` or `<Leader>gm`. If you see an error
+message, please try [health check](#health-check)
+
 ### Commands
 
 ```
@@ -220,6 +223,14 @@ hi gitmessengerPopupNormal term=None guifg=#eeeeee guibg=#333333 ctermfg=255 cte
 " color as gitmessengerPopupNormal.
 hi gitmessengerEndOfBuffer term=None guifg=#333333 guibg=#333333 ctermfg=234 ctermbg=234
 ```
+
+### Health Check
+
+This plugin supports a health checker on Neovim. When you see some error, please run `:checkhealth`
+to check your environment is ready for use of this plugin.
+
+On Vim, please install [vim-healthcheck](https://github.com/rhysd/vim-healthcheck) and run
+`:CheckHealth`. It's a plugin to run `:checkhealth` on Vim.
 
 
 
