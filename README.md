@@ -75,8 +75,7 @@ it's quite easy with Homebrew.
 $ brew install neovim --HEAD
 ```
 
-To check if Neovim's floating window feature is available, try `:echo exists('*nvim_open_win')`
-which should echo `1`.
+To check if Neovim's floating window feature is available, try `:checkhealth`.
 
 
 ## Usage

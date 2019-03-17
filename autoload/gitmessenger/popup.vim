@@ -1,5 +1,5 @@
 let s:popup = {}
-let s:floating_window_available = has('nvim') && exists('*nvim_open_win')
+let s:floating_window_available = has('nvim') && exists('*nvim_win_set_config')
 
 function! s:popup__close() dict abort
     if !has_key(self, 'bufnr')
@@ -192,7 +192,7 @@ function! s:popup__update() dict abort
                 return
             endif
             let opts = self.floating_win_opts(width, height)
-            call nvim_win_set_config(id, width, height, opts)
+            call nvim_win_set_config(id, opts)
 
             " Window is not repainted due to bug of Neovim
             "   https://github.com/neovim/neovim/issues/9699
