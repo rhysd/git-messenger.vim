@@ -192,7 +192,7 @@ function! s:popup__update() dict abort
                 return
             endif
             let opts = self.floating_win_opts(width, height)
-            call nvim_win_set_config(id, width, height, opts)
+            call nvim_win_set_config(id, opts)
 
             " Window is not repainted due to bug of Neovim
             "   https://github.com/neovim/neovim/issues/9699
