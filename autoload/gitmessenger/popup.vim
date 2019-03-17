@@ -101,6 +101,8 @@ function! s:popup__floating_win_opts(width, height) dict abort
     \   'anchor': vert . hor,
     \   'row': row,
     \   'col': col,
+    \   'width': a:width,
+    \   'height': a:height,
     \ }
 endfunction
 let s:popup.floating_win_opts = funcref('s:popup__floating_win_opts')
@@ -115,7 +117,7 @@ function! s:popup__open() dict abort
     " Open window
     if self.type ==# 'floating'
         let opts = self.floating_win_opts(width, height)
-        call nvim_open_win(self.opener_bufnr, v:true, width, height, opts)
+        call nvim_open_win(self.opener_bufnr, v:true, opts)
     else
         let mods = 'noswapfile'
         if g:git_messenger_preview_mods !=# ''
