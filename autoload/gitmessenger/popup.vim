@@ -8,13 +8,14 @@ function! s:popup__close() dict abort
     endif
 
     let winnr = self.get_winnr()
-    if winnr >= 0
+    if winnr > 0
         " Without this 'noautocmd', the BufWipeout event will be triggered and
         " this function will be called again.
         noautocmd execute winnr . 'wincmd c'
     endif
 
     unlet self.bufnr
+    unlet self.win_id
 
     if has_key(self.opts, 'did_close')
         call self.opts.did_close(self)
@@ -26,7 +27,11 @@ function! s:popup__get_winnr() dict abort
     if !has_key(self, 'bufnr')
         return -1
     endif
-    return bufwinnr(self.bufnr)
+
+    " Note: bufwinnr() is not available here because there may be multiple
+    " windows which open the buffer. This situation happens when enter <C-w>v
+    " in popup window. It opens a new normal window with the popup's buffer.
+    return win_id2win(self.win_id)
 endfunction
 let s:popup.get_winnr = funcref('s:popup__get_winnr')
 
@@ -117,7 +122,7 @@ function! s:popup__open() dict abort
     " Open window
     if self.type ==# 'floating'
         let opts = self.floating_win_opts(width, height)
-        call nvim_open_win(self.opener_bufnr, v:true, opts)
+        let win_id = nvim_open_win(self.opener_bufnr, v:true, opts)
     else
         let mods = 'noswapfile'
         if g:git_messenger_preview_mods !=# ''
@@ -126,6 +131,7 @@ function! s:popup__open() dict abort
         execute mods 'pedit!'
         wincmd P
         execute height . 'wincmd _'
+        let win_id = win_getid()
     endif
 
     " Setup content
@@ -162,14 +168,15 @@ function! s:popup__open() dict abort
     endif
 
     let self.bufnr = popup_bufnr
+    let self.win_id = win_id
 endfunction
 let s:popup.open = funcref('s:popup__open')
 
 function! s:popup__update() dict abort
     let prev_winnr = winnr()
 
-    let popup_winnr = bufwinnr(self.bufnr)
-    if popup_winnr < 0
+    let popup_winnr = self.get_winnr()
+    if popup_winnr == 0
         return
     endif
     let opener_winnr = bufwinnr(self.opener_bufnr)
