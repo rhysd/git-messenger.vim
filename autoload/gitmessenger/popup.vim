@@ -200,10 +200,6 @@ function! s:popup__update() dict abort
             endif
             let opts = self.floating_win_opts(width, height)
             call nvim_win_set_config(id, opts)
-
-            " Window is not repainted due to bug of Neovim
-            "   https://github.com/neovim/neovim/issues/9699
-            call timer_start(50, {_-> execute("normal! \<C-l>")})
         endif
 
         execute popup_winnr . 'wincmd w'
