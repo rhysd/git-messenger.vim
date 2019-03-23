@@ -1,0 +1,15 @@
+def run(target)
+  puts(system("./vim-themis/bin/themis", target.to_s) ? "OK" : "NG")
+end
+
+guard :shell do
+  watch /^.+\.vim$/ do |m|
+    puts "Changed #{m[0]}. Run all tests."
+    run "./test/"
+  end
+
+  watch /^.+\.vimspec$/ do |m|
+    puts "Changed #{m[0]}"
+    run m[0]
+  end
+end

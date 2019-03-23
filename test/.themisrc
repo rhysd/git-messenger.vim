@@ -1,0 +1,32 @@
+call themis#option('exclude', 'test/README.md')
+
+let s:helper = themis#helper('assert')
+call themis#helper('command').with(s:helper)
+
+function! GetPopupNoWait() abort
+    for b in range(1, bufnr('$'))
+        let p = getbufvar(b, '__gitmessenger_popup', v:null)
+        if p isnot v:null
+            return p
+        endif
+    endfor
+    return v:null
+endfunction
+function! GetPopup() abort
+    return CallWithTimeout(1, funcref('GetPopupNoWait'))
+endfunction
+
+function! CallWithTimeout(timeout, func) abort
+    let total = 0
+    while v:true
+        let v = a:func()
+        if v isnot v:null
+            return v
+        endif
+        sleep 100m
+        let total += 0.1
+        if total >= a:timeout
+            return v:null
+        endif
+    endwhile
+endfunction

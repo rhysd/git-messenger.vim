@@ -1,0 +1,66 @@
+Describe :GitMessenger
+    Before
+        redir => ver
+            version
+        redir END
+        let ver = split(ver, '\n')[0]
+        if ver !~# 'NVIM v0.4.0'
+            throw 'Neovim version is too old: ' . ver
+        endif
+    End
+
+    After each
+        let w = 2
+        while w <= winnr('$')
+            silent! execute w . 'close!'
+            let w += 1
+        endwhile
+        silent! execute 'bwipeout!' join(range(1, bufnr('$')), ' ')
+    End
+
+    It opens popup with floating window
+        view! README.md
+        call cursor(15, 10)
+        let len = winnr('$')
+
+        GitMessenger
+
+        let p = GetPopup()
+        Assert IsNotNone(p)
+        Assert KeyExists(p, 'bufnr')
+
+        let lines = getbufline(p.bufnr, 1, '$')
+        Assert NotEmpty(lines)
+        let arr = filter(copy(lines), 'v:val =~# "^ History: "')
+        Assert LengthOf(arr, 1)
+        let history = arr[0]
+        let arr = filter(copy(lines), 'v:val =~# "^ Commit: "')
+        Assert LengthOf(arr, 1)
+        let commit = arr[0]
+        let arr = filter(copy(lines), 'v:val =~# "^ Author: "')
+        Assert LengthOf(arr, 1)
+        let author = arr[0]
+
+        Assert True(stridx(history, 'History: #0') >= 0, history)
+        Assert Match(commit, 'Commit: [[:xdigit:]]\{,7}')
+        Assert True(stridx(author, '<') >= 0, author)
+        Assert True(stridx(author, '>') >= 0, author)
+    End
+
+    It closes popup on CursorMoved
+        view! README.md
+        call cursor(15, 10)
+        let len = winnr('$')
+
+        GitMessenger
+
+        let p = GetPopup()
+        Assert IsNotNone(p)
+
+        normal! h
+        doautocmd CursorMoved
+
+        let p = GetPopupNoWait()
+        Assert IsNone(p)
+    End
+End
