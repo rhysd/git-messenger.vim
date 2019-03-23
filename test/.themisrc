@@ -1,4 +1,5 @@
 call themis#option('exclude', 'test/README.md')
+call themis#option('exclude', 'test/Guardfile')
 
 let s:helper = themis#helper('assert')
 call themis#helper('command').with(s:helper)
