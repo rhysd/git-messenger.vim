@@ -3,7 +3,7 @@
 ```
 $ cd /path/to/git-messenger.vim
 $ git clone https://github.com/thinca/vim-themis.git
-$ ./vim-themis/bin/themis test/
+$ THEMIS_VIM=nvim ./vim-themis/bin/themis test/nvim.vimspec
 ```
 
 ### How to run guard
