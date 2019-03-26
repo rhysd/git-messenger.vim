@@ -31,3 +31,17 @@ function! CallWithTimeout(timeout, func) abort
         endif
     endwhile
 endfunction
+
+function! WaitUntil(func, timeout) abort
+    let total = 0
+    while !a:func()
+        sleep 100m
+        let total += 0.1
+        if total >= a:timeout
+            " Note: v:true/v:false are not supported by themis.vim
+            " https://github.com/thinca/vim-themis/pull/56
+            return 0
+        endif
+    endwhile
+    return 1
+endfunction

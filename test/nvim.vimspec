@@ -1,4 +1,4 @@
-Describe :GitMessenger
+Describe git-messenger.vim
     Before
         redir => ver
             version
@@ -7,6 +7,8 @@ Describe :GitMessenger
         if ver !~# 'NVIM v0.4.0'
             throw 'Neovim version is too old: ' . ver
         endif
+        view! README.md
+        call cursor(4, 27)
     End
 
     After each
@@ -18,49 +20,156 @@ Describe :GitMessenger
         silent! execute 'bwipeout!' join(range(1, bufnr('$')), ' ')
     End
 
-    It opens popup with floating window
-        view! README.md
-        call cursor(15, 10)
-        let len = winnr('$')
+    Describe :GitMessenger
+        It opens popup with floating window
+            GitMessenger
 
-        GitMessenger
+            let p = GetPopup()
+            Assert IsNotNone(p)
+            Assert KeyExists(p, 'bufnr')
 
-        let p = GetPopup()
-        Assert IsNotNone(p)
-        Assert KeyExists(p, 'bufnr')
+            let lines = getbufline(p.bufnr, 1, '$')
+            Assert NotEmpty(lines)
+            let arr = filter(copy(lines), 'v:val =~# "^ History: "')
+            Assert LengthOf(arr, 1)
+            let history = arr[0]
+            let arr = filter(copy(lines), 'v:val =~# "^ Commit: "')
+            Assert LengthOf(arr, 1)
+            let commit = arr[0]
+            let arr = filter(copy(lines), 'v:val =~# "^ Author: "')
+            Assert LengthOf(arr, 1)
+            let author = arr[0]
 
-        let lines = getbufline(p.bufnr, 1, '$')
-        Assert NotEmpty(lines)
-        let arr = filter(copy(lines), 'v:val =~# "^ History: "')
-        Assert LengthOf(arr, 1)
-        let history = arr[0]
-        let arr = filter(copy(lines), 'v:val =~# "^ Commit: "')
-        Assert LengthOf(arr, 1)
-        let commit = arr[0]
-        let arr = filter(copy(lines), 'v:val =~# "^ Author: "')
-        Assert LengthOf(arr, 1)
-        let author = arr[0]
+            Assert True(stridx(history, 'History: #0') >= 0, history)
+            Assert Match(commit, 'Commit: [[:xdigit:]]\{,7}')
+            Assert True(stridx(author, '<') >= 0, author)
+            Assert True(stridx(author, '>') >= 0, author)
+        End
 
-        Assert True(stridx(history, 'History: #0') >= 0, history)
-        Assert Match(commit, 'Commit: [[:xdigit:]]\{,7}')
-        Assert True(stridx(author, '<') >= 0, author)
-        Assert True(stridx(author, '>') >= 0, author)
+        It moves cursor into popup and close it within the popup
+            let opener_id = win_getid()
+
+            GitMessenger
+            " Wait for popup
+            Assert IsNotNone(GetPopup())
+
+            Assert Equals(win_getid(), opener_id)
+
+            " Move cursor into popup
+            GitMessenger
+
+            let popup_id = win_getid()
+            Assert NotEquals(popup_id, opener_id)
+            Assert Exists('b:__gitmessenger_popup')
+
+            " Close popup
+            GitMessenger
+
+            Assert Equals(win_getid(), opener_id)
+            Assert IsNone(GetPopupNoWait())
+        End
     End
 
-    It closes popup on CursorMoved
-        view! README.md
-        call cursor(15, 10)
-        let len = winnr('$')
+    Describe Popup window
+        It is closed on CursorMoved
+            GitMessenger
 
-        GitMessenger
+            let p = GetPopup()
+            Assert IsNotNone(p)
 
-        let p = GetPopup()
-        Assert IsNotNone(p)
+            normal! h
+            doautocmd CursorMoved
 
-        normal! h
-        doautocmd CursorMoved
+            let p = GetPopupNoWait()
+            Assert IsNone(p)
+        End
 
-        let p = GetPopupNoWait()
-        Assert IsNone(p)
+        It is closed on BufEnter
+            GitMessenger
+
+            let p = GetPopup()
+            Assert IsNotNone(p)
+
+            new!
+
+            let p = GetPopupNoWait()
+            Assert IsNone(p)
+        End
+
+        It is closed on WinEnter
+            Assert Skip(
+              \ 'This test does not pass since WinEnter is not hooked for now. ' .
+              \ 'Even if WinEnter is hooked, it still does not work because plugin-git-messenger-buf-enter ' .
+              \ 'does not close popup when entering the operner buffer. If stopping this behavior, it causes ' .
+              \ 'an error on go forward/back because updating popup closes the floating window at first and ' .
+              \ 'plugin-git-messenger-buf-enter tries to close the already-closed popup'
+              \ )
+
+            GitMessenger
+
+            let p = GetPopup()
+            Assert IsNotNone(p)
+
+            vsplit
+            wincmd p
+
+            let p = GetPopupNoWait()
+            Assert IsNone(p)
+        End
+
+        It is closed on q
+            GitMessenger
+
+            let p = GetPopup()
+            Assert IsNotNone(p)
+
+            GitMessenger
+            Assert Exists('b:__gitmessenger_popup')
+
+            normal q
+
+            let p = GetPopupNoWait()
+            Assert IsNone(p)
+        End
+
+        It shows older commit on o
+            GitMessenger
+
+            let p = GetPopup()
+            Assert IsNotNone(p)
+
+            GitMessenger
+            Assert Exists('b:__gitmessenger_popup')
+
+            Assert Equals(getline(2), ' History: #0')
+
+            normal o
+
+            Assert True(WaitUntil({-> getline(2) ==# ' History: #1'}, 1))
+        End
+
+        It shows newer commit on O
+            GitMessenger
+
+            let p = GetPopup()
+            Assert IsNotNone(p)
+
+            GitMessenger
+            Assert Exists('b:__gitmessenger_popup')
+
+            Assert Equals(getline(2), ' History: #0')
+
+            normal o
+
+            Assert True(WaitUntil({-> getline(2) ==# ' History: #1'}, 1))
+
+            normal O
+
+            Assert True(WaitUntil({-> getline(2) ==# ' History: #0'}, 1))
+
+            normal o
+
+            Assert True(WaitUntil({-> getline(2) ==# ' History: #1'}, 1))
+        End
     End
 End
