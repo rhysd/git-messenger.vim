@@ -3,7 +3,7 @@ def run(target)
   success = if target.endwith? 'nvim.vimspec'
     system('THEMIS_VIM=nvim ../vim-themis/bin/themis', target)
   else
-    system('../vim-themis/bin/themis test/nvim.vimspec', target)
+    system('../vim-themis/bin/themis', target)
   end
   puts(success ? 'OK' : 'NG')
 end

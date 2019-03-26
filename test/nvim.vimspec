@@ -1,5 +1,5 @@
 Describe git-messenger.vim
-    Before
+    Before each
         redir => ver
             version
         redir END
