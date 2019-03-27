@@ -2,7 +2,7 @@ git-messenger.vim
 =================
 
 [git-messenger.vim][repo] is a Vim/Neovim plugin to reveal the hidden message from Git under the
-cursor quickly. It shows the hisotry of commits under the cursor in popup window.
+cursor quickly. It shows the history of commits under the cursor in popup window.
 
 This plugin shows the message of the last commit in a 'popup window'. If the last commit is not
 convenient, you can explore older commits in the popup window.
@@ -188,7 +188,7 @@ showing a popup does not move the cursor in the window.
 When this value is set to `v:true`, the cursor goes into a popup window when running `:GitMessenger`
 or `<Plug>(git-messenger)`.
 
-#### `g:git_messenger_preview_mods` (Deafult: `""`)
+#### `g:git_messenger_preview_mods` (Default: `""`)
 
 This variable is effective only when opening preview window (on Neovim (0.3.0 or earlier) or Vim).
 
