@@ -1,5 +1,5 @@
-Describe git-messenger.vim
-    Before each
+Describe Neovim
+    Before all
         redir => ver
             version
         redir END
@@ -7,6 +7,9 @@ Describe git-messenger.vim
         if ver !~# 'NVIM v0.4.0'
             throw 'Neovim version is too old: ' . ver
         endif
+    End
+
+    Before each
         view! README.md
         call cursor(4, 27)
     End
