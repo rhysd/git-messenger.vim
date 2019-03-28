@@ -160,7 +160,7 @@ function! s:blame__after_blame(git) dict abort
     let self.oldest_commit = hash
     let self.prev_commit = prev_hash
 
-    " Check hash is 0000000000000000000000 it means that the line is not commited yet
+    " Check hash is 0000000000000000000000 it means that the line is not committed yet
     if hash =~# '^0\+$'
         call self.open_popup()
         return
