@@ -12,7 +12,9 @@ function! s:check_floating_window() abort
     endif
 
     if !exists('*nvim_win_set_config')
-        call health#report_warn('Neovim 0.3.0 or earlier does not support floating window feature. Preview window is used instead', 'Please install Neovim 0.4.0 or later')
+        call health#report_warn(
+            \ 'Neovim 0.3.0 or earlier does not support floating window feature. Preview window is used instead',
+            \ 'Please install Neovim 0.4.0 or later')
         return
     endif
 
@@ -56,8 +58,24 @@ function! s:check_git_binary() abort
     call health#report_ok('Git command `' . cmd . '` is available: ' . output)
 endfunction
 
+function! s:check_vim_version() abort
+    if has('nvim')
+        return
+    endif
+
+    if v:version < 800
+        call health#report_error(
+            \ 'Your Vim version is too old: ' . v:version,
+            \ 'Please install Vim 8.0 or later')
+        return
+    endif
+
+    call health#report_ok('Vim version is fine: ' . v:version)
+endfunction
+
 function! health#gitmessenger#check() abort
     call s:check_job()
     call s:check_git_binary()
     call s:check_floating_window()
+    call s:check_vim_version()
 endfunction
