@@ -32,21 +32,25 @@ Describe Neovim
             Assert KeyExists(p, 'bufnr')
 
             let lines = getbufline(p.bufnr, 1, '$')
-            Assert NotEmpty(lines)
-            let arr = filter(copy(lines), 'v:val =~# "^ History: "')
-            Assert LengthOf(arr, 1)
-            let history = arr[0]
-            let arr = filter(copy(lines), 'v:val =~# "^ Commit: "')
-            Assert LengthOf(arr, 1)
-            let commit = arr[0]
-            let arr = filter(copy(lines), 'v:val =~# "^ Author: "')
-            Assert LengthOf(arr, 1)
-            let author = arr[0]
+            let msg = string(lines)
+            Assert True(len(lines) >= 6, msg)
 
-            Assert True(stridx(history, 'History: #0') >= 0, history)
-            Assert Match(commit, 'Commit: [[:xdigit:]]\{,7}')
-            Assert True(stridx(author, '<') >= 0, author)
-            Assert True(stridx(author, '>') >= 0, author)
+            let history = lines[1]
+            Assert Match(history, '^ History: #0$', msg)
+
+            let commit = lines[2]
+            Assert Match(commit, '^ Commit: [[:xdigit:]]\{7,}$', msg)
+
+            let author = lines[3]
+            Assert Match(author, '^ Author: \S\+ <[^>]\+>$', msg)
+
+            let summary = lines[5]
+            Assert NotEmpty(summary, msg)
+
+            let hash = matchstr(commit, '^ Commit: \zs[[:xdigit:]]\{7,}$')
+            let out = system('git show -s ' . hash)
+            Assert Falsy(v:shell_error, out)
+            Assert True(stridx(out, summary) >= 0, out . ' should contain ' . summary)
         End
 
         It moves cursor into popup and close it within the popup
