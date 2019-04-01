@@ -79,10 +79,12 @@ $ brew install neovim --HEAD
 To check if Neovim's floating window feature is available, try `:checkhealth`.
 
 
+
 ## Usage
 
-Briefly, move cursor to the position and run `:GitMessenger` or `<Leader>gm`. If you see an error
-message, please try [health check](#health-check)
+Only one mapping (or one command) provides all features of this plugin. Briefly, move cursor to
+the position and run `:GitMessenger` or `<Leader>gm`. If you see an error message, please try
+[health check](#health-check).
 
 ### Commands
 
@@ -125,40 +127,30 @@ Following mappings are defined within popup window.
 | `O`     | Opposite to `o`. Forward to newer commit at the line |
 | `?`     | Show mappings help                                   |
 
-```
-:GitMessengerClose
-```
-
-Though a popup window is automatically closed by default, it closes the popup window explicitly. It
-is useful when you set `g:git_messenger_close_on_cursor_moved` to `v:false`.
-
 ### Mappings
 
-Some `<Plug>` mappings are available to operate a popup window. They can be mapped to your favorite
-key sequences. For example:
-
-```vim
-nmap <Leader>m <Plug>(git-messenger)
+```
+<Plug>(git-messenger)
 ```
 
-I recommend to map `<Plug>(git-messenger)` in your `vimrc` or use default `<Leader>gm` mapping.
+The same as running `:GitMessenger` command.
 
-- `<Plug>(git-messenger)`: The same as running `:GitMessenger` command.
-- `<Plug>(git-messenger-close)`: The same as running `:GitMessengerClose` command.
-- `<Plug>(git-messenger-into-popup)`: Moves the cursor into the popup window. It's useful when you want to scroll the content and close the window.
-- `<Plug>(git-messenger-scroll-down-1)`: Scroll down the popup window by 1 line directly
-- `<Plug>(git-messenger-scroll-up-1)`: Scroll up the popup window by 1 line directly
-- `<Plug>(git-messenger-scroll-down-page)`: Scroll down the popup window by 1 page directly
-- `<Plug>(git-messenger-scroll-up-page)`: Scroll up the popup window by 1 page directly
-- `<Plug>(git-messenger-scroll-down-half)`: Scroll down the popup window by half page directly
-- `<Plug>(git-messenger-scroll-up-half)`: Scroll up the popup window by half page directly
-
-If `g:git_messenger_no_default_mappings` is not set to `v:true`, this plugin also defines
-following default mapping.
+By default, this plugin defines following mapping.
 
 ```vim
 nmap <Leader>gm <Plug>(git-messenger)
 ```
+
+If you don't like the default mapping, set `g:git_messenger_no_default_mappings` to `v:true` in
+your `.vimrc` or `init.vim` and map the `<Plug>` mapping to your favorite key sequence.
+
+For example:
+
+```vim
+nmap <C-w>m <Plug>(git-messenger)
+```
+
+Some other additional `<Plug>` mappings. Please read [`:help git-messenger`][doc].
 
 ### Variables
 
@@ -241,3 +233,4 @@ Distributed under [the MIT License](LICENSE)
 [repo]: https://github.com/rhysd/git-messenger.vim
 [travis-ci-badge]: https://travis-ci.org/rhysd/git-messenger.vim.svg?branch=master
 [travis-ci]: https://travis-ci.org/rhysd/git-messenger.vim
+[doc]: ./doc/git-messenger.txt
