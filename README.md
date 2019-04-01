@@ -108,7 +108,7 @@ window shows following contents:
 - **Committer:** `Committer: {name}<{email}>` Committer name and mail address of the commit when
   committer is different from author
 - **Date:** `Date: {date}` Author date of the commit in system format
-- **Summary:** First line after `Committer:` header line is a summary of commit
+- **Summary:** First line after `Date:` header line is a summary of commit
 - **Body:** After summary, commit body is put (if the commit has body)
 
 The popup window will be automatically closed when you move the cursor so you don't need to close
