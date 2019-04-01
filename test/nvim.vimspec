@@ -50,7 +50,7 @@ Describe Neovim
             let hash = matchstr(commit, '^ Commit: \zs[[:xdigit:]]\{7,}$')
             let out = system('git show -s ' . hash)
             Assert Falsy(v:shell_error, out)
-            Assert True(stridx(out, summary) >= 0, out . ' should contain ' . summary)
+            Assert True(stridx(out, summary) >= 0, string(out) . ' should contain ' . string(summary))
         End
 
         It moves cursor into popup and close it within the popup
@@ -152,7 +152,8 @@ Describe Neovim
 
             normal o
 
-            Assert True(WaitUntil({-> getline(2) ==# ' History: #1'}, 1))
+            let found = WaitUntil({-> getline(2) ==# ' History: #1'})
+            Assert True(found, getline(2))
         End
 
         It shows newer commit on O
@@ -168,15 +169,18 @@ Describe Neovim
 
             normal o
 
-            Assert True(WaitUntil({-> getline(2) ==# ' History: #1'}, 1))
+            let found = WaitUntil({-> getline(2) ==# ' History: #1'})
+            Assert True(found, getline(2))
 
             normal O
 
-            Assert True(WaitUntil({-> getline(2) ==# ' History: #0'}, 1))
+            let found = WaitUntil({-> getline(2) ==# ' History: #0'})
+            Assert True(found, getline(2))
 
             normal o
 
-            Assert True(WaitUntil({-> getline(2) ==# ' History: #1'}, 1))
+            let found = WaitUntil({-> getline(2) ==# ' History: #1'})
+            Assert True(found, getline(2))
         End
     End
 End
