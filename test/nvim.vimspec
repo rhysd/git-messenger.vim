@@ -11,7 +11,10 @@ Describe Neovim
 
     Before each
         view! README.md
-        call cursor(4, 27)
+        normal! gg0
+
+        " Move to introduction paragraph
+        normal! }j27l
     End
 
     After each
@@ -153,7 +156,7 @@ Describe Neovim
             normal o
 
             let found = WaitUntil({-> getline(2) ==# ' History: #1'})
-            Assert True(found, getline(2))
+            Assert True(found, 'Got line: ' . getline(2))
         End
 
         It shows newer commit on O
@@ -170,17 +173,17 @@ Describe Neovim
             normal o
 
             let found = WaitUntil({-> getline(2) ==# ' History: #1'})
-            Assert True(found, getline(2))
+            Assert True(found, 'Got line: ' . getline(2))
 
             normal O
 
             let found = WaitUntil({-> getline(2) ==# ' History: #0'})
-            Assert True(found, getline(2))
+            Assert True(found, 'Got line: ' . getline(2))
 
             normal o
 
             let found = WaitUntil({-> getline(2) ==# ' History: #1'})
-            Assert True(found, getline(2))
+            Assert True(found, 'Got line: ' . getline(2))
         End
     End
 End
