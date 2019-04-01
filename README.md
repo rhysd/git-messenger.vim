@@ -107,6 +107,7 @@ window shows following contents:
 - **Author:** `Author: {name}<{email}>` Author name and mail address of the commit
 - **Committer:** `Committer: {name}<{email}>` Committer name and mail address of the commit when
   committer is different from author
+- **Date:** `Date: {date}` Author date of the commit in system format
 - **Summary:** First line after `Committer:` header line is a summary of commit
 - **Body:** After summary, commit body is put (if the commit has body)
 
