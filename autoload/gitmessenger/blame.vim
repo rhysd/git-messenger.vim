@@ -142,18 +142,20 @@ function! s:blame__after_blame(git) dict abort
 
     let author = matchstr(stdout[1], '^author \zs.\+')
     let author_email = matchstr(stdout[2], '^author-mail \zs\S\+')
-    let author_time = matchstr(stdout[3], '^author-time \zs\d\+')
     let self.contents = [
         \   '',
         \   ' History: #' . len(self.history),
         \   ' Commit: ' . hash,
-        \   ' Date: ' . strftime('%c', author_time),
         \   ' Author: ' . author . ' ' . author_email,
         \ ]
     let committer = matchstr(stdout[5], '^committer \zs.\+')
     if author !=# committer
         let committer_email = matchstr(stdout[6], '^committer-mail \zs\S\+')
         let self.contents += [' Committer: ' . committer . ' ' . committer_email]
+    endif
+    if exists('*strftime')
+        let author_time = matchstr(stdout[3], '^author-time \zs\d\+')
+        let self.contents += [' Date: ' . strftime('%c', str2nr(author_time))]
     endif
     let summary = matchstr(stdout[9], '^summary \zs.*')
     let prev_hash = matchstr(stdout[10], '^previous \zs[[:xdigit:]]\+')
