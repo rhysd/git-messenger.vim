@@ -170,7 +170,13 @@ function! s:blame__after_blame(git) dict abort
         return
     endif
 
-    call self.spawn_git(['--no-pager', 'log', '-n', '1', '--pretty=format:%b', hash], 's:blame__after_log')
+    let args = ['--no-pager', 'log', '-n', '1', '--pretty=format:%b']
+    if g:git_messenger_include_diff
+        let args += ['-p']
+    endif
+    let args += [hash]
+
+    call self.spawn_git(args, 's:blame__after_log')
 endfunction
 
 function! s:blame__spawn_git(args, callback) dict abort
