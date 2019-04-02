@@ -172,7 +172,7 @@ function! s:blame__after_blame(git) dict abort
 
     let args = ['--no-pager', 'log', '-n', '1', '--pretty=format:%b']
     if g:git_messenger_include_diff
-        let args += ['-p']
+        let args += ['-p', '-m']
     endif
     let args += [hash]
 
