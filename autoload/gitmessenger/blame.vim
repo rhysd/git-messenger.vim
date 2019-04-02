@@ -23,12 +23,7 @@ function! s:blame__back() dict abort
     let next_index = self.index + 1
 
     if len(self.history) > next_index
-        let self.index = next_index
-        let hist = self.history[next_index]
-        let self.contents = hist.contents
-        let self.diff = hist.diff
-        let self.popup.contents = self.contents
-        call self.popup.update()
+        call self.load_history(next_index)
         return
     endif
 
@@ -54,18 +49,36 @@ function! s:blame__forward() dict abort
         return
     endif
 
-    let self.index = next_index
-    let hist = self.history[next_index]
-    let self.contents = hist.contents
-    let self.diff = hist.diff
-    let self.popup.contents = self.contents
-    call self.popup.update()
+    call self.load_history(next_index)
 endfunction
 let s:blame.forward = funcref('s:blame__forward')
 
+function! s:blame__load_history(index) dict abort
+    let h = self.history[a:index]
+    let self.contents = h.contents
+    let self.diff = h.diff
+    let self.commit = h.commit
+    let self.index = a:index
+    let self.popup.contents = h.contents
+    call self.popup.update()
+endfunction
+let s:blame.load_history = funcref('s:blame__load_history')
+
+function! s:blame__save_history() dict abort
+    let self.history += [{
+        \   'contents': self.contents,
+        \   'diff': self.diff,
+        \   'commit': self.commit,
+        \}]
+endfunction
+let s:blame.save_history = funcref('s:blame__save_history')
+
 function! s:blame__open_popup() dict abort
     if has_key(self, 'popup') && has_key(self.popup, 'bufnr')
-        let self.history += [{'contents': self.contents, 'diff': self.diff}]
+        " Already popup is open. It means that now older commit is showing up.
+        " Save the contents to history and show the contents in current
+        " popup.
+        call self.save_history()
         let self.index = len(self.history) - 1
         let self.popup.contents = self.contents
         call self.popup.update()
@@ -88,7 +101,7 @@ function! s:blame__open_popup() dict abort
         let opts.enter = self.opts.enter_popup
     endif
 
-    let self.history = [{'contents': self.contents, 'diff': self.diff}]
+    call self.save_history()
     let self.popup = gitmessenger#popup#new(self.contents, opts)
     call self.popup.open()
 
@@ -129,10 +142,9 @@ function! s:blame__append_diff() dict abort
         return
     endif
 
-    " TODO: Store commit hash somewhere
-    let hash = matchstr(getline(1, '$')[2], '^ Commit: \zs[[:xdigit:]]\{7,}')
-    if hash ==# ''
-        call self.error('No commit hash is found in popup')
+    let hash = self.commit
+    if hash ==# '' || hash =~# '^0\+$'
+        call self.error('Not a valid commit hash: ' . hash)
         return
     endif
 
@@ -216,6 +228,7 @@ function! s:blame__after_blame(git) dict abort
 
     let self.oldest_commit = hash
     let self.prev_commit = prev_hash
+    let self.commit = hash
 
     " Check hash is 0000000000000000000000 it means that the line is not committed yet
     if hash =~# '^0\+$'
@@ -267,5 +280,6 @@ function! gitmessenger#blame#new(file, line, opts) abort
     let b.index = 0
     let b.history = []
     let b.diff = v:false
+    let b.commit = ''
     return b
 endfunction
