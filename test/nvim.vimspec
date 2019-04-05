@@ -160,6 +160,11 @@ Describe Neovim
 
             let found = WaitUntil({-> getline(2) ==# ' History: #1'})
             Assert True(found, 'Got line: ' . getline(2))
+
+            normal o
+
+            let found = WaitUntil({-> getline(2) ==# ' History: #2'})
+            Assert True(found, 'Got line: ' . getline(2))
         End
 
         It shows newer commit on O
@@ -174,6 +179,11 @@ Describe Neovim
             Assert Equals(getline(2), ' History: #0')
 
             normal o
+            call WaitUntil({-> getline(2) ==# ' History: #1'})
+            normal o
+            call WaitUntil({-> getline(2) ==# ' History: #2'})
+
+            normal O
 
             let found = WaitUntil({-> getline(2) ==# ' History: #1'})
             Assert True(found, 'Got line: ' . getline(2))
@@ -183,10 +193,108 @@ Describe Neovim
             let found = WaitUntil({-> getline(2) ==# ' History: #0'})
             Assert True(found, 'Got line: ' . getline(2))
 
+            " Check older again
             normal o
 
             let found = WaitUntil({-> getline(2) ==# ' History: #1'})
             Assert True(found, 'Got line: ' . getline(2))
+        End
+
+        It shows diff hunks on d
+            GitMessenger
+
+            let p = GetPopup()
+            Assert IsNotNone(p)
+
+            GitMessenger
+            Assert Exists('b:__gitmessenger_popup')
+
+            " Check diff is not shown
+            let lines = getline(1, '$')
+            let idx = index(lines, ' diff --git a/README.md b/README.md')
+            Assert Equals(idx, -1, string(lines))
+
+            normal d
+
+            let found = WaitUntil({-> index(getline(1, '$'), ' diff --git a/README.md b/README.md') !=# -1})
+            Assert True(found, 'Got lines: ' . string(getline(1, '$')))
+        End
+
+        It preserves diff hunks after going back to older commit
+            GitMessenger
+
+            let p = GetPopup()
+            Assert IsNotNone(p)
+
+            GitMessenger
+            Assert Exists('b:__gitmessenger_popup')
+
+            normal d
+
+            let found = WaitUntil({-> index(getline(1, '$'), ' diff --git a/README.md b/README.md') !=# -1})
+            Assert True(found, 'Got lines: ' . string(getline(1, '$')))
+
+            normal o
+            call WaitUntil({-> getline(2) ==# ' History: #1'})
+
+            let lines = getline(1, '$')
+            let idx = index(lines, ' diff --git a/README.md b/README.md')
+            Assert Equals(idx, -1, string(lines))
+
+            normal O
+            call WaitUntil({-> getline(2) ==# ' History: #0'})
+
+            " Check diff is restored
+            let lines = getline(1, '$')
+            let idx = index(lines, ' diff --git a/README.md b/README.md')
+            Assert NotEqual(idx, -1, string(lines))
+        End
+    End
+
+    Describe g:git_messenger_include_diff
+        Before all
+            let saved = g:git_messenger_include_diff
+            let g:git_messenger_include_diff = 1
+        End
+
+        After all
+            let g:git_messenger_include_diff = saved
+        End
+
+        It shows diff hunks in opened popup
+            GitMessenger
+
+            let p = GetPopup()
+            Assert IsNotNone(p)
+
+            let lines = getbufline(p.bufnr, 1, '$')
+            let idx = index(lines, ' diff --git a/README.md b/README.md')
+
+            Assert NotEqual(idx, -1, string(lines))
+        End
+
+        It shows diff hunks for older/newer commits
+            GitMessenger
+
+            let p = GetPopup()
+            Assert IsNotNone(p)
+
+            GitMessenger
+            Assert Exists('b:__gitmessenger_popup')
+
+            normal o
+            call WaitUntil({-> getline(2) ==# ' History: #1'})
+
+            let lines = getbufline(p.bufnr, 1, '$')
+            let idx = index(lines, ' diff --git a/README.md b/README.md')
+            Assert NotEqual(idx, -1, string(lines))
+
+            normal O
+            call WaitUntil({-> getline(2) ==# ' History: #0'})
+
+            let lines = getbufline(p.bufnr, 1, '$')
+            let idx = index(lines, ' diff --git a/README.md b/README.md')
+            Assert NotEqual(idx, -1, string(lines))
         End
     End
 End
