@@ -90,7 +90,7 @@ COMMANDS                                                *git-messenger-commands*
   - Commit: The commit hash
   - Author: Author name and mail address of the commit
   - Committer: Committer name and mail address of the commit when
-    comitter is different from author
+    committer is different from author
   - Date: Author date of the commit in system format
   - Summary: First line after a date header line is a summary of commit
   - Body: After summary, commit body is put (if the commit has body)
@@ -211,7 +211,7 @@ NOTE: This variable is effective only when opening preview window (on Neovim
 ==============================================================================
 HIGHLIGHTS                                            *git-messenger-highlights*
 
-|git-messenger.vim| sets sinsible highlight colors to popup menu for light and
+|git-messenger.vim| sets sensible highlight colors to popup menu for light and
 dark colorschemes by default. However, it may not match to your colorscheme.
 In the case, you can specify your own colors to popup window in nvim/init.vim
 by defining highlights as follows.. This is only available on Neovim.
