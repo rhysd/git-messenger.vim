@@ -205,7 +205,7 @@ Describe Neovim
             Assert True(found, 'Got line: ' . string(getline(2)))
         End
 
-        It shows diff hunks on d
+        It shows diff hunks of current file on d
             GitMessenger
 
             let p = GetPopup()
@@ -220,6 +220,26 @@ Describe Neovim
             Assert Equals(idx, -1, string(lines))
 
             normal d
+
+            let found = WaitUntil({-> index(getline(1, '$'), ' diff --git a/README.md b/README.md') !=# -1})
+            Assert True(found, 'Got lines: ' . string(getline(1, '$')))
+        End
+
+        It shows all diff hunks on D
+            GitMessenger
+
+            let p = GetPopup()
+            Assert IsNotNone(p)
+
+            GitMessenger
+            Assert Exists('b:__gitmessenger_popup')
+
+            " Check diff is not shown
+            let lines = getline(1, '$')
+            let idx = index(lines, ' diff --git a/README.md b/README.md')
+            Assert Equals(idx, -1, string(lines))
+
+            normal D
 
             let found = WaitUntil({-> index(getline(1, '$'), ' diff --git a/README.md b/README.md') !=# -1})
             Assert True(found, 'Got lines: ' . string(getline(1, '$')))
@@ -259,14 +279,14 @@ Describe Neovim
     Describe g:git_messenger_include_diff
         Before all
             let saved = g:git_messenger_include_diff
-            let g:git_messenger_include_diff = 1
         End
 
         After all
             let g:git_messenger_include_diff = saved
         End
 
-        It shows diff hunks in opened popup
+        It shows diff hunks of current file in opened popup
+            let g:git_messenger_include_diff = 'current'
             GitMessenger
 
             let p = GetPopup()
@@ -278,7 +298,48 @@ Describe Neovim
             Assert NotEqual(idx, -1, string(lines))
         End
 
-        It shows diff hunks for older/newer commits
+        It shows diff hunks of current file for older/newer commits
+            let g:git_messenger_include_diff = 'current'
+
+            GitMessenger
+
+            let p = GetPopup()
+            Assert IsNotNone(p)
+
+            GitMessenger
+            Assert Exists('b:__gitmessenger_popup')
+
+            normal o
+            call WaitUntil({-> getline(2) ==# ' History: #1'})
+
+            let lines = getbufline(p.bufnr, 1, '$')
+            let idx = index(lines, ' diff --git a/README.md b/README.md')
+            Assert NotEqual(idx, -1, string(lines))
+
+            normal O
+            call WaitUntil({-> getline(2) ==# ' History: #0'})
+
+            let lines = getbufline(p.bufnr, 1, '$')
+            let idx = index(lines, ' diff --git a/README.md b/README.md')
+            Assert NotEqual(idx, -1, string(lines))
+        End
+
+        It shows all diff hunks in opened popup
+            let g:git_messenger_include_diff = 'all'
+            GitMessenger
+
+            let p = GetPopup()
+            Assert IsNotNone(p)
+
+            let lines = getbufline(p.bufnr, 1, '$')
+            let idx = index(lines, ' diff --git a/README.md b/README.md')
+
+            Assert NotEqual(idx, -1, string(lines))
+        End
+
+        It shows all diff hunks for older/newer commits
+            let g:git_messenger_include_diff = 'all'
+
             GitMessenger
 
             let p = GetPopup()
