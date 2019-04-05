@@ -33,7 +33,7 @@ function! s:blame__back() dict abort
     endif
 
     " Reset current state
-    let self.diff = v:false
+    let self.diff = 'none'
 
     let args = ['--no-pager', 'blame', self.prev_commit, self.file, '-L', self.line . ',+1', '--porcelain']
     let cwd = fnamemodify(self.file, ':p:h')
@@ -91,7 +91,8 @@ function! s:blame__open_popup() dict abort
         \       'q': [{-> execute('close', '')}, 'Close popup window'],
         \       'o': [funcref(self.back, [], self), 'Back to older commit'],
         \       'O': [funcref(self.forward, [], self), 'Forward to newer commit'],
-        \       'd': [funcref(self.append_diff, [], self), 'Reveal diff of current commit'],
+        \       'd': [funcref(self.reveal_diff, [v:false], self), "Reveal current file's diffs of current commit"],
+        \       'D': [funcref(self.reveal_diff, [v:true], self), "Reveal all diffs of current commit"],
         \   },
         \ }
     if has_key(self.opts, 'did_close')
@@ -111,7 +112,7 @@ function! s:blame__open_popup() dict abort
 endfunction
 let s:blame.open_popup = funcref('s:blame__open_popup')
 
-function! s:blame__after_diff(git) dict abort
+function! s:blame__after_diff(next_diff, git) dict abort
     let self.failed = a:git.exit_status != 0
 
     if self.failed
@@ -132,15 +133,29 @@ function! s:blame__after_diff(git) dict abort
 
     let self.popup.contents = self.contents
     call self.popup.update()
-    " Set flag that 'diff is already included'
-    let self.diff = v:true
+    let self.diff = a:next_diff
 endfunction
 
-function! s:blame__append_diff() dict abort
-    if self.diff
-        " Check flag that 'diff is already included'
+function! s:blame__reveal_diff(include_all) dict abort
+    if a:include_all
+        let next_diff = 'all'
+    else
+        let next_diff = 'current'
+    endif
+
+    if self.diff ==# next_diff
+        " The diff is already shown. Skipped
         return
     endif
+
+    " Remove diff hunks from popup
+    let saved = getpos('.')
+    keepjumps execute 1
+    let diff_start = search('^ diff --git ', 'ncW')
+    if diff_start > 1
+        let self.contents = self.contents[ : diff_start-2]
+    endif
+    keepjumps call setpos('.', saved)
 
     let hash = self.commit
     if hash ==# '' || hash =~# '^0\+$'
@@ -149,11 +164,14 @@ function! s:blame__append_diff() dict abort
     endif
 
     let args = ['--no-pager', 'diff', hash . '^..' . hash]
+    if !a:include_all
+        let args += [self.file]
+    endif
     let cwd = fnamemodify(self.file, ':p:h')
     let git = gitmessenger#git#new(g:git_messenger_git_command)
-    call git.spawn(args, cwd, funcref('s:blame__after_diff', [], self))
+    call git.spawn(args, cwd, funcref('s:blame__after_diff', [next_diff], self))
 endfunction
-let s:blame.append_diff = funcref('s:blame__append_diff')
+let s:blame.reveal_diff = funcref('s:blame__reveal_diff')
 
 function! s:blame__after_log(git) dict abort
     let self.failed = a:git.exit_status != 0
@@ -237,11 +255,18 @@ function! s:blame__after_blame(git) dict abort
     endif
 
     let args = ['--no-pager', 'log', '-n', '1', '--pretty=format:%b']
-    if g:git_messenger_include_diff
-        let self.diff = v:true
+    if g:git_messenger_include_diff !=? 'none'
+        if g:git_messenger_include_diff ==? 'current'
+            let self.diff = 'current'
+        else
+            let self.diff = 'all'
+        endif
         let args += ['-p', '-m']
     endif
     let args += [hash]
+    if g:git_messenger_include_diff ==? 'current'
+        let args += [self.file]
+    endif
 
     call self.spawn_git(args, 's:blame__after_log')
 endfunction
@@ -264,14 +289,22 @@ function! s:blame__start() dict abort
 endfunction
 let s:blame.start = funcref('s:blame__start')
 
-" file: string
-" line: number
+" file: string;
+" line: number;
 " opts: {
 "   did_open: (b: Blame) => void;
 "   did_close: (p: Popup) => void;
 "   on_error: (errmsg: string) => void;
 "   enter_popup: boolean;
-" }
+" };
+" index: number;
+" history: {
+"   contents: string[];
+"   diff: 'none' | 'all' | 'current';
+"   commit: string;
+" }[];
+" diff: 'none' | 'all' | 'current';
+" commit: string;
 function! gitmessenger#blame#new(file, line, opts) abort
     let b = deepcopy(s:blame)
     let b.line = a:line
@@ -279,7 +312,7 @@ function! gitmessenger#blame#new(file, line, opts) abort
     let b.opts = a:opts
     let b.index = 0
     let b.history = []
-    let b.diff = v:false
+    let b.diff = 'none'
     let b.commit = ''
     return b
 endfunction
