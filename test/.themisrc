@@ -46,3 +46,5 @@ function! WaitUntil(func, ...) abort
     endwhile
     return 1
 endfunction
+
+let g:ON_TRAVIS = $TRAVIS !=# ''
