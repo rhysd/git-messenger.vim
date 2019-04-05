@@ -122,13 +122,14 @@ You can also see the older commits.
 
 Following mappings are defined within popup window.
 
-| Mapping | Description                                          |
-|---------|------------------------------------------------------|
-| `q`     | Close the popup window                               |
-| `o`     | **o**lder. Back to older commit at the line          |
-| `O`     | Opposite to `o`. Forward to newer commit at the line |
-| `d`     | Reveals diff hunks of the commit in popup window     |
-| `?`     | Show mappings help                                   |
+| Mapping | Description                                                   |
+|---------|---------------------------------------------------------------|
+|   `q`   | Close the popup window                                        |
+|   `o`   | **o**lder. Back to older commit at the line                   |
+|   `O`   | Opposite to `o`. Forward to newer commit at the line          |
+|   `d`   | Reveals diff hunks only related to current file in the commit |
+|   `D`   | Reveals all diff hunks in the commit                          |
+|   `?`   | Show mappings help                                            |
 
 ### Mappings
 
@@ -164,10 +165,16 @@ Some global variables are available to configure the behavior of this plugin.
 When this value is set to `v:false`, a popup window is no longer closed automatically when moving a
 cursor after the window is shown up.
 
-#### `g:git_messenger_include_diff` (Default: `v:false`)
+#### `g:git_messenger_include_diff` (Default: `"none"`)
 
-When this value is set to `v:true`, a popup window includes diff hunks of the commit by default.
-Please note that typing `d` in popup window reveals diff hunks even if this value is set to `v:false`.
+One of `"none"`, `"current"`, `"all"`.
+
+When this value is not set to `"none"`, a popup window includes diff hunks of the commit at showing
+up. `"current"` includes diff hunks of only current file in the commit. `"all"` includes all diff
+hunks in the commit.
+
+Please note that typing `d` and `D` in popup window reveals diff hunks even if this value is set to
+`"none"`.
 
 #### `g:git_messenger_git_command` (Default: `"git"`)
 
