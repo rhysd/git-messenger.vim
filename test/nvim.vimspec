@@ -1,9 +1,6 @@
 Describe Neovim
     Before all
-        redir => ver
-            version
-        redir END
-        let ver = split(ver, '\n')[0]
+        let ver = split(execute('version'), '\n')[0]
         if ver !~# 'NVIM v0.4.0'
             throw 'Neovim version is too old: ' . ver
         endif
@@ -262,7 +259,7 @@ Describe Neovim
 
             It switches diff from 'current' to 'all' by d -> D
                 GitMessenger
-                call GetPopup()
+                Assert IsNotNone(GetPopup())
                 GitMessenger
                 Assert Exists('b:__gitmessenger_popup')
 
@@ -270,6 +267,7 @@ Describe Neovim
 
                 let found = WaitUntil(LicenseDiffExists)
                 let lines = 'Got lines: ' . string(getline(1, '$'))
+
                 Assert True(found, lines)
                 Assert False(ReadmeDiffExists(), lines)
 
@@ -283,7 +281,7 @@ Describe Neovim
 
             It switches diff from 'all' to 'current' by D -> d
                 GitMessenger
-                call GetPopup()
+                Assert IsNotNone(GetPopup())
                 GitMessenger
                 Assert Exists('b:__gitmessenger_popup')
 
@@ -304,7 +302,7 @@ Describe Neovim
 
             It does nothing on d -> d
                 GitMessenger
-                call GetPopup()
+                Assert IsNotNone(GetPopup())
                 GitMessenger
                 Assert Exists('b:__gitmessenger_popup')
 
@@ -319,7 +317,7 @@ Describe Neovim
 
             It does nothing on D -> D
                 GitMessenger
-                call GetPopup()
+                Assert IsNotNone(GetPopup())
                 GitMessenger
                 Assert Exists('b:__gitmessenger_popup')
 
@@ -334,7 +332,7 @@ Describe Neovim
 
             It switches diff from 'all' and 'current' repeatedly
                 GitMessenger
-                call GetPopup()
+                Assert IsNotNone(GetPopup())
                 GitMessenger
                 Assert Exists('b:__gitmessenger_popup')
 
@@ -356,7 +354,7 @@ Describe Neovim
             It shows 'all' diff after 'current' diff is shown by g:git_messenger_include_diff
                 let g:git_messenger_include_diff = 'current'
                 GitMessenger
-                call GetPopup()
+                Assert IsNotNone(GetPopup())
                 GitMessenger
                 Assert Exists('b:__gitmessenger_popup')
 
@@ -375,7 +373,7 @@ Describe Neovim
             It shows 'current' diff after 'all' diff is shown by g:git_messenger_include_diff
                 let g:git_messenger_include_diff = 'all'
                 GitMessenger
-                call GetPopup()
+                Assert IsNotNone(GetPopup())
                 GitMessenger
                 Assert Exists('b:__gitmessenger_popup')
 
