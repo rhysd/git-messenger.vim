@@ -245,6 +245,157 @@ Describe Neovim
             Assert True(found, 'Got lines: ' . string(getline(1, '$')))
         End
 
+        Describe 'diff support'
+            " LICENSE and README.md was added at the same commit.
+            " So 'current' diffs in LICENSE only shows changes of LICENSE.
+            " And 'all' diffs in LICENSE shows changes of both LICENSE and README.md
+            Before all
+                let LicenseDiffExists = {-> index(getline(1, '$'), ' diff --git a/LICENSE b/LICENSE') !=# -1}
+                let ReadmeDiffExists = {-> index(getline(1, '$'), ' diff --git a/README.md b/README.md') !=# -1}
+            End
+
+            Before each
+                let saved_include_diff = g:git_messenger_include_diff
+                view! LICENSE
+                normal! gg0
+            End
+
+            After each
+                let g:git_messenger_include_diff = saved_include_diff
+            End
+
+            It switches diff from 'current' to 'all' by d -> D
+                GitMessenger
+                call GetPopup()
+                GitMessenger
+                Assert Exists('b:__gitmessenger_popup')
+
+                normal d
+
+                let found = WaitUntil(LicenseDiffExists)
+                let lines = 'Got lines: ' . string(getline(1, '$'))
+                Assert True(found, lines)
+                Assert False(ReadmeDiffExists(), lines)
+
+                normal D
+
+                let found = WaitUntil(ReadmeDiffExists)
+                let lines = 'Got lines: ' . string(getline(1, '$'))
+                Assert True(found, lines)
+                Assert True(LicenseDiffExists(), lines)
+            End
+
+            It switches diff from 'all' to 'current' by D -> d
+                GitMessenger
+                call GetPopup()
+                GitMessenger
+                Assert Exists('b:__gitmessenger_popup')
+
+                normal D
+
+                let found = WaitUntil(LicenseDiffExists)
+                let lines = 'Got lines: ' . string(getline(1, '$'))
+                Assert True(found, lines)
+                Assert True(ReadmeDiffExists(), lines)
+
+                normal d
+
+                let removed = WaitWhile(ReadmeDiffExists)
+                let lines = 'Got lines: ' . string(getline(1, '$'))
+                Assert True(removed, lines)
+                Assert True(LicenseDiffExists(), lines)
+            End
+
+            It does nothing on d -> d
+                GitMessenger
+                call GetPopup()
+                GitMessenger
+                Assert Exists('b:__gitmessenger_popup')
+
+                for _ in range(3)
+                    normal d
+                    let found = WaitUntil(LicenseDiffExists)
+                    let lines = 'Got lines: ' . string(getline(1, '$'))
+                    Assert True(found, lines)
+                    Assert False(ReadmeDiffExists(), lines)
+                endfor
+            End
+
+            It does nothing on D -> D
+                GitMessenger
+                call GetPopup()
+                GitMessenger
+                Assert Exists('b:__gitmessenger_popup')
+
+                for _ in range(3)
+                    normal D
+                    let found = WaitUntil(ReadmeDiffExists)
+                    let lines = 'Got lines: ' . string(getline(1, '$'))
+                    Assert True(found, lines)
+                    Assert True(LicenseDiffExists(), lines)
+                endfor
+            End
+
+            It switches diff from 'all' and 'current' repeatedly
+                GitMessenger
+                call GetPopup()
+                GitMessenger
+                Assert Exists('b:__gitmessenger_popup')
+
+                let idx = 0
+                for m in repeat(['D', 'd'], 3)
+                    execute 'normal' m
+                    if m ==# 'd'
+                        let ok = WaitWhile(ReadmeDiffExists)
+                    else
+                        let ok = WaitUntil(ReadmeDiffExists)
+                    endif
+                    let lines = printf('Got lines #%d (%s): %s', idx, m, string(getline(1, '$')))
+                    Assert True(ok, lines)
+                    Assert True(LicenseDiffExists(), lines)
+                    let idx += 1
+                endfor
+            End
+
+            It shows 'all' diff after 'current' diff is shown by g:git_messenger_include_diff
+                let g:git_messenger_include_diff = 'current'
+                GitMessenger
+                call GetPopup()
+                GitMessenger
+                Assert Exists('b:__gitmessenger_popup')
+
+                let lines = 'Got lines: ' . string(getline(1, '$'))
+                Assert True(LicenseDiffExists(), lines)
+                Assert False(ReadmeDiffExists(), lines)
+
+                normal D
+
+                let found = WaitUntil(ReadmeDiffExists)
+                let lines = 'Got lines: ' . string(getline(1, '$'))
+                Assert True(found, lines)
+                Assert True(LicenseDiffExists(), lines)
+            End
+
+            It shows 'current' diff after 'all' diff is shown by g:git_messenger_include_diff
+                let g:git_messenger_include_diff = 'all'
+                GitMessenger
+                call GetPopup()
+                GitMessenger
+                Assert Exists('b:__gitmessenger_popup')
+
+                let lines = 'Got lines: ' . string(getline(1, '$'))
+                Assert True(LicenseDiffExists(), lines)
+                Assert True(ReadmeDiffExists(), lines)
+
+                normal d
+
+                let removed = WaitWhile(ReadmeDiffExists)
+                let lines = 'Got lines: ' . string(getline(1, '$'))
+                Assert True(removed, lines)
+                Assert True(LicenseDiffExists(), lines)
+            End
+        End
+
         It preserves diff hunks after going back to older commit
             GitMessenger
 

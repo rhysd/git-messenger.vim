@@ -47,4 +47,8 @@ function! WaitUntil(func, ...) abort
     return 1
 endfunction
 
+function! WaitWhile(func, ...) abort
+    return call('WaitUntil', [{-> !a:func()}] + a:000)
+endfunction
+
 let g:ON_TRAVIS = $TRAVIS !=# ''
