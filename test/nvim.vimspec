@@ -161,12 +161,10 @@ Describe Neovim
             let found = WaitUntil({-> getline(2) ==# ' History: #1'})
             Assert True(found, 'Got line: ' . string(getline(2)))
 
-            if !g:ON_TRAVIS
-                normal o
+            normal o
 
-                let found = WaitUntil({-> getline(2) ==# ' History: #2'})
-                Assert True(found, 'Got line: ' . string(getline(2)))
-            endif
+            let found = WaitUntil({-> getline(2) ==# ' History: #2'})
+            Assert True(found, 'Got line: ' . string(getline(2)))
         End
 
         It shows newer commit on O
@@ -183,15 +181,13 @@ Describe Neovim
             normal o
             call WaitUntil({-> getline(2) ==# ' History: #1'})
 
-            if !g:ON_TRAVIS
-                normal o
-                call WaitUntil({-> getline(2) ==# ' History: #2'})
+            normal o
+            call WaitUntil({-> getline(2) ==# ' History: #2'})
 
-                normal O
+            normal O
 
-                let found = WaitUntil({-> getline(2) ==# ' History: #1'})
-                Assert True(found, 'Got line: ' . string(getline(2)))
-            endif
+            let found = WaitUntil({-> getline(2) ==# ' History: #1'})
+            Assert True(found, 'Got line: ' . string(getline(2)))
 
             normal O
 
