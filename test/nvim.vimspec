@@ -83,27 +83,21 @@ Describe Neovim
     Describe Popup window
         It is closed on CursorMoved
             GitMessenger
-
-            let p = GetPopup()
-            Assert IsNotNone(p)
+            Assert IsNotNone(GetPopup())
 
             normal! h
             doautocmd CursorMoved
 
-            let p = GetPopupNoWait()
-            Assert IsNone(p)
+            Assert IsNone(GetPopupNoWait())
         End
 
         It is closed on BufEnter
             GitMessenger
-
-            let p = GetPopup()
-            Assert IsNotNone(p)
+            Assert IsNotNone(GetPopup())
 
             new!
 
-            let p = GetPopupNoWait()
-            Assert IsNone(p)
+            Assert IsNone(GetPopupNoWait())
         End
 
         It is closed on WinEnter
@@ -116,37 +110,45 @@ Describe Neovim
               \ )
 
             GitMessenger
-
-            let p = GetPopup()
-            Assert IsNotNone(p)
+            Assert IsNotNone(GetPopup())
 
             vsplit
             wincmd p
 
-            let p = GetPopupNoWait()
-            Assert IsNone(p)
+            Assert IsNone(GetPopupNoWait())
+        End
+
+        It is closed on BufLeave in popup window (#13)
+            GitMessenger
+            Assert IsNotNone(GetPopup())
+
+            let prev_bufnr = bufnr('%')
+
+            GitMessenger
+            Assert Exists('b:__gitmessenger_popup')
+
+            bnext
+
+            Assert False(exists('b:__gitmessenger_popup'))
+            Assert IsNone(GetPopupNoWait())
+            Assert Equals(prev_bufnr, bufnr('%'))
         End
 
         It is closed on q
             GitMessenger
-
-            let p = GetPopup()
-            Assert IsNotNone(p)
+            Assert IsNotNone(GetPopup())
 
             GitMessenger
             Assert Exists('b:__gitmessenger_popup')
 
             normal q
 
-            let p = GetPopupNoWait()
-            Assert IsNone(p)
+            Assert IsNone(GetPopupNoWait())
         End
 
         It shows older commit on o
             GitMessenger
-
-            let p = GetPopup()
-            Assert IsNotNone(p)
+            Assert IsNotNone(GetPopup())
 
             GitMessenger
             Assert Exists('b:__gitmessenger_popup')
@@ -200,9 +202,7 @@ Describe Neovim
 
         It shows diff hunks of current file on d
             GitMessenger
-
-            let p = GetPopup()
-            Assert IsNotNone(p)
+            Assert IsNotNone(GetPopup())
 
             GitMessenger
             Assert Exists('b:__gitmessenger_popup')
@@ -220,9 +220,7 @@ Describe Neovim
 
         It shows all diff hunks on D
             GitMessenger
-
-            let p = GetPopup()
-            Assert IsNotNone(p)
+            Assert IsNotNone(GetPopup())
 
             GitMessenger
             Assert Exists('b:__gitmessenger_popup')
@@ -392,9 +390,7 @@ Describe Neovim
 
         It preserves diff hunks after going back to older commit
             GitMessenger
-
-            let p = GetPopup()
-            Assert IsNotNone(p)
+            Assert IsNotNone(GetPopup())
 
             GitMessenger
             Assert Exists('b:__gitmessenger_popup')

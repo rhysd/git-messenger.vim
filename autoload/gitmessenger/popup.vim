@@ -161,7 +161,7 @@ function! s:popup__open() dict abort
 
     " Ensure to close popup
     let b:__gitmessenger_popup = self
-    execute 'autocmd BufWipeout <buffer> call getbufvar(' . popup_bufnr . ', "__gitmessenger_popup").close()'
+    execute 'autocmd BufWipeout,BufLeave <buffer> call getbufvar(' . popup_bufnr . ', "__gitmessenger_popup").close()'
 
     if has_key(self.opts, 'enter') && !self.opts.enter
         wincmd p
@@ -173,6 +173,10 @@ endfunction
 let s:popup.open = funcref('s:popup__open')
 
 function! s:popup__update() dict abort
+    " Note: `:noautocmd` to prevent BufLeave autocmd event (#13)
+    " It should be ok because the cursor position is finally back to the first
+    " position.
+
     let prev_winnr = winnr()
 
     let popup_winnr = self.get_winnr()
@@ -185,7 +189,7 @@ function! s:popup__update() dict abort
     endif
 
     if opener_winnr != prev_winnr
-        execute opener_winnr . 'wincmd w'
+        noautocmd execute opener_winnr . 'wincmd w'
     endif
 
     try
@@ -202,7 +206,7 @@ function! s:popup__update() dict abort
             call nvim_win_set_config(id, opts)
         endif
 
-        execute popup_winnr . 'wincmd w'
+        noautocmd execute popup_winnr . 'wincmd w'
 
         if self.type ==# 'preview'
             execute height . 'wincmd _'
@@ -214,7 +218,7 @@ function! s:popup__update() dict abort
         setlocal nomodified nomodifiable
     finally
         if winnr() != prev_winnr
-            execute prev_winnr . 'wincmd w'
+            noautocmd execute prev_winnr . 'wincmd w'
         endif
     endtry
 endfunction
