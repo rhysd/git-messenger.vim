@@ -101,18 +101,10 @@ Describe Neovim
         End
 
         It is closed on WinEnter
-            Assert Skip(
-              \ 'This test does not pass since WinEnter is not hooked for now. ' .
-              \ 'Even if WinEnter is hooked, it still does not work because plugin-git-messenger-buf-enter ' .
-              \ 'does not close popup when entering the operner buffer. If stopping this behavior, it causes ' .
-              \ 'an error on go forward/back because updating popup closes the floating window at first and ' .
-              \ 'plugin-git-messenger-buf-enter tries to close the already-closed popup'
-              \ )
-
             GitMessenger
             Assert IsNotNone(GetPopup())
 
-            vsplit
+            vnew
             wincmd p
 
             Assert IsNone(GetPopupNoWait())
