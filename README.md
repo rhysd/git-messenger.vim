@@ -33,15 +33,15 @@ especially in message of the last commit which modifies the line.
 
 - Show popup window with Neovim v0.4.0-dev:
 
-<img alt="screencast" src="https://github.com/rhysd/ss/blob/master/git-messenger.vim/demo.gif?raw=true" width=763 height=556 />
+<img alt="main screenshot" src="https://github.com/rhysd/ss/blob/master/git-messenger.vim/demo.gif?raw=true" width=763 height=556 />
 
 - Exploring older commits:
 
-<img alt="history" src="https://github.com/rhysd/ss/blob/master/git-messenger.vim/history.gif?raw=true" width=510 height=252 />
+<img alt="history screenshot" src="https://github.com/rhysd/ss/blob/master/git-messenger.vim/history.gif?raw=true" width=510 height=252 />
 
 - Exploring diff of the commit (you may be also interested in `g:git_messenger_include_diff`):
 
-<img alt="diff" src="https://github.com/rhysd/ss/blob/master/git-messenger.vim/diff.gif?raw=true" width=742 height=492 />
+<img alt="diff screenshot" src="https://github.com/rhysd/ss/blob/master/git-messenger.vim/diff.gif?raw=true" width=742 height=492 />
 
 
 

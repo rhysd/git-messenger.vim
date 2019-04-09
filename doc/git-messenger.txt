@@ -5,6 +5,7 @@ Author : rhysd <https://rhysd.github.io>
 CONTENTS                *git-messenger-contents*
 
 Introduction            |git-messenger-introduction|
+Screenshot              |git-messenger-screenshot|
 Install                 |git-messenger-install|
 Commands                |git-messenger-commands|
 Mappings                |git-messenger-mappings|
@@ -16,7 +17,7 @@ License                 |git-messenger-license|
 
 
 ==============================================================================
-INTRODUCTION                                        *git-messenger-introduction*
+SCREENSHOT                                            *git-messenger-screenshot*
 
 *git-messenger.vim* is a Vim/Neovim plugin to reveal the hidden message under
 the cursor quickly. It shows the last commit message under the cursor in popup
@@ -38,8 +39,23 @@ information near the cursor.
 
 If you see some error message, please try |git-messenger-health-check|.
 
-Screencast with Neovim v0.4.0-dev:
-  https://github.com/rhysd/ss/blob/master/git-messenger.vim/demo.gif?raw=true
+
+==============================================================================
+SCREENCAST                                            *git-messenger-screencast*
+
+1. Show popup window with Neovim v0.4.0-dev
+
+https://github.com/rhysd/ss/blob/master/git-messenger.vim/demo.gif
+
+2. Exploring older commits
+
+https://github.com/rhysd/ss/blob/master/git-messenger.vim/history.gif
+
+3. Exploring diff of the commit
+
+https://github.com/rhysd/ss/blob/master/git-messenger.vim/diff.gif
+
+You may be also interested in |g:git_messenger_include_diff|
 
 
 ==============================================================================
