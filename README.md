@@ -6,7 +6,8 @@ git-messenger.vim
 cursor quickly. It shows the history of commits under the cursor in popup window.
 
 This plugin shows the message of the last commit in a 'popup window'. If the last commit is not
-convenient, you can explore older commits in the popup window.
+convenient, you can explore older commits in the popup window. Additionally you can also check diff
+of the commit.
 
 The popup window is implemented in
 
@@ -32,11 +33,15 @@ especially in message of the last commit which modifies the line.
 
 - Show popup window with Neovim v0.4.0-dev:
 
-<img alt="screencast" src="https://github.com/rhysd/ss/blob/master/git-messenger.vim/demo.gif?raw=true" width=763 height=556 />
+<img alt="main screenshot" src="https://github.com/rhysd/ss/blob/master/git-messenger.vim/demo.gif?raw=true" width=763 height=556 />
 
-- Screencast for exploring older commits:
+- Exploring older commits:
 
-<img alt="history" src="https://github.com/rhysd/ss/blob/master/git-messenger.vim/history.gif?raw=true" width=510 height=252 />
+<img alt="history screenshot" src="https://github.com/rhysd/ss/blob/master/git-messenger.vim/history.gif?raw=true" width=510 height=252 />
+
+- Exploring diff of the commit (you may be also interested in `g:git_messenger_include_diff`):
+
+<img alt="diff screenshot" src="https://github.com/rhysd/ss/blob/master/git-messenger.vim/diff.gif?raw=true" width=742 height=492 />
 
 
 
@@ -121,12 +126,14 @@ You can also see the older commits.
 
 Following mappings are defined within popup window.
 
-| Mapping | Description                                          |
-|---------|------------------------------------------------------|
-| `q`     | Close the popup window                               |
-| `o`     | **o**lder. Back to older commit at the line          |
-| `O`     | Opposite to `o`. Forward to newer commit at the line |
-| `?`     | Show mappings help                                   |
+| Mapping | Description                                                   |
+|---------|---------------------------------------------------------------|
+|   `q`   | Close the popup window                                        |
+|   `o`   | **o**lder. Back to older commit at the line                   |
+|   `O`   | Opposite to `o`. Forward to newer commit at the line          |
+|   `d`   | Reveals diff hunks only related to current file in the commit |
+|   `D`   | Reveals all diff hunks in the commit                          |
+|   `?`   | Show mappings help                                            |
 
 ### Mappings
 
@@ -161,6 +168,17 @@ Some global variables are available to configure the behavior of this plugin.
 
 When this value is set to `v:false`, a popup window is no longer closed automatically when moving a
 cursor after the window is shown up.
+
+#### `g:git_messenger_include_diff` (Default: `"none"`)
+
+One of `"none"`, `"current"`, `"all"`.
+
+When this value is not set to `"none"`, a popup window includes diff hunks of the commit at showing
+up. `"current"` includes diff hunks of only current file in the commit. `"all"` includes all diff
+hunks in the commit.
+
+Please note that typing `d` and `D` in popup window reveals diff hunks even if this value is set to
+`"none"`.
 
 #### `g:git_messenger_git_command` (Default: `"git"`)
 

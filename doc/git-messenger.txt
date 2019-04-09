@@ -5,6 +5,7 @@ Author : rhysd <https://rhysd.github.io>
 CONTENTS                *git-messenger-contents*
 
 Introduction            |git-messenger-introduction|
+Screenshot              |git-messenger-screenshot|
 Install                 |git-messenger-install|
 Commands                |git-messenger-commands|
 Mappings                |git-messenger-mappings|
@@ -16,7 +17,7 @@ License                 |git-messenger-license|
 
 
 ==============================================================================
-INTRODUCTION                                        *git-messenger-introduction*
+SCREENSHOT                                            *git-messenger-screenshot*
 
 *git-messenger.vim* is a Vim/Neovim plugin to reveal the hidden message under
 the cursor quickly. It shows the last commit message under the cursor in popup
@@ -38,8 +39,23 @@ information near the cursor.
 
 If you see some error message, please try |git-messenger-health-check|.
 
-Screencast with Neovim v0.4.0-dev:
-  https://github.com/rhysd/ss/blob/master/git-messenger.vim/demo.gif?raw=true
+
+==============================================================================
+SCREENCAST                                            *git-messenger-screencast*
+
+1. Show popup window with Neovim v0.4.0-dev
+
+https://github.com/rhysd/ss/blob/master/git-messenger.vim/demo.gif
+
+2. Exploring older commits
+
+https://github.com/rhysd/ss/blob/master/git-messenger.vim/history.gif
+
+3. Exploring diff of the commit
+
+https://github.com/rhysd/ss/blob/master/git-messenger.vim/diff.gif
+
+You may be also interested in |g:git_messenger_include_diff|
 
 
 ==============================================================================
@@ -106,12 +122,14 @@ COMMANDS                                                *git-messenger-commands*
 
   Following mappings are defined within popup window.
 
-  | Mapping | Description                                            |
-  | ------- | ------------------------------------------------------ |
-  | q       | Close the popup window                                 |
-  | o       | "o"lder. Back to older commit at the line              |
-  | O       | Opposite to older. Forward to newer commit at the line |
-  | ?       | Show mappings help                                     |
+  | Mapping | Description                                                   |
+  | ------- | ------------------------------------------------------------- |
+  |    q    | Close the popup window                                        |
+  |    o    | "o"lder. Back to older commit at the line                     |
+  |    O    | Opposite to older. Forward to newer commit at the line        |
+  |    d    | Reveals diff hunks only related to current file in the commit |
+  |    D    | Reveals all diff hunks in the commit                          |
+  |    ?    | Show mappings help                                            |
 
 *:GitMessengerClose*
 
@@ -174,6 +192,22 @@ Some global variables are available to configure the behavior of this plugin.
 
   When this value is set to |v:false|, a popup window is no longer closed
   automatically when moving a cursor after the window is shown up.
+
+*g:git_messenger_include_diff* (Default: "none")
+
+  When this value is set to |v:true|, a popup window includes diff hunks of the
+  commit by default.
+  Note: Typing "d" in popup window reveals diff hunks even if this value is
+  set to |v:false|.
+
+  One of "none", "current", "all".
+
+  When this value is NOT set to "none", a popup window includes diff hunks of
+  the commit at showing up. "current" includes diff hunks of only current file
+  in the commit. "all" includes all diff hunks in the commit.
+
+  Note: Typing d and D mappings in popup window reveal diff hunks even if this
+  value is set to "none".
 
 *g:git_messenger_git_command* (Default: "git")
 

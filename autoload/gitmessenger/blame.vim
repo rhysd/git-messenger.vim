@@ -23,10 +23,7 @@ function! s:blame__back() dict abort
     let next_index = self.index + 1
 
     if len(self.history) > next_index
-        let self.index = next_index
-        let self.contents = self.history[next_index]
-        let self.popup.contents = self.contents
-        call self.popup.update()
+        call self.load_history(next_index)
         return
     endif
 
@@ -34,6 +31,9 @@ function! s:blame__back() dict abort
         echo 'git-messenger: No older commit found'
         return
     endif
+
+    " Reset current state
+    let self.diff = 'none'
 
     let args = ['--no-pager', 'blame', self.prev_commit, self.file, '-L', self.line . ',+1', '--porcelain']
     let cwd = fnamemodify(self.file, ':p:h')
@@ -49,16 +49,36 @@ function! s:blame__forward() dict abort
         return
     endif
 
-    let self.index = next_index
-    let self.contents = self.history[next_index]
-    let self.popup.contents = self.contents
-    call self.popup.update()
+    call self.load_history(next_index)
 endfunction
 let s:blame.forward = funcref('s:blame__forward')
 
+function! s:blame__load_history(index) dict abort
+    let h = self.history[a:index]
+    let self.contents = h.contents
+    let self.diff = h.diff
+    let self.commit = h.commit
+    let self.index = a:index
+    let self.popup.contents = h.contents
+    call self.popup.update()
+endfunction
+let s:blame.load_history = funcref('s:blame__load_history')
+
+function! s:blame__save_history() dict abort
+    let self.history += [{
+        \   'contents': self.contents,
+        \   'diff': self.diff,
+        \   'commit': self.commit,
+        \}]
+endfunction
+let s:blame.save_history = funcref('s:blame__save_history')
+
 function! s:blame__open_popup() dict abort
     if has_key(self, 'popup') && has_key(self.popup, 'bufnr')
-        let self.history += [self.contents]
+        " Already popup is open. It means that now older commit is showing up.
+        " Save the contents to history and show the contents in current
+        " popup.
+        call self.save_history()
         let self.index = len(self.history) - 1
         let self.popup.contents = self.contents
         call self.popup.update()
@@ -71,6 +91,8 @@ function! s:blame__open_popup() dict abort
         \       'q': [{-> execute('close', '')}, 'Close popup window'],
         \       'o': [funcref(self.back, [], self), 'Back to older commit'],
         \       'O': [funcref(self.forward, [], self), 'Forward to newer commit'],
+        \       'd': [funcref(self.reveal_diff, [v:false], self), "Reveal current file's diffs of current commit"],
+        \       'D': [funcref(self.reveal_diff, [v:true], self), "Reveal all diffs of current commit"],
         \   },
         \ }
     if has_key(self.opts, 'did_close')
@@ -80,7 +102,7 @@ function! s:blame__open_popup() dict abort
         let opts.enter = self.opts.enter_popup
     endif
 
-    let self.history = [self.contents]
+    call self.save_history()
     let self.popup = gitmessenger#popup#new(self.contents, opts)
     call self.popup.open()
 
@@ -89,6 +111,67 @@ function! s:blame__open_popup() dict abort
     endif
 endfunction
 let s:blame.open_popup = funcref('s:blame__open_popup')
+
+function! s:blame__after_diff(next_diff, git) dict abort
+    let self.failed = a:git.exit_status != 0
+
+    if self.failed
+        call self.error(s:git_cmd_failure(a:git))
+        return
+    endif
+
+    if a:git.stdout == [''] || !has_key(self.popup, 'bufnr') || bufnr('%') != self.popup.bufnr
+        return
+    endif
+
+    for line in a:git.stdout
+        if line !=# ''
+            let line = ' ' . line
+        endif
+        let self.contents += [line]
+    endfor
+
+    let self.popup.contents = self.contents
+    call self.popup.update()
+    let self.diff = a:next_diff
+endfunction
+
+function! s:blame__reveal_diff(include_all) dict abort
+    if a:include_all
+        let next_diff = 'all'
+    else
+        let next_diff = 'current'
+    endif
+
+    if self.diff ==# next_diff
+        " The diff is already shown. Skipped
+        return
+    endif
+
+    " Remove diff hunks from popup
+    let saved = getpos('.')
+    keepjumps execute 1
+    let diff_start = search('^ diff --git ', 'ncW')
+    if diff_start > 1
+        let self.contents = self.contents[ : diff_start-2]
+    endif
+    keepjumps call setpos('.', saved)
+
+    let hash = self.commit
+    if hash ==# '' || hash =~# '^0\+$'
+        call self.error('Not a valid commit hash: ' . hash)
+        return
+    endif
+
+    let args = ['--no-pager', 'diff', hash . '^..' . hash]
+    if !a:include_all
+        let args += [self.file]
+    endif
+    let cwd = fnamemodify(self.file, ':p:h')
+    let git = gitmessenger#git#new(g:git_messenger_git_command)
+    call git.spawn(args, cwd, funcref('s:blame__after_diff', [next_diff], self))
+endfunction
+let s:blame.reveal_diff = funcref('s:blame__reveal_diff')
 
 function! s:blame__after_log(git) dict abort
     let self.failed = a:git.exit_status != 0
@@ -163,6 +246,7 @@ function! s:blame__after_blame(git) dict abort
 
     let self.oldest_commit = hash
     let self.prev_commit = prev_hash
+    let self.commit = hash
 
     " Check hash is 0000000000000000000000 it means that the line is not committed yet
     if hash =~# '^0\+$'
@@ -170,7 +254,21 @@ function! s:blame__after_blame(git) dict abort
         return
     endif
 
-    call self.spawn_git(['--no-pager', 'log', '-n', '1', '--pretty=format:%b', hash], 's:blame__after_log')
+    let args = ['--no-pager', 'log', '-n', '1', '--pretty=format:%b']
+    if g:git_messenger_include_diff !=? 'none'
+        if g:git_messenger_include_diff ==? 'current'
+            let self.diff = 'current'
+        else
+            let self.diff = 'all'
+        endif
+        let args += ['-p', '-m']
+    endif
+    let args += [hash]
+    if g:git_messenger_include_diff ==? 'current'
+        let args += [self.file]
+    endif
+
+    call self.spawn_git(args, 's:blame__after_log')
 endfunction
 
 function! s:blame__spawn_git(args, callback) dict abort
@@ -191,14 +289,22 @@ function! s:blame__start() dict abort
 endfunction
 let s:blame.start = funcref('s:blame__start')
 
-" file: string
-" line: number
+" file: string;
+" line: number;
 " opts: {
 "   did_open: (b: Blame) => void;
 "   did_close: (p: Popup) => void;
 "   on_error: (errmsg: string) => void;
 "   enter_popup: boolean;
-" }
+" };
+" index: number;
+" history: {
+"   contents: string[];
+"   diff: 'none' | 'all' | 'current';
+"   commit: string;
+" }[];
+" diff: 'none' | 'all' | 'current';
+" commit: string;
 function! gitmessenger#blame#new(file, line, opts) abort
     let b = deepcopy(s:blame)
     let b.line = a:line
@@ -206,5 +312,7 @@ function! gitmessenger#blame#new(file, line, opts) abort
     let b.opts = a:opts
     let b.index = 0
     let b.history = []
+    let b.diff = 'none'
+    let b.commit = ''
     return b
 endfunction

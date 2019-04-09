@@ -9,6 +9,7 @@ let g:git_messenger_no_default_mappings = get(g:, 'git_messenger_no_default_mapp
 let g:git_messenger_into_popup_after_show = get(g:, 'git_messenger_into_popup_after_show', v:true)
 let g:git_messenger_always_into_popup = get(g:, 'git_messenger_always_into_popup', v:false)
 let g:git_messenger_preview_mods = get(g:, 'git_messenger_preview_mods', '')
+let g:git_messenger_include_diff = get(g:, 'git_messenger_include_diff', 'none')
 
 command! -nargs=0 -bar GitMessenger call gitmessenger#new(expand('%:p'), line('.'), bufnr('%'), {'close_on_cursor_moved' : g:git_messenger_close_on_cursor_moved})
 command! -nargs=0 -bar GitMessengerClose call gitmessenger#close_popup(bufnr('%'))

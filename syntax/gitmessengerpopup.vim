@@ -21,5 +21,33 @@ else
     hi def gitmessengerEndOfBuffer term=None guibg=#333333 guifg=#333333 ctermbg=234 ctermfg=234
 endif
 
-let b:current_syntax = 'gitmessengerpopup'
+" Diff included in popup
+syn match diffRemoved "^ -.*" display
+syn match diffAdded "^ +.*" display
 
+syn match diffSubname "  @@..*"ms=s+3 contained display
+syn match diffLine "^ @.*" contains=diffSubname display
+syn match diffLine "^ \<\d\+\>.*" display
+syn match diffLine "^ \*\*\*\*.*" display
+syn match diffLine "^ ---$" display
+
+" Some versions of diff have lines like "#c#" and "#d#" (where # is a number)
+syn match diffLine "^ \d\+\(,\d\+\)\=[cda]\d\+\>.*"
+
+syn match diffFile "^ diff --git .*" display
+syn match diffFile "^ +++ .*" display
+syn match diffFile "^ ==== .*" display
+syn match diffOldFile "^ \*\*\* .*" display
+syn match diffNewFile "^ --- .*" display
+syn match diffIndexLine "^ index \x\{7,}\.\.\x\{7,}.*"
+
+hi def link diffOldFile   diffFile
+hi def link diffNewFile   diffFile
+hi def link diffIndexLine PreProc
+hi def link diffFile      Type
+hi def link diffRemoved   Special
+hi def link diffAdded     Identifier
+hi def link diffLine      Statement
+hi def link diffSubname   PreProc
+
+let b:current_syntax = 'gitmessengerpopup'
