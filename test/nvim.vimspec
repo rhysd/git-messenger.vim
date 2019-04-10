@@ -100,11 +100,26 @@ Describe Neovim
             Assert IsNone(GetPopupNoWait())
         End
 
-        It is closed on WinEnter
+        It is closed on BufEnter
             GitMessenger
             Assert IsNotNone(GetPopup())
 
             vnew
+            wincmd p
+
+            Assert IsNone(GetPopupNoWait())
+        End
+
+        It is closed on WinEnter but not on BufEnter
+            GitMessenger
+            Assert IsNotNone(GetPopup())
+
+            " Creates another window, but it contains the same buffer as
+            " current one.
+            vsplit
+
+            " Move to another window causes WinEnter, but buffer is the same
+            " so BufEnter won't be triggered
             wincmd p
 
             Assert IsNone(GetPopupNoWait())

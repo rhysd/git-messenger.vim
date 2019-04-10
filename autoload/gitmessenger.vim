@@ -24,10 +24,7 @@ function! s:on_buf_enter(bufnr) abort
 
     let b = bufnr('%')
     " When entering/exiting popup window, do nothing
-    if popup.bufnr == b || popup.opener_bufnr == b
-        " Note: Do not close popup when cursor moves into opener buffer.
-        " Otherwise, it accidentally closes the popup when updating the window
-        " for jumping to older commits.
+    if popup.bufnr == b
         return
     endif
 
@@ -56,7 +53,7 @@ function! s:on_open(blame) dict abort
     endif
 
     augroup plugin-git-messenger-buf-enter
-        execute 'autocmd BufEnter * call <SID>on_buf_enter(' . opener_bufnr . ')'
+        execute 'autocmd BufEnter,WinEnter * call <SID>on_buf_enter(' . opener_bufnr . ')'
     augroup END
 endfunction
 
