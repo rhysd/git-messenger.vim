@@ -78,6 +78,17 @@ Describe Neovim
             Assert Equals(win_getid(), opener_id)
             Assert IsNone(GetPopupNoWait())
         End
+
+        It shows an error message when commit is not found
+            " Open empty buffer so it's not managed by Git
+            enew!
+
+            GitMessenger
+            Assert IsNone(GetPopup())
+
+            let mes = execute('message')
+            Assert Match(mes, '\<git-messenger: ', mes)
+        End
     End
 
     Describe Popup window
@@ -243,7 +254,7 @@ Describe Neovim
             Assert True(found, 'Got lines: ' . string(getline(1, '$')))
         End
 
-        Describe 'diff support'
+        Describe diff support
             " LICENSE and README.md was added at the same commit.
             " So 'current' diffs in LICENSE only shows changes of LICENSE.
             " And 'all' diffs in LICENSE shows changes of both LICENSE and README.md
