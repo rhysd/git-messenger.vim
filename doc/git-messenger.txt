@@ -11,6 +11,7 @@ Commands                |git-messenger-commands|
 Mappings                |git-messenger-mappings|
 Variables               |git-messenger-variables|
 Highlights              |git-messenger-highlights|
+Popup Window Config     |git-messenger-popup-window-config|
 Health Check            |git-messenger-health-check|
 Repository              |git-messenger-repository-page|
 License                 |git-messenger-license|
@@ -264,6 +265,22 @@ Example:
   " Color of 'end of buffer'. To hide '~' in popup window, I recommend to use the same background
   " color as gitmessengerPopupNormal.
   hi gitmessengerEndOfBuffer term=None guifg=#333333 guibg=#333333 ctermfg=234 ctermbg=234
+<
+
+==============================================================================
+CONFIGURATION IN POPUP WINDOW                *git-messenger-popup-window-config*
+
+Filetype *gitmessengerpopup* is set in the popup window. Please hook |FileType|
+event to do some local setup within a popup window.
+
+For example:
+>
+  function! s:setup_gitmessengerpopup() abort
+      " For example, set go back/forward history to <C-o>/<C-i>
+      nmap <buffer><C-o> o
+      nmap <buffer><C-i> O
+  endfunction
+  autocmd FileType gitmessengerpopup call <SID>s:setup_gitmessengerpopup()
 <
 
 ==============================================================================

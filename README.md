@@ -208,7 +208,7 @@ Command modifiers for opening preview window. The value will be passed as prefix
 For example, setting `"botright"` to the variable opens a preview window at bottom of the current
 window. Please see `:help <mods>` for more details.
 
-### Popup window highlight
+### Popup Window Highlight
 
 This plugin sets sensible highlight colors to popup menu for light and dark colorschemes by default.
 However, it may not match to your colorscheme. In the case, you can specify your own colors to
@@ -233,6 +233,24 @@ hi gitmessengerPopupNormal term=None guifg=#eeeeee guibg=#333333 ctermfg=255 cte
 " Color of 'end of buffer'. To hide '~' in popup window, I recommend to use the same background
 " color as gitmessengerPopupNormal.
 hi gitmessengerEndOfBuffer term=None guifg=#333333 guibg=#333333 ctermfg=234 ctermbg=234
+```
+
+### Configuration for Popup Window
+
+Filetype `gitmessengerpopup` is set in the popup window. Please hook `FileType` event to do some
+local setup within a popup window.
+
+For example:
+
+```vim
+function! s:setup_git_messenger_popup() abort
+    " Your favorite configuration here
+
+    " For example, set go back/forward history to <C-o>/<C-i>
+    nmap <buffer><C-o> o
+    nmap <buffer><C-i> O
+endfunction
+autocmd FileType gitmessengerpopup call <SID>s:setup_git_messenger_popup()
 ```
 
 ### Health Check
