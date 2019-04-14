@@ -32,14 +32,14 @@ syn match diffLine "^ \*\*\*\*.*" display
 syn match diffLine "^ ---$" display
 
 " Some versions of diff have lines like "#c#" and "#d#" (where # is a number)
-syn match diffLine "^ \d\+\(,\d\+\)\=[cda]\d\+\>.*"
+syn match diffLine "^ \d\+\(,\d\+\)\=[cda]\d\+\>.*" display
 
 syn match diffFile "^ diff --git .*" display
 syn match diffFile "^ +++ .*" display
 syn match diffFile "^ ==== .*" display
 syn match diffOldFile "^ \*\*\* .*" display
 syn match diffNewFile "^ --- .*" display
-syn match diffIndexLine "^ index \x\{7,}\.\.\x\{7,}.*"
+syn match diffIndexLine "^ index \x\{7,}\.\.\x\{7,}.*" display
 
 hi def link diffOldFile   diffFile
 hi def link diffNewFile   diffFile
