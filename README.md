@@ -185,10 +185,10 @@ Please note that typing `d` and `D` in popup window reveals diff hunks even if t
 `git` command to retrieve commit messages. If your `git` executable is not in `$PATH` directories,
 please specify the path to the executable.
 
-#### `g:git_messenger_no_default_mappings` (Default: `v:true`)
+#### `g:git_messenger_no_default_mappings` (Default: `v:false`)
 
-When this value is set to `v:false`, it does not define any key mappings. `<Plug>` mappings are
-still defined since they don't make any conflict with existing mappings.
+When this value is set to `v:true`, it does not define any key mappings. `<Plug>` mappings are still
+defined since they don't make any conflicts with existing mappings.
 
 #### `g:git_messenger_into_popup_after_show` (Default: `v:true`)
 
