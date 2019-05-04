@@ -14,31 +14,38 @@ if has('nvim')
         call self.on_exit(self)
     endfunction
 else
-    function! s:git__may_finalize_vim(ch) dict abort
+    function! s:git__finalize_vim(event, ch) dict abort
         if has_key(self, 'finalized') && self.finalized
             return
         endif
-        if !has_key(self, 'exit_status')
-            return
-        endif
-        let out_status = ch_status(a:ch, {'part': 'out'})
-        let err_status = ch_status(a:ch, {'part': 'err'})
-        if out_status !=# 'open' && out_status !=# 'buffered' &&
-         \ err_status !=# 'open' && err_status !=# 'buffered'
-            let self.finalized = v:true
-            call self.on_exit(self)
-        endif
+
+        " Note:
+        " Workaround for Vim's exit_cb behavior. When the callback is called,
+        " sometimes channel for stdout and/or stderr is not closed yet. So
+        " their status may be 'open'. As workaround for the behavior, we do
+        " polling to check the channel statuses with 1 msec interval until the
+        " statuses are set to 'close'. (#16)
+        while 1
+            let out_status = ch_status(a:ch, {'part': 'out'})
+            let err_status = ch_status(a:ch, {'part': 'err'})
+            if out_status !=# 'open' && out_status !=# 'buffered' &&
+            \ err_status !=# 'open' && err_status !=# 'buffered'
+                let self.finalized = v:true
+                call self.on_exit(self)
+                return
+            endif
+            sleep 1m
+        endwhile
     endfunction
-    let s:git.may_finalize_vim = funcref('s:git__may_finalize_vim')
+    let s:git.finalize_vim = funcref('s:git__finalize_vim')
 
     function! s:on_output_vim(event, ch, msg) dict abort
         call extend(self[a:event], split(a:msg, "\n", 1))
-        call self.may_finalize_vim(a:ch)
     endfunction
 
     function! s:on_exit_vim(ch, code) dict abort
         let self.exit_status = a:code
-        call self.may_finalize_vim(a:ch)
+        call self.finalize_vim('exit', a:ch)
     endfunction
 endif
 
