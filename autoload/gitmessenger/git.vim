@@ -14,7 +14,7 @@ if has('nvim')
         call self.on_exit(self)
     endfunction
 else
-    function! s:git__finalize_vim(event, ch) dict abort
+    function! s:git__finalize_vim(ch) dict abort
         if has_key(self, 'finalized') && self.finalized
             return
         endif
@@ -45,7 +45,7 @@ else
 
     function! s:on_exit_vim(ch, code) dict abort
         let self.exit_status = a:code
-        call self.finalize_vim('exit', a:ch)
+        call self.finalize_vim(a:ch)
     endfunction
 endif
 
