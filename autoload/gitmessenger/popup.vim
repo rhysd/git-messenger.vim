@@ -124,11 +124,13 @@ function! s:popup__open() dict abort
         let opts = self.floating_win_opts(width, height)
         let win_id = nvim_open_win(self.opener_bufnr, v:true, opts)
     else
+        let curr_pos = getpos('.')
         let mods = 'noswapfile'
         if g:git_messenger_preview_mods !=# ''
             let mods .= ' ' . g:git_messenger_preview_mods
         endif
         execute mods 'pedit!'
+        call setpos('.', curr_pos)
         wincmd P
         execute height . 'wincmd _'
         let win_id = win_getid()
