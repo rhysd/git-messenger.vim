@@ -522,4 +522,19 @@ Describe Neovim
             Assert NotEqual(idx, -1, string(lines))
         End
     End
+
+    Describe <Plug>(git-messenger)
+        It is mapped to <Leader>gm by default
+            let m = mapcheck('<Leader>gm')
+            Assert Equal(m, '<Plug>(git-messenger)')
+        End
+
+        It invokes :GitMessenger
+            execute 'normal' "\<Plug>(git-messenger)"
+
+            let p = GetPopup()
+            Assert IsNotNone(p)
+            Assert KeyExists(p, 'bufnr')
+        End
+    End
 End
