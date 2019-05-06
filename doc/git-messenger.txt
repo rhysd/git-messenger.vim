@@ -307,8 +307,8 @@ of this plugin.
 >
   :checkhealth
 <
-On Vim, please install [vim-healthcheck]() and run `:CheckHealth`. It's a
-plugin to run `:checkhealth` on Vim.
+On Vim, please install vim-healthcheck and run `:CheckHealth`. It's a plugin to
+run `:checkhealth` on Vim.
 >
   :CheckHealth
 <
