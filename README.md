@@ -212,28 +212,41 @@ window. Please see `:help <mods>` for more details.
 
 This plugin sets sensible highlight colors to popup menu for light and dark colorschemes by default.
 However, it may not match to your colorscheme. In the case, you can specify your own colors to
-popup window in `nvim/init.vim` by defining highlights as follows.. This is only available on
-Neovim.
+popup window in `nvim/init.vim` by defining highlights.
 
-Example:
+For example, if you want to use colors from your colorscheme, linking highlights with `:hi link`
+works fine as follows.
 
 ```vim
 " Header such as 'Commit:', 'Author:'
-hi gitmessengerHeader term=None guifg=#88b8f6 ctermfg=111
+hi link gitmessengerHeader Identifier
 
 " Commit hash at 'Commit:' header
-hi gitmessengerHash term=None guifg=#f0eaaa ctermfg=229
+hi link gitmessengerHash Comment
 
 " History number at 'History:' header
-hi gitmessengerHistory term=None guifg=#fd8489 ctermfg=210
+hi link gitmessengerHistory Constant
 
 " Normal color. This color is the most important
-hi gitmessengerPopupNormal term=None guifg=#eeeeee guibg=#333333 ctermfg=255 ctermbg=234
+hi link gitmessengerPopupNormal CursorLine
 
-" Color of 'end of buffer'. To hide '~' in popup window, I recommend to use the same background
-" color as gitmessengerPopupNormal.
+" Color of 'end of buffer'. To hide '~' in popup window, set 'None'
+hi gitmessengerEndOfBuffer term=None guifg=None guibg=None ctermfg=None ctermbg=None
+```
+
+For another example, if you want to define colors directly, defining the colors with `:hi` works
+fine as follows.
+
+```vim
+hi gitmessengerHeader term=None guifg=#88b8f6 ctermfg=111
+hi gitmessengerHash term=None guifg=#f0eaaa ctermfg=229
+hi gitmessengerHistory term=None guifg=#fd8489 ctermfg=210
+hi gitmessengerPopupNormal term=None guifg=#eeeeee guibg=#333333 ctermfg=255 ctermbg=234
 hi gitmessengerEndOfBuffer term=None guifg=#333333 guibg=#333333 ctermfg=234 ctermbg=234
 ```
+
+Note that `gitmessengerPopupNormal` and `gitmessengerEndOfBuffer` are only available on Neovim since
+`winhighlight` option is used.
 
 ### Configuration for Popup Window
 
