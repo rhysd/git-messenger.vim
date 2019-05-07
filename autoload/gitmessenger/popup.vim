@@ -79,6 +79,14 @@ function! s:popup__window_size() dict abort
     endfor
     let width += 1 " right margin
 
+    if type(g:git_messenger_max_popup_height) == v:t_number && height > g:git_messenger_max_popup_height
+        let height = g:git_messenger_max_popup_height
+    endif
+
+    if type(g:git_messenger_max_popup_width) == v:t_number && width > g:git_messenger_max_popup_width
+        let width = g:git_messenger_max_popup_width
+    endif
+
     return [width, height]
 endfunction
 let s:popup.window_size = funcref('s:popup__window_size')

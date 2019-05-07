@@ -10,6 +10,8 @@ let g:git_messenger_into_popup_after_show = get(g:, 'git_messenger_into_popup_af
 let g:git_messenger_always_into_popup = get(g:, 'git_messenger_always_into_popup', v:false)
 let g:git_messenger_preview_mods = get(g:, 'git_messenger_preview_mods', '')
 let g:git_messenger_include_diff = get(g:, 'git_messenger_include_diff', 'none')
+let g:git_messenger_max_popup_height = get(g:, 'git_messenger_max_popup_height', v:null)
+let g:git_messenger_max_popup_width = get(g:, 'git_messenger_max_popup_width', v:null)
 
 command! -nargs=0 -bar GitMessenger call gitmessenger#new(expand('%:p'), line('.'), bufnr('%'), {'close_on_cursor_moved' : g:git_messenger_close_on_cursor_moved})
 command! -nargs=0 -bar GitMessengerClose call gitmessenger#close_popup(bufnr('%'))
