@@ -208,6 +208,14 @@ Command modifiers for opening preview window. The value will be passed as prefix
 For example, setting `"botright"` to the variable opens a preview window at bottom of the current
 window. Please see `:help <mods>` for more details.
 
+#### `g:git_messenger_max_popup_height` (Default: `v:null`)
+
+Max lines of popup window in an integer value. Setting `v:null` means no limit.
+
+#### `g:git_messenger_max_popup_width` (Default: `v:null`)
+
+Max characters of popup window in an integer value. Setting `v:null` means no limit.
+
 ### Popup Window Highlight
 
 This plugin sets sensible highlight colors to popup menu for light and dark colorschemes by default.
