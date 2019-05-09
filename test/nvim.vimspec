@@ -218,40 +218,26 @@ Describe Neovim
             Assert True(found, 'Got line: ' . string(getline(2)))
         End
 
-        It shows diff hunks of current file on d
+        It does not cause #23 again
+            " 1. Open the same buffer with multiple window
+            " 2. Move cursror to the second window which opens the same
+            " buffer
+            vsplit
+            wincmd p
+
+            let prev_win_id = win_getid()
+
             GitMessenger
             Assert IsNotNone(GetPopup())
 
             GitMessenger
             Assert Exists('b:__gitmessenger_popup')
 
-            " Check diff is not shown
-            let lines = getline(1, '$')
-            let idx = index(lines, ' diff --git a/README.md b/README.md')
-            Assert Equals(idx, -1, string(lines))
+            normal q
 
-            normal d
+            Assert IsNone(GetPopupNoWait())
 
-            let found = WaitUntil({-> index(getline(1, '$'), ' diff --git a/README.md b/README.md') !=# -1})
-            Assert True(found, 'Got lines: ' . string(getline(1, '$')))
-        End
-
-        It shows all diff hunks on D
-            GitMessenger
-            Assert IsNotNone(GetPopup())
-
-            GitMessenger
-            Assert Exists('b:__gitmessenger_popup')
-
-            " Check diff is not shown
-            let lines = getline(1, '$')
-            let idx = index(lines, ' diff --git a/README.md b/README.md')
-            Assert Equals(idx, -1, string(lines))
-
-            normal D
-
-            let found = WaitUntil({-> index(getline(1, '$'), ' diff --git a/README.md b/README.md') !=# -1})
-            Assert True(found, 'Got lines: ' . string(getline(1, '$')))
+            Assert Equal(win_getid(), prev_win_id)
         End
 
         Describe diff support
@@ -271,6 +257,40 @@ Describe Neovim
 
             After each
                 let g:git_messenger_include_diff = saved_include_diff
+            End
+
+            It shows diff hunks of current file on d
+                GitMessenger
+                Assert IsNotNone(GetPopup())
+
+                GitMessenger
+                Assert Exists('b:__gitmessenger_popup')
+
+                " Check diff is not shown
+                let lines = getline(1, '$')
+                Assert False(LicenseDiffExists(), string(lines))
+
+                normal d
+
+                let found = WaitUntil(LicenseDiffExists)
+                Assert True(found, 'Got lines: ' . string(getline(1, '$')))
+            End
+
+            It shows all diff hunks on D
+                GitMessenger
+                Assert IsNotNone(GetPopup())
+
+                GitMessenger
+                Assert Exists('b:__gitmessenger_popup')
+
+                " Check diff is not shown
+                let lines = getline(1, '$')
+                Assert False(LicenseDiffExists(), string(lines))
+
+                normal D
+
+                let found = WaitUntil(LicenseDiffExists)
+                Assert True(found, 'Got lines: ' . string(getline(1, '$')))
             End
 
             It switches diff from 'current' to 'all' by d -> D
