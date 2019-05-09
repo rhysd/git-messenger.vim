@@ -25,7 +25,7 @@ let s:popup.close = funcref('s:popup__close')
 
 function! s:popup__get_winnr() dict abort
     if !has_key(self, 'bufnr')
-        return -1
+        return 0
     endif
 
     " Note: bufwinnr() is not available here because there may be multiple
@@ -37,7 +37,7 @@ let s:popup.get_winnr = funcref('s:popup__get_winnr')
 
 function! s:popup__scroll(map) dict abort
     let winnr = self.get_winnr()
-    if winnr < 0
+    if winnr == 0
         return
     endif
     execute winnr . 'wincmd w'
@@ -49,7 +49,7 @@ let s:popup.scroll = funcref('s:popup__scroll')
 
 function! s:popup__into() dict abort
     let winnr = self.get_winnr()
-    if winnr < 0
+    if winnr == 0
         return
     endif
     execute winnr . 'wincmd w'
@@ -120,7 +120,11 @@ function! s:popup__get_opener_winnr() dict abort
     if winnr != 0
         return winnr
     endif
-    return bufwinnr(self.opener_bufnr)
+    let winnr = bufwinnr(self.opener_bufnr)
+    if winnr > 0
+        return winnr
+    endif
+    return 0
 endfunction
 let s:popup.get_opener_winnr = funcref('s:popup__get_opener_winnr')
 
@@ -199,7 +203,7 @@ function! s:popup__update() dict abort
         return
     endif
     let opener_winnr = self.get_opener_winnr()
-    if opener_winnr < 0
+    if opener_winnr == 0
         return
     endif
 
