@@ -19,8 +19,16 @@ function! s:blame__error(msg) dict abort
 endfunction
 let s:blame.error = funcref('s:blame__error')
 
+function! s:blame__render() dict abort
+    let self.popup.contents = self.contents
+    call self.popup.update()
+endfunction
+let s:blame.render = funcref('s:blame__render')
+
 function! s:blame__back() dict abort
     let next_index = self.index + 1
+
+    call self.save_history()
 
     if len(self.history) > next_index
         call self.load_history(next_index)
@@ -49,27 +57,50 @@ function! s:blame__forward() dict abort
         return
     endif
 
+    call self.save_history()
     call self.load_history(next_index)
 endfunction
 let s:blame.forward = funcref('s:blame__forward')
 
 function! s:blame__load_history(index) dict abort
     let h = self.history[a:index]
-    let self.contents = h.contents
+    " Note: copy() is necessary because the contents may be updated later
+    " for diff. Without copy(), it modifies array in self.history directly
+    " but that's not intended.
+    let self.contents = copy(h.contents)
     let self.diff = h.diff
     let self.commit = h.commit
     let self.index = a:index
-    let self.popup.contents = h.contents
-    call self.popup.update()
+    call self.render()
 endfunction
 let s:blame.load_history = funcref('s:blame__load_history')
 
-function! s:blame__save_history() dict abort
+function! s:blame__create_history() dict abort
+    " Note: copy() is necessary because the contents may be updated later
+    " for diff
     let self.history += [{
-        \   'contents': self.contents,
+        \   'contents': copy(self.contents),
         \   'diff': self.diff,
         \   'commit': self.commit,
         \}]
+endfunction
+let s:blame.create_history = funcref('s:blame__create_history')
+
+function! s:blame__save_history() dict abort
+    if self.index > len(self.history)
+        let msg = printf('FATAL: Invariant error on saving history. Index %d is out of range. Length of history is %d', self.index, len(self.history))
+        call self.error(msg)
+        return
+    endif
+
+    let h = self.history[self.index]
+    if self.commit !=# h.commit
+        call self.error(printf('FATAL: Invaliant error on saving history. Current commit hash %s is different from commit hash in history %s', self.commit, h.commit))
+        return
+    endif
+
+    let h.diff = self.diff
+    let h.contents = copy(self.contents)
 endfunction
 let s:blame.save_history = funcref('s:blame__save_history')
 
@@ -78,10 +109,9 @@ function! s:blame__open_popup() dict abort
         " Already popup is open. It means that now older commit is showing up.
         " Save the contents to history and show the contents in current
         " popup.
-        call self.save_history()
+        call self.create_history()
         let self.index = len(self.history) - 1
-        let self.popup.contents = self.contents
-        call self.popup.update()
+        call self.render()
         return
     endif
 
@@ -91,8 +121,8 @@ function! s:blame__open_popup() dict abort
         \       'q': [{-> execute('close', '')}, 'Close popup window'],
         \       'o': [funcref(self.back, [], self), 'Back to older commit'],
         \       'O': [funcref(self.forward, [], self), 'Forward to newer commit'],
-        \       'd': [funcref(self.reveal_diff, [v:false], self), "Reveal current file's diffs of current commit"],
-        \       'D': [funcref(self.reveal_diff, [v:true], self), "Reveal all diffs of current commit"],
+        \       'd': [funcref(self.reveal_diff, [v:false], self), "Toggle current file's diffs of current commit"],
+        \       'D': [funcref(self.reveal_diff, [v:true], self), "Toggle all diffs of current commit"],
         \   },
         \ }
     if has_key(self.opts, 'did_close')
@@ -102,7 +132,7 @@ function! s:blame__open_popup() dict abort
         let opts.enter = self.opts.enter_popup
     endif
 
-    call self.save_history()
+    call self.create_history()
     let self.popup = gitmessenger#popup#new(self.contents, opts)
     call self.popup.open()
 
@@ -131,8 +161,7 @@ function! s:blame__after_diff(next_diff, git) dict abort
         let self.contents += [line]
     endfor
 
-    let self.popup.contents = self.contents
-    call self.popup.update()
+    call self.render()
     let self.diff = a:next_diff
 endfunction
 
@@ -144,8 +173,8 @@ function! s:blame__reveal_diff(include_all) dict abort
     endif
 
     if self.diff ==# next_diff
-        " The diff is already shown. Skipped
-        return
+        " Toggle diff
+        let next_diff = 'none'
     endif
 
     " Remove diff hunks from popup
@@ -156,6 +185,12 @@ function! s:blame__reveal_diff(include_all) dict abort
         let self.contents = self.contents[ : diff_start-2]
     endif
     keepjumps call setpos('.', saved)
+
+    if next_diff ==# 'none'
+        call self.render()
+        let self.diff = next_diff
+        return
+    endif
 
     let hash = self.commit
     if hash ==# '' || hash =~# '^0\+$'

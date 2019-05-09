@@ -123,14 +123,14 @@ COMMANDS                                                *git-messenger-commands*
 
   Following mappings are defined within popup window.
 
-  | Mapping | Description                                                   |
-  | ------- | ------------------------------------------------------------- |
-  |    q    | Close the popup window                                        |
-  |    o    | "o"lder. Back to older commit at the line                     |
-  |    O    | Opposite to older. Forward to newer commit at the line        |
-  |    d    | Reveals diff hunks only related to current file in the commit |
-  |    D    | Reveals all diff hunks in the commit                          |
-  |    ?    | Show mappings help                                            |
+  | Mapping | Description                                                  |
+  | ------- | ------------------------------------------------------------ |
+  |    q    | Close the popup window                                       |
+  |    o    | "o"lder. Back to older commit at the line                    |
+  |    O    | Opposite to older. Forward to newer commit at the line       |
+  |    d    | Toggle diff hunks only related to current file in the commit |
+  |    D    | Toggle all diff hunks in the commit                          |
+  |    ?    | Show mappings help                                           |
 
 *:GitMessengerClose*
 

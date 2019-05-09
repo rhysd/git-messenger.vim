@@ -126,14 +126,14 @@ You can also see the older commits.
 
 Following mappings are defined within popup window.
 
-| Mapping | Description                                                   |
-|---------|---------------------------------------------------------------|
-|   `q`   | Close the popup window                                        |
-|   `o`   | **o**lder. Back to older commit at the line                   |
-|   `O`   | Opposite to `o`. Forward to newer commit at the line          |
-|   `d`   | Reveals diff hunks only related to current file in the commit |
-|   `D`   | Reveals all diff hunks in the commit                          |
-|   `?`   | Show mappings help                                            |
+| Mapping | Description                                                  |
+|---------|--------------------------------------------------------------|
+|   `q`   | Close the popup window                                       |
+|   `o`   | **o**lder. Back to older commit at the line                  |
+|   `O`   | Opposite to `o`. Forward to newer commit at the line         |
+|   `d`   | Toggle diff hunks only related to current file in the commit |
+|   `D`   | Toggle all diff hunks in the commit                          |
+|   `?`   | Show mappings help                                           |
 
 ### Mappings
 
@@ -177,8 +177,8 @@ When this value is not set to `"none"`, a popup window includes diff hunks of th
 up. `"current"` includes diff hunks of only current file in the commit. `"all"` includes all diff
 hunks in the commit.
 
-Please note that typing `d` and `D` in popup window reveals diff hunks even if this value is set to
-`"none"`.
+Please note that typing `d` and `D` in popup window toggle showing diff hunks even if this value is
+set to `"none"`.
 
 #### `g:git_messenger_git_command` (Default: `"git"`)
 
