@@ -115,9 +115,19 @@ function! s:popup__floating_win_opts(width, height) dict abort
 endfunction
 let s:popup.floating_win_opts = funcref('s:popup__floating_win_opts')
 
+function! s:popup__get_opener_winnr() dict abort
+    let winnr = win_id2win(self.opener_winid)
+    if winnr != 0
+        return winnr
+    endif
+    return bufwinnr(self.opener_bufnr)
+endfunction
+let s:popup.get_opener_winnr = funcref('s:popup__get_opener_winnr')
+
 function! s:popup__open() dict abort
     let self.opened_at = getpos('.')
     let self.opener_bufnr = bufnr('%')
+    let self.opener_winid = win_getid()
     let self.type = s:floating_window_available ? 'floating' : 'preview'
 
     let [width, height] = self.window_size()
@@ -188,7 +198,7 @@ function! s:popup__update() dict abort
     if popup_winnr == 0
         return
     endif
-    let opener_winnr = bufwinnr(self.opener_bufnr)
+    let opener_winnr = self.get_opener_winnr()
     if opener_winnr < 0
         return
     endif
