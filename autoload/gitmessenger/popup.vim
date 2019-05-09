@@ -57,11 +57,6 @@ endfunction
 let s:popup.into = funcref('s:popup__into')
 
 function! s:popup__window_size() dict abort
-    " Note: Unlike col('.'), wincol() considers length of sign column
-    let origin = win_screenpos(bufwinnr(self.opener_bufnr))
-    let abs_cursor_line = (origin[0] - 1) + self.opened_at[1] - line('w0')
-    let abs_cursor_col = (origin[1] - 1) + wincol() - col('w0')
-
     let width = 0
     let max_width = 100
     let height = 0
