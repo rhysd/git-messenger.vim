@@ -634,3 +634,5 @@ Describe Neovim
         End
     End
 End
+
+" vim: set ft=vim:
