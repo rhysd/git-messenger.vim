@@ -372,7 +372,7 @@ Describe Neovim
                 endfor
             End
 
-            It switches diff from 'all' and 'current' repeatedly
+            It switches diff between 'all' and 'current' repeatedly
                 GitMessenger
                 Assert IsNotNone(GetPopup())
                 GitMessenger
@@ -444,20 +444,54 @@ Describe Neovim
             let found = WaitUntil({-> index(getline(1, '$'), ' diff --git a/README.md b/README.md') !=# -1})
             Assert True(found, 'Got lines: ' . string(getline(1, '$')))
 
-            normal o
-            call WaitUntil({-> getline(2) ==# ' History: #1'})
+            for i in range(3)
+                normal o
+                Assert WaitUntil({-> getline(2) ==# ' History: #1'})
 
-            let lines = getline(1, '$')
-            let idx = index(lines, ' diff --git a/README.md b/README.md')
-            Assert Equals(idx, -1, string(lines))
+                let lines = getline(1, '$')
+                let idx = index(lines, ' diff --git a/README.md b/README.md')
+                Assert Equals(idx, -1, string(lines))
 
-            normal O
-            call WaitUntil({-> getline(2) ==# ' History: #0'})
+                normal O
+                Assert WaitUntil({-> getline(2) ==# ' History: #0'})
 
-            " Check diff is restored
-            let lines = getline(1, '$')
-            let idx = index(lines, ' diff --git a/README.md b/README.md')
-            Assert NotEqual(idx, -1, string(lines))
+                " Check diff is restored
+                let lines = getline(1, '$')
+                let idx = index(lines, ' diff --git a/README.md b/README.md')
+                Assert NotEqual(idx, -1, string(lines))
+            endfor
+        End
+
+        It preserves previous diff content after changing content repeatedly
+            GitMessenger
+            Assert IsNotNone(GetPopup())
+
+            GitMessenger
+            Assert Exists('b:__gitmessenger_popup')
+
+            let expected = v:false
+            for i in range(3)
+                if i > 0
+                    " Toggle diff to update content
+                    normal d
+                    " Flip expectation since diff was toggled
+                    let expected = !expected
+                endif
+
+                let found = WaitUntil({-> index(getline(1, '$'), ' diff --git a/README.md b/README.md') !=# -1})
+                let msg = 'Got lines: (' . i . ') ' . string(getline(1, '$'))
+                Assert Equal(found, expected, msg)
+
+                normal o
+                Assert WaitUntil({-> getline(2) ==# ' History: #1'})
+
+                normal O
+                Assert WaitUntil({-> getline(2) ==# ' History: #0'})
+
+                let found = WaitUntil({-> index(getline(1, '$'), ' diff --git a/README.md b/README.md') !=# -1})
+                let msg = 'Got lines: (' . i . ') ' . string(getline(1, '$'))
+                Assert Equal(found, expected, msg)
+            endfor
         End
     End
 
