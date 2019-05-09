@@ -142,6 +142,34 @@ function! s:blame__open_popup() dict abort
 endfunction
 let s:blame.open_popup = funcref('s:blame__open_popup')
 
+function! s:blame__append_lines(lines) dict abort
+    let lines = a:lines
+    if lines[-1] ==# ''
+        " Strip last newline
+        let lines = lines[:-2]
+    endif
+
+    let skip_first_nl = v:true
+    for line in lines
+        if skip_first_nl && line ==# ''
+            continue
+        else
+            let skip_first_nl = v:false
+        endif
+
+        if line ==# ''
+            let self.contents += ['']
+        else
+            let self.contents += [' ' . line]
+        endif
+    endfor
+
+    if self.contents[-1] !~# '^\s*$'
+        let self.contents += ['']
+    endif
+endfunction
+let s:blame.append_lines = funcref('s:blame__append_lines')
+
 function! s:blame__after_diff(next_diff, git) dict abort
     let self.failed = a:git.exit_status != 0
 
@@ -154,12 +182,7 @@ function! s:blame__after_diff(next_diff, git) dict abort
         return
     endif
 
-    for line in a:git.stdout
-        if line !=# ''
-            let line = ' ' . line
-        endif
-        let self.contents += [line]
-    endfor
+    call self.append_lines(a:git.stdout)
 
     call self.render()
     let self.diff = a:next_diff
@@ -217,16 +240,7 @@ function! s:blame__after_log(git) dict abort
     endif
 
     if a:git.stdout != ['']
-        for line in a:git.stdout
-            if line ==# ''
-                let self.contents += ['']
-            else
-                let self.contents += [' ' . line]
-            endif
-        endfor
-        if self.contents[-1] !=# ''
-            let self.contents += ['']
-        endif
+        call self.append_lines(a:git.stdout)
     endif
 
     call self.open_popup()
