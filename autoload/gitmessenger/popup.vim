@@ -245,11 +245,21 @@ let s:popup.update = funcref('s:popup__update')
 
 function! s:popup__echo_help() dict abort
     if has_key(self.opts, 'mappings')
-        for [map, info] in items(self.opts.mappings)
-            echo printf('%s: %s', map, info[1])
+        let maps = keys(self.opts.mappings)
+        call sort(maps, 'i')
+        let maps += ['?']
+
+        for map in maps
+            if map ==# '?'
+                let desc = 'Show this help'
+            else
+                let desc = self.opts.mappings[map][1]
+            endif
+            echohl Identifier | echo ' ' . map
+            echohl Comment    | echon ' : '
+            echohl None       | echon desc
         endfor
     endif
-    echo '?: Show this help'
 endfunction
 let s:popup.echo_help = funcref('s:popup__echo_help')
 
