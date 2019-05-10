@@ -122,7 +122,7 @@ function! s:blame__open_popup() dict abort
         \       'o': [funcref(self.back, [], self), 'Back to older commit'],
         \       'O': [funcref(self.forward, [], self), 'Forward to newer commit'],
         \       'd': [funcref(self.reveal_diff, [v:false], self), "Toggle current file's diffs of current commit"],
-        \       'D': [funcref(self.reveal_diff, [v:true], self), "Toggle all diffs of current commit"],
+        \       'D': [funcref(self.reveal_diff, [v:true], self), 'Toggle all diffs of current commit'],
         \   },
         \ }
     if has_key(self.opts, 'did_close')
@@ -262,7 +262,7 @@ function! s:blame__after_blame(git) dict abort
     let stdout = a:git.stdout
     if len(stdout) < 10
         " Note: '\n' is not "\n", it's intentional
-        call self.error("Unexpected `git blame` output: " . join(stdout, '\n'))
+        call self.error('Unexpected `git blame` output: ' . join(stdout, '\n'))
         return
     endif
 

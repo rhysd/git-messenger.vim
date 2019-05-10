@@ -42,7 +42,7 @@ function! s:popup__scroll(map) dict abort
     endif
     execute winnr . 'wincmd w'
     sandbox let input = eval('"\<'.a:map.'>"')
-    execute "normal!" input
+    execute 'normal!' input
     wincmd p
 endfunction
 let s:popup.scroll = funcref('s:popup__scroll')

@@ -1,13 +1,13 @@
 " All popup instances keyed by opener's bufnr to manage lifetime of popups
-let s:all_popup = {}
+let s:all_popups = {}
 
 function! s:on_cursor_moved() abort
     let bufnr = bufnr('%')
-    if !has_key(s:all_popup, bufnr)
+    if !has_key(s:all_popups, bufnr)
         autocmd! plugin-git-messenger-close * <buffer>
         return
     endif
-    let popup = s:all_popup[bufnr]
+    let popup = s:all_popups[bufnr]
     if popup.opened_at != getpos('.')
         autocmd! plugin-git-messenger-close * <buffer>
         call gitmessenger#close_popup(bufnr)
@@ -31,7 +31,7 @@ function! s:on_buf_enter(bufnr) abort
     " This triggers s:on_close()
     call popup.close()
 
-    if empty(s:all_popup)
+    if empty(s:all_popups)
         autocmd! plugin-git-messenger-buf-enter
     endif
 endfunction
@@ -39,12 +39,12 @@ endfunction
 function! s:on_open(blame) dict abort
     if !has_key(a:blame.popup, 'bufnr')
         " For some reason, popup was already closed
-        unlet! a:all_popup[a:blame.popup.opener_bufnr]
+        unlet! s:all_popups[a:blame.popup.opener_bufnr]
         return
     endif
 
     let opener_bufnr = a:blame.popup.opener_bufnr
-    let s:all_popup[opener_bufnr] = a:blame.popup
+    let s:all_popups[opener_bufnr] = a:blame.popup
 
     if get(self, 'close_on_cursor_moved', 1)
         augroup plugin-git-messenger-close
@@ -58,7 +58,7 @@ function! s:on_open(blame) dict abort
 endfunction
 
 function! s:on_close(popup) dict abort
-    unlet! s:all_popup[a:popup.opener_bufnr]
+    unlet! s:all_popups[a:popup.opener_bufnr]
 endfunction
 
 function! s:on_error(errmsg) abort
@@ -83,8 +83,8 @@ function! gitmessenger#new(file, line, bufnr, ...) abort
     endif
 
     " Just after opening a popup window, move cursor into the window
-    if g:git_messenger_into_popup_after_show && has_key(s:all_popup, a:bufnr)
-        let p = s:all_popup[a:bufnr]
+    if g:git_messenger_into_popup_after_show && has_key(s:all_popups, a:bufnr)
+        let p = s:all_popups[a:bufnr]
         if has_key(p, 'bufnr')
             call p.into()
             return
@@ -94,8 +94,8 @@ function! gitmessenger#new(file, line, bufnr, ...) abort
     let opts = get(a:, 1, {})
     let opts.pos = getpos('.')
     " Close previous popup
-    if has_key(s:all_popup, a:bufnr)
-        call s:all_popup[a:bufnr].close()
+    if has_key(s:all_popups, a:bufnr)
+        call s:all_popups[a:bufnr].close()
     endif
 
     let blame = gitmessenger#blame#new(a:file, a:line, {
@@ -108,14 +108,14 @@ function! gitmessenger#new(file, line, bufnr, ...) abort
 endfunction
 
 function! s:popup_for(bufnr) abort
-    if !has_key(s:all_popup, a:bufnr)
+    if !has_key(s:all_popups, a:bufnr)
         return v:null
     endif
 
-    let popup = s:all_popup[a:bufnr]
+    let popup = s:all_popups[a:bufnr]
     if !has_key(popup, 'bufnr')
         " Here should be unreachable
-        unlet! s:all_popup[a:bufnr]
+        unlet! s:all_popups[a:bufnr]
         return v:null
     endif
 
