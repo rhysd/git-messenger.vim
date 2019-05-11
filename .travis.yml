@@ -1,8 +1,12 @@
 language: generic
+dist: xenial
 
-os:
-    - linux
-    - osx
+matrix:
+    include:
+        - os: linux
+          env: RUN_LINT=false
+        - os: osx
+          env: RUN_LINT=true
 
 install:
     - git fetch --unshallow
@@ -16,10 +20,24 @@ install:
         tar xzf nvim-linux64.tar.gz
       fi
     - export PATH=$(pwd)/nvim-${TRAVIS_OS_NAME}64/bin:$PATH
+    - |
+      if [[ "$RUN_LINT" == "true" ]]; then
+        pip3 install vim-vint
+      fi
 
 before_script:
     - uname -a
     - nvim --version
+    - python3 -V
 
 script:
     - THEMIS_VIM=nvim ./vim-themis/bin/themis ./test
+    - |
+      if [[ "$RUN_LINT" == "true" ]]; then
+        vint ./autoload ./plugin
+      fi
+
+addons:
+    homebrew:
+        packages:
+            - python3
