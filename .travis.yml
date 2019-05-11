@@ -1,12 +1,13 @@
-language: generic
-dist: xenial
-
 matrix:
     include:
-        - os: linux
-          env: RUN_LINT=false
-        - os: osx
+        - language: python
+          python: "3.7"
+          dist: xenial
+          os: linux
           env: RUN_LINT=true
+        - language: generic
+          os: osx
+          env: RUN_LINT=false
 
 install:
     - git fetch --unshallow
@@ -22,13 +23,13 @@ install:
     - export PATH=$(pwd)/nvim-${TRAVIS_OS_NAME}64/bin:$PATH
     - |
       if [[ "$RUN_LINT" == "true" ]]; then
+        python3 -V
         pip3 install vim-vint
       fi
 
 before_script:
     - uname -a
     - nvim --version
-    - python3 -V
 
 script:
     - THEMIS_VIM=nvim ./vim-themis/bin/themis ./test
@@ -36,8 +37,3 @@ script:
       if [[ "$RUN_LINT" == "true" ]]; then
         vint ./autoload ./plugin
       fi
-
-addons:
-    homebrew:
-        packages:
-            - python3
