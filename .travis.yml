@@ -1,8 +1,11 @@
 language: generic
 
-os:
-    - linux
-    - osx
+matrix:
+    include:
+        - os: linux
+          env: RUN_LINT=true
+        - os: osx
+          env: RUN_LINT=false
 
 install:
     - git fetch --unshallow
@@ -16,6 +19,10 @@ install:
         tar xzf nvim-linux64.tar.gz
       fi
     - export PATH=$(pwd)/nvim-${TRAVIS_OS_NAME}64/bin:$PATH
+    - |
+      if [[ "$RUN_LINT" == "true" ]]; then
+        pip3 install --user vim-vint
+      fi
 
 before_script:
     - uname -a
@@ -23,3 +30,7 @@ before_script:
 
 script:
     - THEMIS_VIM=nvim ./vim-themis/bin/themis ./test
+    - |
+      if [[ "$RUN_LINT" == "true" ]]; then
+        vint .
+      fi
