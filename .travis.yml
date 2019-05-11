@@ -34,3 +34,8 @@ script:
       if [[ "$RUN_LINT" == "true" ]]; then
         vint .
       fi
+
+addons:
+    apt:
+        packages:
+            - python3
