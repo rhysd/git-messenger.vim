@@ -178,7 +178,7 @@ function! s:blame__after_diff(next_diff, git) dict abort
         return
     endif
 
-    if a:git.stdout == [''] || !has_key(self.popup, 'bufnr') || bufnr('%') != self.popup.bufnr
+    if a:git.stdout == [] || a:git.stdout == [''] || !has_key(self.popup, 'bufnr') || bufnr('%') != self.popup.bufnr
         return
     endif
 
@@ -239,7 +239,7 @@ function! s:blame__after_log(git) dict abort
         return
     endif
 
-    if a:git.stdout != ['']
+    if a:git.stdout != [] && a:git.stdout != ['']
         call self.append_lines(a:git.stdout)
     endif
 
