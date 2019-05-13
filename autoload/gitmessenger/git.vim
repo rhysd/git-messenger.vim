@@ -25,11 +25,13 @@ else
         " their status may be 'open'. As workaround for the behavior, we do
         " polling to check the channel statuses with 1 msec interval until the
         " statuses are set to 'close'. (#16)
+        let out_opt = {'part': 'out'}
+        let err_opt = {'part': 'err'}
         while 1
-            let out_status = ch_status(a:ch, {'part': 'out'})
-            let err_status = ch_status(a:ch, {'part': 'err'})
+            let out_status = ch_status(a:ch, out_opt)
+            let err_status = ch_status(a:ch, err_opt)
             if out_status !=# 'open' && out_status !=# 'buffered' &&
-            \ err_status !=# 'open' && err_status !=# 'buffered'
+             \ err_status !=# 'open' && err_status !=# 'buffered'
                 let self.finalized = v:true
                 call self.on_exit(self)
                 return
