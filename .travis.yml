@@ -32,7 +32,7 @@ before_script:
     - nvim --version
 
 script:
-    - THEMIS_VIM=nvim ./vim-themis/bin/themis ./test
+    - THEMIS_VIM=nvim ./vim-themis/bin/themis ./test/nvim.vimspec
     - |
       if [[ "$RUN_LINT" == "true" ]]; then
         vint ./autoload ./plugin
