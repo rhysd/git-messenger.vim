@@ -30,10 +30,18 @@ install:
 before_script:
     - uname -a
     - nvim --version
+    - vim --version
 
 script:
     - THEMIS_VIM=nvim ./vim-themis/bin/themis ./test/nvim.vimspec
+    - THEMIS_VIM=vim ./vim-themis/bin/themis ./test/vim.vimspec
     - |
       if [[ "$RUN_LINT" == "true" ]]; then
         vint ./autoload ./plugin
       fi
+
+addons:
+    homebrew:
+        packages:
+            - macvim
+        update: true
