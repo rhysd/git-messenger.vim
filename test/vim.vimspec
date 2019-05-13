@@ -1,0 +1,60 @@
+Describe Vim
+    Before each
+        view! README.md
+        normal! gg0
+
+        " Move to introduction paragraph
+        normal! }j27l
+    End
+
+    After each
+        let w = 2
+        while w <= winnr('$')
+            silent! execute w . 'close!'
+            let w += 1
+        endwhile
+        silent! execute 'bwipeout!' join(range(1, bufnr('$')), ' ')
+    End
+
+    Describe :GitMessenger
+        It opens popup with preview window
+            GitMessenger
+
+            let p = GetPopup()
+            Assert IsNotNone(p)
+            Assert KeyExists(p, 'bufnr')
+
+            let lines = getbufline(p.bufnr, 1, '$')
+            let msg = string(lines)
+            Assert True(len(lines) >= 6, msg)
+
+            let history = lines[1]
+            Assert Match(history, '^ History: #0$', msg)
+
+            let commit = lines[2]
+            Assert Match(commit, '^ Commit: [[:xdigit:]]\{7,}$', msg)
+
+            let author = lines[3]
+            Assert Match(author, '^ Author: \S\+ <[^>]\+>$', msg)
+
+            let date = lines[4]
+            Assert Match(date, '^ Date: .\+$', msg)
+
+            let summary = lines[6]
+            Assert NotEmpty(summary, msg)
+
+            let hash = matchstr(commit, '^ Commit: \zs[[:xdigit:]]\{7,}$')
+            let out = system('git show -s ' . hash)
+            Assert Falsy(v:shell_error, out)
+            Assert True(stridx(out, summary) >= 0, string(out) . ' should contain ' . string(summary))
+
+            Assert KeyExists(p, 'win_id')
+            let winnr = win_id2win(p.win_id)
+            Assert NotEqual(winnr, 0)
+
+            " Preview window is open
+            Assert Equal(getwinvar(winnr, '&previewwindow'), 1)
+        End
+    End
+End
+
