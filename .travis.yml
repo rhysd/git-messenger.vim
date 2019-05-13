@@ -19,6 +19,14 @@ install:
       else
         curl -LO https://github.com/neovim/neovim/releases/download/nightly/nvim-linux64.tar.gz
         tar xzf nvim-linux64.tar.gz
+
+        git clone --depth 1 --single-branch https://github.com/vim/vim /tmp/vim
+        cd /tmp/vim
+        ./configure --prefix="${HOME}/vim" --with-features=huge --enable-fail-if-missing
+        make -j2
+        make install
+        export PATH=$HOME/vim/bin:$PATH
+        cd -
       fi
     - export PATH=$(pwd)/nvim-${TRAVIS_OS_NAME}64/bin:$PATH
     - |
