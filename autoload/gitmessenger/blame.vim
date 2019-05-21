@@ -178,14 +178,26 @@ function! s:blame__after_diff(next_diff, git) dict abort
         return
     endif
 
-    if a:git.stdout == [] || a:git.stdout == [''] || !has_key(self.popup, 'bufnr') || bufnr('%') != self.popup.bufnr
+    let popup_open = has_key(self, 'popup')
+
+    if a:git.stdout == [] || a:git.stdout == [''] ||
+        \ (popup_open && !has_key(self.popup, 'bufnr'))
         return
     endif
 
     call self.append_lines(a:git.stdout)
-
-    call self.render()
     let self.diff = a:next_diff
+
+    if popup_open
+        call self.render()
+    else
+        " Note: When g:git_messenger_include_diff is not 'none' and popup is
+        " being opened for line which is not committed yet.
+        " In the case, commit hash is 0000000000000000 and `git log` is not
+        " available. So `git diff` is used instead and this callback is
+        " called.
+        call self.open_popup()
+    endif
 endfunction
 
 function! s:blame__reveal_diff(include_all) dict abort
@@ -309,7 +321,22 @@ function! s:blame__after_blame(git) dict abort
 
     " Check hash is 0000000000000000000000 it means that the line is not committed yet
     if hash =~# '^0\+$'
-        call self.open_popup()
+        if g:git_messenger_include_diff ==? 'none'
+            call self.open_popup()
+            return
+        endif
+
+        " Note: To show diffs which are not commited yet, `git log` is not
+        " available. Use `git diff` instead.
+        let next_diff = 'all'
+        let args = ['--no-pager', 'diff', 'HEAD']
+        if g:git_messenger_include_diff ==? 'current'
+            let next_diff = 'current'
+            let args += [self.file]
+        endif
+        let cwd = fnamemodify(self.file, ':p:h')
+        let git = gitmessenger#git#new(g:git_messenger_git_command)
+        call git.spawn(args, cwd, funcref('s:blame__after_diff', [next_diff], self))
         return
     endif
 
