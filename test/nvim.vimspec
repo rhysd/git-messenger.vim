@@ -1,7 +1,7 @@
 Describe Neovim
     Before all
         let ver = split(execute('version'), '\n')[0]
-        if ver !~# 'NVIM v0.4.0'
+        if ver !~# 'NVIM v0\.4\.0'
             throw 'Neovim version is too old: ' . ver
         endif
     End
