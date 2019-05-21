@@ -216,12 +216,17 @@ function! s:blame__reveal_diff(include_all) dict abort
     endif
 
     let hash = self.commit
-    if hash ==# '' || hash =~# '^0\+$'
+    if hash ==# ''
         call self.error('Not a valid commit hash: ' . hash)
         return
     endif
+    if hash !~# '^0\+$'
+        let args = ['--no-pager', 'diff', hash . '^..' . hash]
+    else
+        " When the line is not committed yet, show diff against HEAD (#26)
+        let args = ['--no-pager', 'diff', 'HEAD']
+    endif
 
-    let args = ['--no-pager', 'diff', hash . '^..' . hash]
     if !a:include_all
         let args += [self.file]
     endif
