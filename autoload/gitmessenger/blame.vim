@@ -276,6 +276,7 @@ function! s:blame__after_blame(git) dict abort
         echo 'git-messenger: ' . hash . ' is the oldest commit'
         return
     endif
+    let not_committed_yet = hash =~# '^0\+$'
 
     let author = matchstr(stdout[1], '^author \zs.\+')
     let author_email = matchstr(stdout[2], '^author-mail \zs\S\+')
@@ -294,7 +295,11 @@ function! s:blame__after_blame(git) dict abort
         let author_time = matchstr(stdout[3], '^author-time \zs\d\+')
         let self.contents += [' Date: ' . strftime('%c', str2nr(author_time))]
     endif
-    let summary = matchstr(stdout[9], '^summary \zs.*')
+    if not_committed_yet
+        let summary = 'This line is not committed yet'
+    else
+        let summary = matchstr(stdout[9], '^summary \zs.*')
+    endif
     let prev_hash = matchstr(stdout[10], '^previous \zs[[:xdigit:]]\+')
     let self.contents += ['', ' ' . summary, '']
 
