@@ -493,6 +493,125 @@ Describe Neovim
                 Assert Equal(found, expected, msg)
             endfor
         End
+
+        Describe lines not committed yet
+            Before all
+                let root_dir = './not-commited-yet-test'
+                call mkdir(root_dir)
+                call Git('.', 'init', root_dir)
+
+                let file_before_add = 'before_add.txt'
+                let file_before_commit = 'before_commit.txt'
+                let before_add = root_dir . '/' . file_before_add
+                let before_commit = root_dir . '/' . file_before_commit
+
+                call writefile(['aaa'], before_add)
+                call Git(root_dir, 'add', file_before_add)
+                call writefile(['aaa'], before_commit)
+                call Git(root_dir, 'add', file_before_commit)
+
+                call Git(root_dir, "commit -m init")
+                call writefile(['bbb', 'ccc'], before_add, 'a')
+                call writefile(['bbb', 'ccc'], before_commit, 'a')
+                call Git(root_dir, 'add', file_before_commit)
+            End
+
+            After all
+                if delete(root_dir, 'rf') != 0
+                    throw 'delete() failed'
+                endif
+            End
+
+            It shows 'Not committed yet' popup
+                for file in [before_add, before_commit]
+                    execute 'view!' file
+                    normal! G
+
+                    GitMessenger
+                    let p = GetPopup()
+                    Assert IsNotNone(p)
+
+                    let lines = getbufline(p.bufnr, 1, '$')
+                    let msg = file . ': ' . string(lines)
+
+                    Assert True(len(lines) >= 6, msg)
+
+                    let commit = lines[2]
+                    Assert Match(commit, '^ Commit: 0\{7,}$', msg)
+
+                    let summary = lines[6]
+                    Assert Equals(summary, ' This line is not committed yet', msg)
+                endfor
+            End
+
+            It shows current diffs which are not committed on 'd'
+                let DiffExists = {ls, f -> index(ls, printf(' diff --git a/%s b/%s', f, f)) >= 0}
+
+                for path in [before_add, before_commit]
+                    execute 'view!' path
+                    normal! G
+
+                    GitMessenger
+                    call GetPopup()
+                    GitMessenger
+
+                    let lines = getline(1, '$')
+                    let msg = path . ': ' . string(lines)
+
+                    Assert False(DiffExists(lines, file_before_add), msg)
+                    Assert False(DiffExists(lines, file_before_commit), msg)
+
+                    let len_lines = len(lines)
+                    normal d
+
+                    Assert WaitUntil({-> len(getline(1, '$')) > len_lines})
+
+                    let lines = getline(1, '$')
+                    let msg = path . ': ' . string(lines)
+
+                    if path == before_add
+                        let file = file_before_add
+                        let other_file = file_before_commit
+                    else
+                        let file = file_before_commit
+                        let other_file = file_before_add
+                    endif
+
+                    Assert True(DiffExists(lines, file), msg)
+                    Assert False(DiffExists(lines, other_file), msg)
+                endfor
+            End
+
+            It shows all diffs which are not committed on 'D'
+                let DiffExists = {ls, f -> index(ls, printf(' diff --git a/%s b/%s', f, f)) >= 0}
+
+                for path in [before_add, before_commit]
+                    execute 'view!' path
+                    normal! G
+
+                    GitMessenger
+                    call GetPopup()
+                    GitMessenger
+
+                    let lines = getline(1, '$')
+                    let msg = path . ': ' . string(lines)
+
+                    Assert False(DiffExists(lines, file_before_add), msg)
+                    Assert False(DiffExists(lines, file_before_commit), msg)
+
+                    let len_lines = len(lines)
+                    normal D
+
+                    Assert WaitUntil({-> len(getline(1, '$')) > len_lines})
+
+                    let lines = getline(1, '$')
+                    let msg = path . ': ' . string(lines)
+
+                    Assert True(DiffExists(lines, file_before_add), msg)
+                    Assert True(DiffExists(lines, file_before_commit), msg)
+                endfor
+            End
+        End
     End
 
     Describe g:git_messenger_include_diff

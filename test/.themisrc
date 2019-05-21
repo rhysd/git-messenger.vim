@@ -51,4 +51,13 @@ function! WaitWhile(func, ...) abort
     return call('WaitUntil', [{-> !a:func()}] + a:000)
 endfunction
 
+function! Git(dir, ...) abort
+    let cmd = join(['git', '-C', a:dir] + a:000, ' ')
+    let out = system(cmd)
+    if v:shell_error
+        throw '`' . cmd . '` failed: ' . out
+    endif
+    return out
+endfunction
+
 let g:ON_TRAVIS = $TRAVIS !=# ''
