@@ -326,7 +326,7 @@ function! s:blame__after_blame(git) dict abort
             return
         endif
 
-        " Note: To show diffs which are not commited yet, `git log` is not
+        " Note: To show diffs which are not committed yet, `git log` is not
         " available. Use `git diff` instead.
         let next_diff = 'all'
         let args = ['--no-pager', 'diff', 'HEAD']

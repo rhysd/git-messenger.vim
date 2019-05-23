@@ -496,7 +496,7 @@ Describe Neovim
 
         Describe lines not committed yet
             Before all
-                let root_dir = './not-commited-yet-test'
+                let root_dir = './not-committed-yet-test'
                 call mkdir(root_dir)
                 call Git('.', 'init', root_dir)
 
@@ -620,7 +620,7 @@ Describe Neovim
                     let g:git_messenger_include_diff = saved
                 End
 
-                It shows diffs not commited yet of 'current' file on popup open
+                It shows diffs not committed yet of 'current' file on popup open
                     let g:git_messenger_include_diff = 'current'
                     execute 'view!' before_add
                     normal! G
@@ -636,7 +636,7 @@ Describe Neovim
                     Assert False(DiffExists(lines, file_before_commit), msg)
                 End
 
-                It shows 'all' diffs not commited yet on popup open
+                It shows 'all' diffs not committed yet on popup open
                     let g:git_messenger_include_diff = 'all'
                     execute 'view!' before_commit
                     normal! G
