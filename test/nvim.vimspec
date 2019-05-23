@@ -4,6 +4,8 @@ Describe Neovim
         if ver !~# 'NVIM v0\.4\.0'
             throw 'Neovim version is too old: ' . ver
         endif
+
+        syntax enable
     End
 
     Before each
@@ -492,6 +494,21 @@ Describe Neovim
                 let msg = 'Got lines: (' . i . ') ' . string(getline(1, '$'))
                 Assert Equal(found, expected, msg)
             endfor
+        End
+
+        It highlights popup content with gitmessengerpopup filetype
+            GitMessenger
+            Assert IsNotNone(GetPopup())
+
+            GitMessenger
+            Assert Exists('b:__gitmessenger_popup')
+
+            Assert Equal(&filetype, 'gitmessengerpopup')
+
+            " Highlight name at 'H' of 'History:' header
+            let [line, col] = [2, 2]
+            let name = synIDattr(synID(line, col, 1), 'name')
+            Assert Equal(name, 'gitmessengerHeader')
         End
 
         Describe lines not committed yet
