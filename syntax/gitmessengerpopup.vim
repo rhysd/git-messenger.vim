@@ -28,7 +28,7 @@ syn match diffIndexLine "^ index \x\{7,}\.\.\x\{7,}.*" display
 
 
 " Color of 'end of buffer'. To hide '~' in popup window, specify None to all items
-hi EndOfBuffer term=None guifg=None guibg=None ctermfg=None ctermbg=None
+hi EndOfBuffer term=NONE guifg=NONE guibg=NONE ctermfg=NONE ctermbg=NONE
 
 hi def link gitmessengerHeader      Identifier
 hi def link gitmessengerHash        Comment
