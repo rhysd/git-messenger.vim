@@ -256,40 +256,40 @@ limit.
 ==============================================================================
 HIGHLIGHTS                                            *git-messenger-highlights*
 
-|git-messenger.vim| sets sensible highlight colors to popup menu for light and
-dark colorschemes by default. However, it may not match to your colorscheme.
-In the case, you can specify your own colors to popup window in nvim/init.vim
-by defining highlights.
+|git-messenger.vim| uses color definitions from your colorscheme for
+highlighting stuffs in popup window by default. This is done by linking
+highlight groups on "gitmessengerpopup" filetype.
+Highlights for diff are common with normal |diff| filetype syntax highlighting.
 
-For example, if you want to use colors from your colorscheme, linking
-highlights with |:hi-link| works fine as follows.
+If the groups don't fit, please rearrange the highlight with |:hi-link|.
+For example:
 >
-  " Header such as 'Commit:', 'Author:'
-  hi link gitmessengerHeader Identifier
-
-  " Commit hash at 'Commit:' header
-  hi link gitmessengerHash Comment
-
-  " History number at 'History:' header
-  hi link gitmessengerHistory Constant
-
-  " Normal color. This color is the most important
+  " Normal color in popup window with 'CursorLine'
   hi link gitmessengerPopupNormal CursorLine
 
-  " Color of 'end of buffer'. To hide '~' in popup window, set 'None'
-  hi gitmessengerEndOfBuffer term=None guifg=None guibg=None ctermfg=None ctermbg=None
-<
+  " Header such as 'Commit:', 'Author:' with 'Statement' highlight group
+  hi link gitmessengerHeader Statement
 
+  " Commit hash at 'Commit:' header with 'Special' highlight group
+  hi link gitmessengerHash Special
+
+  " History number at 'History:' header with 'Title' highlight group
+  hi link gitmessengerHistory Title
+<
 For another example, if you want to define colors directly, defining the
 colors with |:hi| works fine as follows.
 >
+  hi gitmessengerPopupNormal term=None guifg=#eeeeee guibg=#333333 ctermfg=255 ctermbg=234
   hi gitmessengerHeader term=None guifg=#88b8f6 ctermfg=111
   hi gitmessengerHash term=None guifg=#f0eaaa ctermfg=229
-  hi gitmessengerPopupNormal term=None guifg=#eeeeee guibg=#333333 ctermfg=255 ctermbg=234
-  hi gitmessengerEndOfBuffer term=None guifg=#333333 guibg=#333333 ctermfg=234 ctermbg=234
+  hi gitmessengerHistory term=None guifg=#fd8489 ctermfg=210
 <
-Note: "gitmessengerPopupNormal" and "gitmessengerEndOfBuffer" are only
-available on Neovim since 'winhighlight' option is used.
+Note: If your colorscheme does not allocate proper color for |hl-NormalFloat|,
+you may need to set proper color to "gitmessengerPopupNormal".
+
+Note: "gitmessengerPopupNormal" is only available on Neovim since
+'winhighlight' option is used. On Vim, simply |hl-Normal| is used for normal
+color.
 
 
 ==============================================================================
