@@ -26,10 +26,6 @@ syn match diffOldFile "^ \*\*\* .*" display
 syn match diffNewFile "^ --- .*" display
 syn match diffIndexLine "^ index \x\{7,}\.\.\x\{7,}.*" display
 
-
-" Color of 'end of buffer'. To hide '~' in popup window, specify None to all items
-hi def gitmessengerEndOfBuffer term=NONE guifg=bg guisp=bg guibg=NONE ctermfg=bg ctermbg=NONE
-
 hi def link gitmessengerHeader      Identifier
 hi def link gitmessengerHash        Comment
 hi def link gitmessengerHistory     Constant

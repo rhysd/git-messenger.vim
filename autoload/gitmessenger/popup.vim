@@ -169,7 +169,7 @@ function! s:popup__open() dict abort
 
     " Setup highlights
     if has('nvim')
-        setlocal winhighlight=Normal:gitmessengerPopupNormal,EndOfBuffer:gitmessengerEndOfBuffer
+        setlocal winhighlight=Normal:gitmessengerPopupNormal
     endif
 
     if has_key(self.opts, 'mappings')
