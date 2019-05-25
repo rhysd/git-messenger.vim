@@ -174,7 +174,7 @@ function! s:popup__open() dict abort
 
     if has_key(self.opts, 'mappings')
         for m in keys(self.opts.mappings)
-            execute printf('nnoremap <buffer><silent>%s :<C-u>call b:__gitmessenger_popup.opts.mappings["%s"][0]()<CR>', m, m)
+            execute printf('nnoremap <buffer><silent><nowait>%s :<C-u>call b:__gitmessenger_popup.opts.mappings["%s"][0]()<CR>', m, m)
         endfor
         nnoremap <buffer>? :<C-u>call b:__gitmessenger_popup.echo_help()<CR>
     endif
