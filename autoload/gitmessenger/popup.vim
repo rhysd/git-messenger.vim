@@ -176,7 +176,7 @@ function! s:popup__open() dict abort
         for m in keys(self.opts.mappings)
             execute printf('nnoremap <buffer><silent><nowait>%s :<C-u>call b:__gitmessenger_popup.opts.mappings["%s"][0]()<CR>', m, m)
         endfor
-        nnoremap <buffer>? :<C-u>call b:__gitmessenger_popup.echo_help()<CR>
+        nnoremap <buffer><silent><nowait>? :<C-u>call b:__gitmessenger_popup.echo_help()<CR>
     endif
 
     " Ensure to close popup
