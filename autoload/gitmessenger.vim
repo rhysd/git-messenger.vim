@@ -1,3 +1,13 @@
+" Global variables
+let g:git_messenger_close_on_cursor_moved = get(g:, 'git_messenger_close_on_cursor_moved', v:true)
+let g:git_messenger_git_command = get(g:, 'git_messenger_git_command', 'git')
+let g:git_messenger_into_popup_after_show = get(g:, 'git_messenger_into_popup_after_show', v:true)
+let g:git_messenger_always_into_popup = get(g:, 'git_messenger_always_into_popup', v:false)
+let g:git_messenger_preview_mods = get(g:, 'git_messenger_preview_mods', '')
+let g:git_messenger_include_diff = get(g:, 'git_messenger_include_diff', 'none')
+let g:git_messenger_max_popup_height = get(g:, 'git_messenger_max_popup_height', v:null)
+let g:git_messenger_max_popup_width = get(g:, 'git_messenger_max_popup_width', v:null)
+
 " All popup instances keyed by opener's bufnr to manage lifetime of popups
 let s:all_popups = {}
 
@@ -46,7 +56,7 @@ function! s:on_open(blame) dict abort
     let opener_bufnr = a:blame.popup.opener_bufnr
     let s:all_popups[opener_bufnr] = a:blame.popup
 
-    if get(self, 'close_on_cursor_moved', 1)
+    if g:git_messenger_close_on_cursor_moved
         augroup plugin-git-messenger-close
             autocmd CursorMoved,CursorMovedI,InsertEnter <buffer> call <SID>on_cursor_moved()
         augroup END
@@ -73,9 +83,7 @@ endfunction
 " file: string
 " line: number
 " bufnr: number
-" opts?: {
-"   close_on_cursor_moved?: boolean;
-" }
+" opts?: {}
 function! gitmessenger#new(file, line, bufnr, ...) abort
     " When cursor is in popup window, close the window
     if gitmessenger#popup#close_current_popup()
