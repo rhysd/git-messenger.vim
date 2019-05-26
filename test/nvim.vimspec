@@ -891,6 +891,86 @@ Describe Neovim
             Assert True(w < g:git_messenger_max_popup_width, w . ' v.s. ' . g:git_messenger_max_popup_width)
         End
     End
+
+    Describe issue #25
+        Before all
+            let root_dir = './issue-25'
+            call mkdir(root_dir)
+            call Git('.', 'init', root_dir)
+
+            let filename = 'foo.txt'
+            let filepath = root_dir . '/' . filename
+            let renamename = 'renamed.txt'
+            let renamepath = root_dir . '/' . renamename
+
+            let lines = [
+                        \ 'aaa',
+                        \ 'bbb',
+                        \ 'ccc',
+                        \ 'ddd',
+                        \ 'eee',
+                        \ 'fff',
+                        \ 'ggg',
+                        \ 'hhh',
+                        \ 'iii',
+                        \ 'jjj',
+                        \ 'hhh',
+                        \ ]
+            call writefile(lines, filepath)
+            call Git(root_dir, 'add', filename)
+            call Git(root_dir, 'commit -m init')
+
+            let lines[0] = 'xxx'
+            let lines += ['kkk']
+
+            call Git(root_dir, 'mv', filename, renamename)
+            call writefile(lines, renamepath)
+            call Git(root_dir, 'add', renamename)
+
+            call Git(root_dir, 'commit -m rename')
+
+        End
+
+        After all
+            if delete(root_dir, 'rf') != 0
+                throw 'delete() failed'
+            endif
+        End
+
+        It should no longer be reproduced on exploring older commits
+            execute 'view!' renamepath
+            normal! gg0
+
+            GitMessenger
+            Assert IsNotNone(GetPopup())
+
+            GitMessenger
+            Assert Exists('b:__gitmessenger_popup')
+            Assert Equals(getline(2), ' History: #0')
+
+            normal o
+
+            let found = WaitUntil({-> getline(2) ==# ' History: #1'})
+            Assert True(found, 'Got line: ' . string(getline(2) . ' with messeage:' . execute('message')))
+        End
+
+        It should no longer be reproduced on showing diff
+            execute 'view!' renamepath
+            2
+            normal! 0
+
+            GitMessenger
+            Assert IsNotNone(GetPopup())
+
+            GitMessenger
+            Assert Exists('b:__gitmessenger_popup')
+
+            normal d
+
+            let found = WaitUntil({-> index(getline(1, '$'), ' diff --git a/foo.txt b/renamed.txt') !=# -1})
+            Assert True(found, 'Popup lines: ' . string(getline(1, '$')) . ' with message:' . execute('message'))
+        End
+    End
 End
 
 " vim: set ft=vim:
