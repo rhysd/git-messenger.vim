@@ -44,9 +44,7 @@ function! s:blame__back() dict abort
     let self.diff = 'none'
 
     let args = ['--no-pager', 'blame', self.prev_commit, self.file, '-L', self.line . ',+1', '--porcelain']
-    let cwd = fnamemodify(self.file, ':p:h')
-    let git = gitmessenger#git#new(g:git_messenger_git_command)
-    call git.spawn(args, cwd, funcref('s:blame__after_blame', [], self))
+    call self.spawn_git(args, 's:blame__after_blame')
 endfunction
 let s:blame.back = funcref('s:blame__back')
 
@@ -242,9 +240,7 @@ function! s:blame__reveal_diff(include_all) dict abort
     if !a:include_all
         let args += [self.file]
     endif
-    let cwd = fnamemodify(self.file, ':p:h')
-    let git = gitmessenger#git#new(g:git_messenger_git_command)
-    call git.spawn(args, cwd, funcref('s:blame__after_diff', [next_diff], self))
+    call self.spawn_git(args, funcref('s:blame__after_diff', [next_diff], self))
 endfunction
 let s:blame.reveal_diff = funcref('s:blame__reveal_diff')
 
@@ -334,9 +330,7 @@ function! s:blame__after_blame(git) dict abort
             let next_diff = 'current'
             let args += [self.file]
         endif
-        let cwd = fnamemodify(self.file, ':p:h')
-        let git = gitmessenger#git#new(g:git_messenger_git_command)
-        call git.spawn(args, cwd, funcref('s:blame__after_diff', [next_diff], self))
+        call self.spawn_git(args, funcref('s:blame__after_diff', [next_diff], self))
         return
     endif
 
@@ -358,10 +352,13 @@ function! s:blame__after_blame(git) dict abort
 endfunction
 
 function! s:blame__spawn_git(args, callback) dict abort
-    let cwd = fnamemodify(self.file, ':p:h')
-    let git = gitmessenger#git#new(g:git_messenger_git_command)
+    let git = gitmessenger#git#new(g:git_messenger_git_command, self.dir)
+    let CB = a:callback
+    if type(CB) == v:t_string
+        let CB = funcref(CB, [], self)
+    endif
     try
-        call git.spawn(a:args, cwd, funcref(a:callback, [], self))
+        call git.spawn(a:args, CB)
     catch /^git-messenger: /
         call self.error(v:exception)
     endtry
@@ -376,6 +373,7 @@ endfunction
 let s:blame.start = funcref('s:blame__start')
 
 " file: string;
+" dir: string;
 " line: number;
 " opts: {
 "   did_open: (b: Blame) => void;
@@ -395,6 +393,7 @@ function! gitmessenger#blame#new(file, line, opts) abort
     let b = deepcopy(s:blame)
     let b.line = a:line
     let b.file = a:file
+    let b.dir = fnamemodify(a:file, ':p:h')
     let b.opts = a:opts
     let b.index = 0
     let b.history = []

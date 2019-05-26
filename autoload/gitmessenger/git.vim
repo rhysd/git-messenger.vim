@@ -51,13 +51,13 @@ else
     endfunction
 endif
 
-function! s:git__spawn(args, cwd, on_exit) dict abort
-    let cmdline = [self.cmd] + a:args
+function! s:git__spawn(args, on_exit) dict abort
+    let cmdline = [self.cmd, '-C', self.dir] + a:args
     if has('nvim')
         let self.stdout = ['']
         let self.stderr = ['']
         let job_id = jobstart(cmdline, {
-                    \   'cwd': a:cwd,
+                    \   'cwd': self.dir,
                     \   'on_stdout' : funcref('s:on_output_nvim', [], self),
                     \   'on_stderr' : funcref('s:on_output_nvim', [], self),
                     \   'on_exit' : funcref('s:on_exit_nvim', [], self),
@@ -71,7 +71,7 @@ function! s:git__spawn(args, cwd, on_exit) dict abort
         let self.stdout = []
         let self.stderr = []
         let job_id = job_start(cmdline, {
-                    \   'cwd': a:cwd,
+                    \   'cwd': self.dir,
                     \   'out_cb' : funcref('s:on_output_vim', ['stdout'], self),
                     \   'err_cb' : funcref('s:on_output_vim', ['stderr'], self),
                     \   'exit_cb' : funcref('s:on_exit_vim', [], self),
@@ -84,8 +84,9 @@ function! s:git__spawn(args, cwd, on_exit) dict abort
 endfunction
 let s:git.spawn = funcref('s:git__spawn')
 
-function! gitmessenger#git#new(cmd) abort
+function! gitmessenger#git#new(cmd, dir) abort
     let g = deepcopy(s:git)
     let g.cmd = a:cmd
+    let g.dir = a:dir
     return g
 endfunction
