@@ -1,3 +1,45 @@
+" Params:
+"   path: string
+"     base path to find .git in ancestor directories
+" Returns:
+"   string
+"     empty string means root directory was not found
+function! gitmessenger#git#root_dir(from) abort
+    let from = fnamemodify(a:from, ':p')
+    let gitdir = finddir('.git', from . ';')
+    if gitdir !=# ''
+        if stridx(from, fnamemodify(gitdir, ':p')) == 0
+            " Inside .git directory is outside repository
+            return ''
+        endif
+        " -5 means chopping '.git'
+        return fnamemodify(gitdir[ : -5], ':p')
+    endif
+
+    let gitfile = findfile('.git', a:from . ';')
+    if gitfile !=# ''
+        let lines = readfile(gitfile)
+        if lines == []
+            return ''
+        endif
+
+        let rel_gitdir = matchstr(lines[0], '^gitdir:\s*\zs.\+$')
+        if rel_gitdir ==# ''
+            return ''
+        endif
+
+        " -5 means chopping '.git'
+        let gitdir = gitfile[ : -5] . rel_gitdir
+
+        " Note: fnamemodify() returns canonical path so we don't need to care
+        " about that 'rel_gitdir' path is absolute or relative.
+        "   fnamemodify('.//foo',  ':p') => /path/to/foo
+        return fnamemodify(gitdir, ':p:h')
+    endif
+
+    return ''
+endfunction
+
 let s:git = {}
 
 if has('nvim')
@@ -51,6 +93,11 @@ else
     endfunction
 endif
 
+" Params:
+"   args: string[]
+"   on_exit: (git: Git) => void
+" Returns:
+"   Job ID of the spawned process
 function! s:git__spawn(args, on_exit) dict abort
     let cmdline = [self.cmd, '-C', self.dir] + a:args
     if has('nvim')
@@ -84,6 +131,16 @@ function! s:git__spawn(args, on_exit) dict abort
 endfunction
 let s:git.spawn = funcref('s:git__spawn')
 
+" Creates new Git instance. Git instance represents one-shot Git command
+" asynchronous execution.
+"
+" Params:
+"   cmd: string
+"     'git' command to run Git
+"   dir: string
+"     Directory path to run Git
+" Returns:
+"   Git object
 function! gitmessenger#git#new(cmd, dir) abort
     let g = deepcopy(s:git)
     let g.cmd = a:cmd

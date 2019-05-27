@@ -112,7 +112,9 @@ function! gitmessenger#new(file, line, bufnr, ...) abort
             \   'on_error': funcref('s:on_error'),
             \   'enter_popup': g:git_messenger_always_into_popup,
             \ })
-    call blame.start()
+    if blame isnot v:null
+        call blame.start()
+    endif
 endfunction
 
 function! s:popup_for(bufnr) abort

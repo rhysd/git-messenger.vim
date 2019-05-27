@@ -352,7 +352,7 @@ function! s:blame__after_blame(git) dict abort
 endfunction
 
 function! s:blame__spawn_git(args, callback) dict abort
-    let git = gitmessenger#git#new(g:git_messenger_git_command, self.dir)
+    let git = gitmessenger#git#new(g:git_messenger_git_command, self.git_root)
     let CB = a:callback
     if type(CB) == v:t_string
         let CB = funcref(CB, [], self)
@@ -390,14 +390,23 @@ let s:blame.start = funcref('s:blame__start')
 " diff: 'none' | 'all' | 'current';
 " commit: string;
 function! gitmessenger#blame#new(file, line, opts) abort
+    let dir = fnamemodify(a:file, ':p:h')
+
     let b = deepcopy(s:blame)
     let b.line = a:line
     let b.file = a:file
-    let b.dir = fnamemodify(a:file, ':p:h')
+    let b.git_root = gitmessenger#git#root_dir(dir)
     let b.opts = a:opts
     let b.index = 0
     let b.history = []
     let b.diff = 'none'
     let b.commit = ''
+
+    " Validations
+    if b.git_root ==# ''
+        call b.error("git-messenger: Directory '" . dir . "' is not in the Git repository")
+        return v:null
+    endif
+
     return b
 endfunction
