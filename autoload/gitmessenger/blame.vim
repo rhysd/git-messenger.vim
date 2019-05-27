@@ -43,7 +43,7 @@ function! s:blame__back() dict abort
     " Reset current state
     let self.diff = 'none'
 
-    let args = ['--no-pager', 'blame', self.prev_commit, self.file, '-L', self.line . ',+1', '--porcelain']
+    let args = ['--no-pager', 'blame', self.prev_commit, '-L', self.line . ',+1', '--porcelain', '--', self.blame_file]
     call self.spawn_git(args, 's:blame__after_blame')
 endfunction
 let s:blame.back = funcref('s:blame__back')
@@ -68,6 +68,7 @@ function! s:blame__load_history(index) dict abort
     let self.contents = copy(h.contents)
     let self.diff = h.diff
     let self.commit = h.commit
+    let self.target_file = h.target_file
     let self.index = a:index
     call self.render()
 endfunction
@@ -99,6 +100,7 @@ function! s:blame__save_history() dict abort
 
     let h.diff = self.diff
     let h.contents = copy(self.contents)
+    let h.target_file = self.target_file
 endfunction
 let s:blame.save_history = funcref('s:blame__save_history')
 
@@ -238,7 +240,7 @@ function! s:blame__reveal_diff(include_all) dict abort
     endif
 
     if !a:include_all
-        let args += ['--', self.file]
+        let args += ['--', self.target_file]
     endif
     call self.spawn_git(args, funcref('s:blame__after_diff', [next_diff], self))
 endfunction
@@ -272,14 +274,23 @@ function! s:blame__after_blame(git) dict abort
     endif
 
     " Parse `blame --porcelain` output
+    " Note: Output less than 11 lines are invalid. At least followings should
+    " be included:
+    "   header, author, author-email, author-time, author-tz, committer-email,
+    "   committer-time, committer-tz, summary, filename
     let stdout = a:git.stdout
-    if len(stdout) < 10
+    if len(stdout) < 11
         " Note: '\n' is not "\n", it's intentional
         call self.error('Unexpected `git blame` output: ' . join(stdout, '\n'))
         return
     endif
 
-    let hash = matchstr(stdout[0], '^\S\+')
+    " Blame header
+    " {hash} {line number of original} {line number of final} {line offset in lines group}
+    "
+    "   Please see 'THE PORCELAIN FORMAT' section of `man git-blame` for more
+    "   details
+    let hash = matchstr(stdout[0], '^[[:xdigit:]]\+')
     if has_key(self, 'oldest_commit') && self.oldest_commit ==# hash
         echo 'git-messenger: ' . hash . ' is the oldest commit'
         return
@@ -303,16 +314,36 @@ function! s:blame__after_blame(git) dict abort
         let author_time = matchstr(stdout[3], '^author-time \zs\d\+')
         let self.contents += [' Date: ' . strftime('%c', str2nr(author_time))]
     endif
+
     if not_committed_yet
         let summary = 'This line is not committed yet'
     else
         let summary = matchstr(stdout[9], '^summary \zs.*')
     endif
-    let prev_hash = matchstr(stdout[10], '^previous \zs[[:xdigit:]]\+')
     let self.contents += ['', ' ' . summary, '']
 
+    " previous {hash} {next blame file path}
+    "
+    "   where {next blame file path} is a relative path from root directory of
+    "   the repository.
+    let m = matchlist(stdout[10], '^previous \([[:xdigit:]]\+\) \(.\+\)$')
+    if m != []
+        let self.prev_commit = m[1]
+        let self.blame_file = m[2]
+        let filename_line = 11
+    else
+        let self.prev_commit = ''
+        let filename_line = 10
+    endif
+
+    let filename = matchstr(stdout[filename_line], '^filename \zs.\+$')
+    if filename !=# ''
+        let self.target_file = filename
+    else
+        let self.target_file = self.blame_file
+    endif
+
     let self.oldest_commit = hash
-    let self.prev_commit = prev_hash
     let self.commit = hash
 
     " Check hash is 0000000000000000000000 it means that the line is not committed yet
@@ -328,7 +359,7 @@ function! s:blame__after_blame(git) dict abort
         let args = ['--no-pager', 'diff', 'HEAD']
         if g:git_messenger_include_diff ==? 'current'
             let next_diff = 'current'
-            let args += [self.file]
+            let args += [self.blame_file]
         endif
         call self.spawn_git(args, funcref('s:blame__after_diff', [next_diff], self))
         return
@@ -345,7 +376,7 @@ function! s:blame__after_blame(git) dict abort
     endif
     let args += [hash]
     if g:git_messenger_include_diff ==? 'current'
-        let args += [self.file]
+        let args += ['--', self.target_file]
     endif
 
     call self.spawn_git(args, 's:blame__after_log')
@@ -367,34 +398,37 @@ let s:blame.spawn_git = funcref('s:blame__spawn_git')
 
 function! s:blame__start() dict abort
     call self.spawn_git(
-        \ ['--no-pager', 'blame', self.file, '-L', self.line . ',+1', '--porcelain'],
+        \ ['--no-pager', 'blame', self.blame_file, '-L', self.line . ',+1', '--porcelain'],
         \ 's:blame__after_blame')
 endfunction
 let s:blame.start = funcref('s:blame__start')
 
-" file: string;
-" dir: string;
-" line: number;
-" opts: {
-"   did_open: (b: Blame) => void;
-"   did_close: (p: Popup) => void;
-"   on_error: (errmsg: string) => void;
-"   enter_popup: boolean;
-" };
-" index: number;
-" history: {
-"   contents: string[];
+" interface Blame {
+"   file: string;
+"   dir: string;
+"   line: number;
+"   opts: {
+"     did_open: (b: Blame) => void;
+"     did_close: (p: Popup) => void;
+"     on_error: (errmsg: string) => void;
+"     enter_popup: boolean;
+"   };
+"   index: number;
+"   history: {
+"     contents: string[];
+"     diff: 'none' | 'all' | 'current';
+"     commit: string;
+"   }[];
 "   diff: 'none' | 'all' | 'current';
 "   commit: string;
-" }[];
-" diff: 'none' | 'all' | 'current';
-" commit: string;
+" }
 function! gitmessenger#blame#new(file, line, opts) abort
     let dir = fnamemodify(a:file, ':p:h')
 
     let b = deepcopy(s:blame)
     let b.line = a:line
-    let b.file = a:file
+    let b.blame_file = a:file
+    let b.target_file = a:file
     let b.git_root = gitmessenger#git#root_dir(dir)
     let b.opts = a:opts
     let b.index = 0
