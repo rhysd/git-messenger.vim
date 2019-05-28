@@ -231,14 +231,14 @@ function! s:blame__reveal_diff(include_all) dict abort
         return
     endif
     if hash !~# '^0\+$'
-        let args = ['--no-pager', 'diff', hash . '^..' . hash]
+        let args = ['--no-pager', 'show', '--pretty=format:%b', hash]
     else
         " When the line is not committed yet, show diff against HEAD (#26)
         let args = ['--no-pager', 'diff', 'HEAD']
     endif
 
     if !a:include_all
-        let args += [self.file]
+        let args += ['--', self.file]
     endif
     call self.spawn_git(args, funcref('s:blame__after_diff', [next_diff], self))
 endfunction
