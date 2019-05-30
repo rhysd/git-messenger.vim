@@ -1,9 +1,22 @@
 ### How to Run tests
 
+Setup:
+
 ```
 $ cd /path/to/git-messenger.vim
 $ git clone https://github.com/thinca/vim-themis.git
-$ THEMIS_VIM=nvim ./vim-themis/bin/themis test/nvim.vimspec
+```
+
+Run tests on `nvim`:
+
+```
+$ THEMIS_VIM=nvim ./vim-themis/bin/themis test/all.vimspec
+```
+
+Run tests on `vim`:
+
+```
+$ ./vim-themis/bin/themis test/all.vimspec
 ```
 
 ### How to run guard

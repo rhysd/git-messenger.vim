@@ -46,9 +46,9 @@ before_script:
     - vim --version
 
 script:
-    - THEMIS_VIM=$(pwd)/nvim-nightly/nvim-${TRAVIS_OS_NAME}64/bin/nvim ./vim-themis/bin/themis ./test/nvim.vimspec
-    - THEMIS_VIM=$(pwd)/nvim-stable/nvim-${TRAVIS_OS_NAME}64/bin/nvim ./vim-themis/bin/themis ./test/nvim.vimspec
-    - THEMIS_VIM=vim ./vim-themis/bin/themis ./test/vim.vimspec
+    - THEMIS_VIM=$(pwd)/nvim-nightly/nvim-${TRAVIS_OS_NAME}64/bin/nvim ./vim-themis/bin/themis ./test/all.vimspec
+    - THEMIS_VIM=$(pwd)/nvim-stable/nvim-${TRAVIS_OS_NAME}64/bin/nvim ./vim-themis/bin/themis ./test/all.vimspec
+    - THEMIS_VIM=vim ./vim-themis/bin/themis ./test/all.vimspec
     - |
       if [[ "$RUN_LINT" == "true" ]]; then
         vint ./autoload ./plugin

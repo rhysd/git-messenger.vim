@@ -1,8 +1,5 @@
 Describe Neovim
     Before all
-        if !has('nvim')
-            throw 'Not Neovim'
-        endif
         syntax enable
     End
 
