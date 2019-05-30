@@ -12,13 +12,18 @@ matrix:
 install:
     - git fetch --unshallow
     - git clone --depth 1 --single-branch https://github.com/thinca/vim-themis && (cd vim-themis && git rev-parse HEAD)
+    - mkdir nvim-nightly nvim-stable
     - |
       if [[ "$TRAVIS_OS_NAME" == 'osx' ]]; then
         curl -LO https://github.com/neovim/neovim/releases/download/nightly/nvim-macos.tar.gz
-        tar xzf nvim-macos.tar.gz
+        tar xzf nvim-macos.tar.gz -C ./nvim-nightly
+        curl -LO https://github.com/neovim/neovim/releases/download/stable/nvim-macos.tar.gz
+        tar xzf nvim-macos.tar.gz -C ./nvim-stable
       else
         curl -LO https://github.com/neovim/neovim/releases/download/nightly/nvim-linux64.tar.gz
-        tar xzf nvim-linux64.tar.gz
+        tar xzf nvim-linux64.tar.gz -C ./nvim-nightly
+        curl -LO https://github.com/neovim/neovim/releases/download/stable/nvim-linux64.tar.gz
+        tar xzf nvim-linux64.tar.gz -C ./nvim-stable
 
         git clone --depth 1 --single-branch https://github.com/vim/vim /tmp/vim
         cd /tmp/vim
@@ -28,7 +33,6 @@ install:
         export PATH=$HOME/vim/bin:$PATH
         cd -
       fi
-    - export PATH=$(pwd)/nvim-${TRAVIS_OS_NAME}64/bin:$PATH
     - |
       if [[ "$RUN_LINT" == "true" ]]; then
         python3 -V
@@ -37,12 +41,14 @@ install:
 
 before_script:
     - uname -a
-    - nvim --version
+    - nvim-nightly/nvim-${TRAVIS_OS_NAME}64/bin/nvim --version
+    - nvim-stable/nvim-${TRAVIS_OS_NAME}64/bin/nvim --version
     - vim --version
 
 script:
-    - THEMIS_VIM=nvim ./vim-themis/bin/themis ./test/nvim.vimspec
-    - THEMIS_VIM=vim ./vim-themis/bin/themis ./test/vim.vimspec
+    - THEMIS_VIM=$(pwd)/nvim-nightly/nvim-${TRAVIS_OS_NAME}64/bin/nvim ./vim-themis/bin/themis ./test/all.vimspec
+    - THEMIS_VIM=$(pwd)/nvim-stable/nvim-${TRAVIS_OS_NAME}64/bin/nvim ./vim-themis/bin/themis ./test/all.vimspec
+    - THEMIS_VIM=vim ./vim-themis/bin/themis ./test/all.vimspec
     - |
       if [[ "$RUN_LINT" == "true" ]]; then
         vint ./autoload ./plugin

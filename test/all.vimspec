@@ -1,10 +1,5 @@
 Describe Neovim
     Before all
-        let ver = split(execute('version'), '\n')[0]
-        if ver !~# 'NVIM v0\.4\.0'
-            throw 'Neovim version is too old: ' . ver
-        endif
-
         syntax enable
     End
 
@@ -17,6 +12,7 @@ Describe Neovim
     End
 
     After each
+        pclose!
         let w = 2
         while w <= winnr('$')
             silent! execute w . 'close!'
@@ -861,6 +857,10 @@ Describe Neovim
         End
 
         It limits width of popup window
+            if !has('nvim-0.4')
+                Skip width of preview window cannot be changed
+            endif
+
             let g:git_messenger_max_popup_width = 4
 
             GitMessenger
@@ -873,6 +873,10 @@ Describe Neovim
         End
 
         It does not affect width when content has less width
+            if !has('nvim-0.4')
+                Skip width of preview window cannot be changed
+            endif
+
             " Use first line of LICENSE file because commit message of the
             " line is smaller. In this test case, it is important that width
             " of content is small.
