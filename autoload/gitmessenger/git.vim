@@ -1,3 +1,5 @@
+let s:SEP = has('win32') ? '\' : '/'
+
 " Params:
 "   path: string
 "     base path to find .git in ancestor directories
@@ -6,6 +8,10 @@
 "     empty string means root directory was not found
 function! gitmessenger#git#root_dir(from) abort
     let from = fnamemodify(a:from, ':p')
+    if from[-1] ==# s:SEP
+        " [:-2] chops last path separator
+        let from = from[:-2]
+    endif
     let gitdir = finddir('.git', from . ';')
     if gitdir !=# ''
         if stridx(from, fnamemodify(gitdir, ':p')) == 0
