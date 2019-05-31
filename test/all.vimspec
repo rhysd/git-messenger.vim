@@ -896,7 +896,7 @@ Describe git-messenger.vim
         End
     End
 
-    Describe issue #25
+    Describe Issue #25
         Before all
             let root_dir = './issue-25'
             call mkdir(root_dir)
@@ -1023,6 +1023,39 @@ Describe git-messenger.vim
             finally
                 let g:git_messenger_include_diff = saved_include_diff
             endtry
+        End
+
+        It should show diff of commit renaming the file after backing with O
+            " Note: This test case is follow up of 4caef1d
+
+            normal! gg0
+
+            GitMessenger
+            Assert IsNotNone(GetPopup())
+
+            GitMessenger
+            Assert Exists('b:__gitmessenger_popup')
+
+            normal o
+
+            let found = WaitUntil({-> getline(2) ==# ' History: #1'})
+            Assert True(found, 'Got line: ' . string(getline(2) . ' with messeage: ' . execute('message')))
+
+            normal O
+
+            let found = WaitUntil({-> getline(2) ==# ' History: #0'})
+            Assert True(found, 'Got line: ' . string(getline(2) . ' with messeage: ' . execute('message')))
+
+            normal d
+
+            let found = WaitUntil({-> index(getline(1, '$'), ' diff --git a/foo.txt b/renamed.txt') !=# -1})
+            let lines = getline(1, '$')
+            let msg = string(lines)
+
+            Assert True(found, msg)
+            Assert True(index(lines, ' -aaa') > 0, msg)
+            Assert True(index(lines, ' +xxx') > 0, msg)
+            Assert True(index(lines, '  bbb') > 0, msg)
         End
     End
 End
