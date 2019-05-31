@@ -956,6 +956,8 @@ Describe Neovim
 
         It should no longer be reproduced on showing diff
             execute 'view!' renamepath
+
+            " Test case 1: Before rename (foo.txt)
             2
             normal! 0
 
@@ -967,8 +969,32 @@ Describe Neovim
 
             normal d
 
+            let found = WaitUntil({-> index(getline(1, '$'), ' diff --git a/foo.txt b/foo.txt') !=# -1})
+            let lines = getline(1, '$')
+            Assert True(found, 'Popup lines: ' . string(lines) . ' with message:' . execute('message'))
+            Assert True(index(lines, ' +aaa') > 0, string(lines))
+            Assert True(index(lines, ' +bbb') > 0, string(lines))
+
+            quit
+
+            " Test case 2: While renaming
+            normal! gg0
+
+            GitMessenger
+            Assert IsNotNone(GetPopup())
+
+            GitMessenger
+            Assert Exists('b:__gitmessenger_popup')
+
+            normal d
+
             let found = WaitUntil({-> index(getline(1, '$'), ' diff --git a/foo.txt b/renamed.txt') !=# -1})
-            Assert True(found, 'Popup lines: ' . string(getline(1, '$')) . ' with message:' . execute('message'))
+            let lines = getline(1, '$')
+            Assert True(found, 'Popup lines: ' . string(lines) . ' with message:' . execute('message'))
+            " Should show diff of files even while renaming
+            Assert True(index(lines, ' -aaa') > 0, string(lines))
+            Assert True(index(lines, ' +xxx') > 0, string(lines))
+            Assert True(index(lines, '  bbb') > 0, string(lines))
         End
     End
 End

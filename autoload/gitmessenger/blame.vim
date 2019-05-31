@@ -233,6 +233,8 @@ function! s:blame__reveal_diff(include_all) dict abort
         return
     endif
     if hash !~# '^0\+$'
+        " `git diff hash^..hash` is not available since hash^ is invalid when
+        " it is an initial commit.
         let args = ['--no-pager', 'show', '--pretty=format:%b', hash]
     else
         " When the line is not committed yet, show diff against HEAD (#26)
@@ -241,6 +243,13 @@ function! s:blame__reveal_diff(include_all) dict abort
 
     if !a:include_all
         let args += ['--', self.target_file]
+        if self.blame_file !=# '' && self.blame_file != self.target_file
+            " Note: When file was renamed, both file name before rename and file
+            " name after rename are necessary to show correct diff.
+            " If only file name after rename is specified, it shows diff as if
+            " the file was added at the commit not considering rename.
+            let args += [self.blame_file]
+        endif
     endif
     call self.spawn_git(args, funcref('s:blame__after_diff', [next_diff], self))
 endfunction
@@ -322,26 +331,45 @@ function! s:blame__after_blame(git) dict abort
     endif
     let self.contents += ['', ' ' . summary, '']
 
-    " previous {hash} {next blame file path}
-    "
-    "   where {next blame file path} is a relative path from root directory of
-    "   the repository.
-    let m = matchlist(stdout[10], '^previous \([[:xdigit:]]\+\) \(.\+\)$')
-    if m != []
-        let self.prev_commit = m[1]
-        let self.blame_file = m[2]
-        let filename_line = 11
-    else
-        let self.prev_commit = ''
-        let filename_line = 10
-    endif
+    " Reset the state
+    let self.prev_commit = ''
+    let self.blame_file = ''
+    " Diff target file is fallback to blame target file
+    let self.target_file = self.blame_file
 
-    let filename = matchstr(stdout[filename_line], '^filename \zs.\+$')
-    if filename !=# ''
-        let self.target_file = filename
-    else
-        let self.target_file = self.blame_file
-    endif
+    " Parse 'previous', 'boundary' and 'filename'
+    for line in stdout[10:]
+        " At final of output, the current line prefixed with tab is put
+        if line[0] ==# "\t"
+            break
+        endif
+
+        " previous {hash} {next blame file path}
+        "
+        "   where {next blame file path} is a relative path from root directory of
+        "   the repository.
+        let m = matchlist(line, '^previous \([[:xdigit:]]\+\) \(.\+\)$')
+        if m != []
+            let self.prev_commit = m[1]
+            let self.blame_file = m[2]
+            continue
+        endif
+
+        " filename {file path from root dir}
+        "
+        "   where {file path} is a target file of the current commit.
+        "   The file name may be different from current editing file because
+        "   it might be renamed.
+        let filename = matchstr(line, '^filename \zs.\+$')
+        if filename !=# ''
+            let self.target_file = filename
+            continue
+        endif
+
+        " boundary
+        "   Boudary commit. It means current commit is the oldest.
+        "   Nothing to do
+    endfor
 
     let self.oldest_commit = hash
     let self.commit = hash
