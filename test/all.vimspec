@@ -895,6 +895,136 @@ Describe Neovim
             Assert True(w < g:git_messenger_max_popup_width, w . ' v.s. ' . g:git_messenger_max_popup_width)
         End
     End
+
+    Describe issue #25
+        Before all
+            let root_dir = './issue-25'
+            call mkdir(root_dir)
+            call Git('.', 'init', root_dir)
+
+            let filename = 'foo.txt'
+            let filepath = root_dir . '/' . filename
+            let renamename = 'renamed.txt'
+            let renamepath = root_dir . '/' . renamename
+
+            let lines = [
+                        \ 'aaa',
+                        \ 'bbb',
+                        \ 'ccc',
+                        \ 'ddd',
+                        \ 'eee',
+                        \ 'fff',
+                        \ 'ggg',
+                        \ 'hhh',
+                        \ 'iii',
+                        \ 'jjj',
+                        \ 'hhh',
+                        \ ]
+            call writefile(lines, filepath)
+            call Git(root_dir, 'add', filename)
+            call Git(root_dir, 'commit -m init')
+
+            let lines[0] = 'xxx'
+            let lines += ['kkk']
+
+            call Git(root_dir, 'mv', filename, renamename)
+            call writefile(lines, renamepath)
+            call Git(root_dir, 'add', renamename)
+
+            call Git(root_dir, 'commit -m rename')
+
+        End
+
+        After all
+            if delete(root_dir, 'rf') != 0
+                throw 'delete() failed'
+            endif
+        End
+
+        Before each
+            execute 'view!' renamepath
+        End
+
+        It should no longer be reproduced on exploring older commits
+            normal! gg0
+
+            GitMessenger
+            Assert IsNotNone(GetPopup())
+
+            GitMessenger
+            Assert Exists('b:__gitmessenger_popup')
+            Assert Equals(getline(2), ' History: #0')
+
+            normal o
+
+            let found = WaitUntil({-> getline(2) ==# ' History: #1'})
+            Assert True(found, 'Got line: ' . string(getline(2) . ' with messeage:' . execute('message')))
+        End
+
+        It should no longer be reproduced on revealing diff
+            " Test case 1: Before rename (foo.txt)
+            2
+            normal! 0
+
+            GitMessenger
+            Assert IsNotNone(GetPopup())
+
+            GitMessenger
+            Assert Exists('b:__gitmessenger_popup')
+
+            normal d
+
+            let found = WaitUntil({-> index(getline(1, '$'), ' diff --git a/foo.txt b/foo.txt') !=# -1})
+            let lines = getline(1, '$')
+            Assert True(found, 'Popup lines: ' . string(lines) . ' with message:' . execute('message'))
+            Assert True(index(lines, ' +aaa') > 0, string(lines))
+            Assert True(index(lines, ' +bbb') > 0, string(lines))
+
+            quit
+
+            " Test case 2: While renaming
+            normal! gg0
+
+            GitMessenger
+            Assert IsNotNone(GetPopup())
+
+            GitMessenger
+            Assert Exists('b:__gitmessenger_popup')
+
+            normal d
+
+            let found = WaitUntil({-> index(getline(1, '$'), ' diff --git a/foo.txt b/renamed.txt') !=# -1})
+            let lines = getline(1, '$')
+            Assert True(found, 'Popup lines: ' . string(lines) . ' with message:' . execute('message'))
+            " Should show diff of files even while renaming
+            Assert True(index(lines, ' -aaa') > 0, string(lines))
+            Assert True(index(lines, ' +xxx') > 0, string(lines))
+            Assert True(index(lines, '  bbb') > 0, string(lines))
+        End
+
+        It should no longer be reproduced at initial diff
+            normal! gg0
+
+            let saved_include_diff = g:git_messenger_include_diff
+            let g:git_messenger_include_diff = 'current'
+            try
+                GitMessenger
+                Assert IsNotNone(GetPopup())
+
+                GitMessenger
+                Assert Exists('b:__gitmessenger_popup')
+
+                let lines = getline(1, '$')
+                let msg = string(lines)
+                Assert True(index(lines, ' diff --git a/foo.txt b/renamed.txt') > 0, msg)
+                Assert True(index(lines, ' -aaa') > 0, msg)
+                Assert True(index(lines, ' +xxx') > 0, msg)
+                Assert True(index(lines, '  bbb') > 0, msg)
+            finally
+                let g:git_messenger_include_diff = saved_include_diff
+            endtry
+        End
+    End
 End
 
 " vim: set ft=vim:
