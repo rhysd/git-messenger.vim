@@ -69,6 +69,7 @@ function! s:blame__load_history(index) dict abort
     let self.diff = h.diff
     let self.commit = h.commit
     let self.target_file = h.target_file
+    let self.prev_target_file = h.prev_target_file
     let self.index = a:index
     call self.render()
 endfunction
@@ -101,6 +102,7 @@ function! s:blame__save_history() dict abort
     let h.diff = self.diff
     let h.contents = copy(self.contents)
     let h.target_file = self.target_file
+    let h.prev_target_file = self.prev_target_file
 endfunction
 let s:blame.save_history = funcref('s:blame__save_history')
 
@@ -243,12 +245,12 @@ function! s:blame__reveal_diff(include_all) dict abort
 
     if !a:include_all
         let args += ['--', self.target_file]
-        if self.blame_file !=# '' && self.blame_file != self.target_file
+        if self.prev_target_file !=# '' && self.prev_target_file != self.target_file
             " Note: When file was renamed, both file name before rename and file
             " name after rename are necessary to show correct diff.
             " If only file name after rename is specified, it shows diff as if
             " the file was added at the commit not considering rename.
-            let args += [self.blame_file]
+            let args += [self.prev_target_file]
         endif
     endif
     call self.spawn_git(args, funcref('s:blame__after_diff', [next_diff], self))
@@ -371,6 +373,9 @@ function! s:blame__after_blame(git) dict abort
         "   Nothing to do
     endfor
 
+    " prev_target_file is the same as blame_file at this moment, but stored in
+    " another variable since it should be stored in history.
+    let self.prev_target_file = self.blame_file
     let self.oldest_commit = hash
     let self.commit = hash
 
@@ -406,12 +411,12 @@ function! s:blame__after_blame(git) dict abort
 
     if g:git_messenger_include_diff ==? 'current'
         let args += ['--', self.target_file]
-        if self.blame_file !=# '' && self.blame_file != self.target_file
+        if self.prev_target_file !=# '' && self.prev_target_file != self.target_file
             " Note: When file was renamed, both file name before rename and file
             " name after rename are necessary to show correct diff.
             " If only file name after rename is specified, it shows diff as if
             " the file was added at the commit not considering rename.
-            let args += [self.blame_file]
+            let args += [self.prev_target_file]
         endif
     endif
 
@@ -440,8 +445,10 @@ endfunction
 let s:blame.start = funcref('s:blame__start')
 
 " interface Blame {
-"   file: string;
-"   dir: string;
+"   blame_file: string;
+"   target_file: string;
+"   prev_target_file: string;
+"   git_root: string;
 "   line: number;
 "   opts: {
 "     did_open: (b: Blame) => void;
@@ -465,6 +472,8 @@ function! gitmessenger#blame#new(file, line, opts) abort
     let b.line = a:line
     let b.blame_file = a:file
     let b.target_file = a:file
+    let b.self_target_file = a:file
+    let b.prev_target_file = a:file
     let b.git_root = gitmessenger#git#root_dir(dir)
     let b.opts = a:opts
     let b.index = 0
