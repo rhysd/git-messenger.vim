@@ -403,8 +403,16 @@ function! s:blame__after_blame(git) dict abort
         let args += ['-p', '-m']
     endif
     let args += [hash]
+
     if g:git_messenger_include_diff ==? 'current'
         let args += ['--', self.target_file]
+        if self.blame_file !=# '' && self.blame_file != self.target_file
+            " Note: When file was renamed, both file name before rename and file
+            " name after rename are necessary to show correct diff.
+            " If only file name after rename is specified, it shows diff as if
+            " the file was added at the commit not considering rename.
+            let args += [self.blame_file]
+        endif
     endif
 
     call self.spawn_git(args, 's:blame__after_log')

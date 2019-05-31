@@ -937,8 +937,11 @@ Describe Neovim
             endif
         End
 
-        It should no longer be reproduced on exploring older commits
+        Before each
             execute 'view!' renamepath
+        End
+
+        It should no longer be reproduced on exploring older commits
             normal! gg0
 
             GitMessenger
@@ -954,9 +957,7 @@ Describe Neovim
             Assert True(found, 'Got line: ' . string(getline(2) . ' with messeage:' . execute('message')))
         End
 
-        It should no longer be reproduced on showing diff
-            execute 'view!' renamepath
-
+        It should no longer be reproduced on revealing diff
             " Test case 1: Before rename (foo.txt)
             2
             normal! 0
@@ -995,6 +996,29 @@ Describe Neovim
             Assert True(index(lines, ' -aaa') > 0, string(lines))
             Assert True(index(lines, ' +xxx') > 0, string(lines))
             Assert True(index(lines, '  bbb') > 0, string(lines))
+        End
+
+        It should no longer be reproduced at initial diff
+            normal! gg0
+
+            let saved_include_diff = g:git_messenger_include_diff
+            let g:git_messenger_include_diff = 'current'
+            try
+                GitMessenger
+                Assert IsNotNone(GetPopup())
+
+                GitMessenger
+                Assert Exists('b:__gitmessenger_popup')
+
+                let lines = getline(1, '$')
+                let msg = string(lines)
+                Assert True(index(lines, ' diff --git a/foo.txt b/renamed.txt') > 0, msg)
+                Assert True(index(lines, ' -aaa') > 0, msg)
+                Assert True(index(lines, ' +xxx') > 0, msg)
+                Assert True(index(lines, '  bbb') > 0, msg)
+            finally
+                let g:git_messenger_include_diff = saved_include_diff
+            endtry
         End
     End
 End
