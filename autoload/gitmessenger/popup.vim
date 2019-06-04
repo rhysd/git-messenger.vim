@@ -89,7 +89,15 @@ let s:popup.window_size = funcref('s:popup__window_size')
 
 function! s:popup__floating_win_opts(width, height) dict abort
     let bottom_line = line('w0') + winheight(0) - 1
-    if self.opened_at[1] + a:height <= bottom_line
+    let rownr = self.opened_at[1]
+    let colnr = self.opened_at[2]
+    " if the line is wrapped, calculate the colnr and colnr again
+    if colnr > &columns
+        let rownr = rownr / &columns
+        let colnr = colnr % &columns
+    endif
+
+    if rownr + a:height <= bottom_line
         let vert = 'N'
         let row = 1
     else
@@ -97,7 +105,7 @@ function! s:popup__floating_win_opts(width, height) dict abort
         let row = 0
     endif
 
-    if self.opened_at[2] + a:width <= &columns
+    if colnr + a:width <= &columns
         let hor = 'W'
         let col = 0
     else
