@@ -20,18 +20,14 @@ endfunction
 let s:blame.error = funcref('s:blame__error')
 
 function! s:blame__render() dict abort
-    let self.popup.contents = self.contents
+    let self.popup.contents = self.state.contents
     call self.popup.update()
 endfunction
 let s:blame.render = funcref('s:blame__render')
 
 function! s:blame__back() dict abort
-    let next_index = self.index + 1
-
-    call self.save_history()
-
-    if len(self.history) > next_index
-        call self.load_history(next_index)
+    if self.state.back()
+        call self.render()
         return
     endif
 
@@ -41,78 +37,29 @@ function! s:blame__back() dict abort
     endif
 
     " Reset current state
-    let self.diff = 'none'
+    let self.state.diff = 'none'
 
-    let args = ['--no-pager', 'blame', self.prev_commit, '-L', self.line . ',+1', '--porcelain', '--', self.blame_file]
+    let args = ['--no-pager', 'blame', self.prev_commit, '-L', self.line . ',+1', '--porcelain', '--', self.state.blame_file]
     call self.spawn_git(args, 's:blame__after_blame')
 endfunction
 let s:blame.back = funcref('s:blame__back')
 
 function! s:blame__forward() dict abort
-    let next_index = self.index - 1
-    if next_index < 0
+    if self.state.forward()
+        call self.render()
+    else
         echo 'git-messenger: The latest commit'
-        return
     endif
-
-    call self.save_history()
-    call self.load_history(next_index)
 endfunction
 let s:blame.forward = funcref('s:blame__forward')
-
-function! s:blame__load_history(index) dict abort
-    let h = self.history[a:index]
-    " Note: copy() is necessary because the contents may be updated later
-    " for diff. Without copy(), it modifies array in self.history directly
-    " but that's not intended.
-    let self.contents = copy(h.contents)
-    let self.diff = h.diff
-    let self.commit = h.commit
-    let self.target_file = h.target_file
-    let self.prev_target_file = h.prev_target_file
-    let self.index = a:index
-    call self.render()
-endfunction
-let s:blame.load_history = funcref('s:blame__load_history')
-
-function! s:blame__create_history() dict abort
-    " Note: copy() is necessary because the contents may be updated later
-    " for diff
-    let self.history += [{
-        \   'contents': copy(self.contents),
-        \   'diff': self.diff,
-        \   'commit': self.commit,
-        \}]
-endfunction
-let s:blame.create_history = funcref('s:blame__create_history')
-
-function! s:blame__save_history() dict abort
-    if self.index > len(self.history)
-        let msg = printf('FATAL: Invariant error on saving history. Index %d is out of range. Length of history is %d', self.index, len(self.history))
-        call self.error(msg)
-        return
-    endif
-
-    let h = self.history[self.index]
-    if self.commit !=# h.commit
-        call self.error(printf('FATAL: Invaliant error on saving history. Current commit hash %s is different from commit hash in history %s', self.commit, h.commit))
-        return
-    endif
-
-    let h.diff = self.diff
-    let h.contents = copy(self.contents)
-    let h.target_file = self.target_file
-    let h.prev_target_file = self.prev_target_file
-endfunction
-let s:blame.save_history = funcref('s:blame__save_history')
 
 function! s:blame__open_popup() dict abort
     if has_key(self, 'popup') && has_key(self.popup, 'bufnr')
         " Already popup is open. It means that now older commit is showing up.
         " Save the contents to history and show the contents in current
         " popup.
-        call self.create_history()
-        let self.index = len(self.history) - 1
+        call self.state.push()
+        call self.state.save()
         call self.render()
         return
     endif
@@ -134,8 +81,8 @@ function! s:blame__open_popup() dict abort
         let opts.enter = self.opts.enter_popup
     endif
 
-    call self.create_history()
-    let self.popup = gitmessenger#popup#new(self.contents, opts)
+    call self.state.push()
+    let self.popup = gitmessenger#popup#new(self.state.contents, opts)
     call self.popup.open()
 
     if has_key(self.opts, 'did_open')
@@ -160,14 +107,14 @@ function! s:blame__append_lines(lines) dict abort
         endif
 
         if line ==# ''
-            let self.contents += ['']
+            let self.state.contents += ['']
         else
-            let self.contents += [' ' . line]
+            let self.state.contents += [' ' . line]
         endif
     endfor
 
-    if self.contents[-1] !~# '^\s*$'
-        let self.contents += ['']
+    if self.state.contents[-1] !~# '^\s*$'
+        let self.state.contents += ['']
     endif
 endfunction
 let s:blame.append_lines = funcref('s:blame__append_lines')
@@ -188,7 +135,7 @@ function! s:blame__after_diff(next_diff, git) dict abort
     endif
 
     call self.append_lines(a:git.stdout)
-    let self.diff = a:next_diff
+    let self.state.diff = a:next_diff
 
     if popup_open
         call self.render()
@@ -209,7 +156,7 @@ function! s:blame__reveal_diff(include_all) dict abort
         let next_diff = 'current'
     endif
 
-    if self.diff ==# next_diff
+    if self.state.diff ==# next_diff
         " Toggle diff
         let next_diff = 'none'
     endif
@@ -219,17 +166,17 @@ function! s:blame__reveal_diff(include_all) dict abort
     keepjumps execute 1
     let diff_start = search('^ diff --git ', 'ncW')
     if diff_start > 1
-        let self.contents = self.contents[ : diff_start-2]
+        let self.state.contents = self.state.contents[ : diff_start-2]
     endif
     keepjumps call setpos('.', saved)
 
     if next_diff ==# 'none'
         call self.render()
-        let self.diff = next_diff
+        let self.state.diff = next_diff
         return
     endif
 
-    let hash = self.commit
+    let hash = self.state.commit
     if hash ==# ''
         call self.error('Not a valid commit hash: ' . hash)
         return
@@ -244,13 +191,14 @@ function! s:blame__reveal_diff(include_all) dict abort
     endif
 
     if !a:include_all
-        let args += ['--', self.target_file]
-        if self.prev_target_file !=# '' && self.prev_target_file != self.target_file
+        let args += ['--', self.state.target_file]
+        let prev = self.state.prev_target_file
+        if prev !=# '' && prev != self.state.target_file
             " Note: When file was renamed, both file name before rename and file
             " name after rename are necessary to show correct diff.
             " If only file name after rename is specified, it shows diff as if
             " the file was added at the commit not considering rename.
-            let args += [self.prev_target_file]
+            let args += [prev]
         endif
     endif
     call self.spawn_git(args, funcref('s:blame__after_diff', [next_diff], self))
@@ -310,20 +258,20 @@ function! s:blame__after_blame(git) dict abort
 
     let author = matchstr(stdout[1], '^author \zs.\+')
     let author_email = matchstr(stdout[2], '^author-mail \zs\S\+')
-    let self.contents = [
+    let self.state.contents = [
         \   '',
-        \   ' History: #' . len(self.history),
+        \   ' History: #' . self.state.history_no(),
         \   ' Commit: ' . hash,
         \   ' Author: ' . author . ' ' . author_email,
         \ ]
     let committer = matchstr(stdout[5], '^committer \zs.\+')
     if author !=# committer
         let committer_email = matchstr(stdout[6], '^committer-mail \zs\S\+')
-        let self.contents += [' Committer: ' . committer . ' ' . committer_email]
+        let self.state.contents += [' Committer: ' . committer . ' ' . committer_email]
     endif
     if exists('*strftime')
         let author_time = matchstr(stdout[3], '^author-time \zs\d\+')
-        let self.contents += [' Date: ' . strftime('%c', str2nr(author_time))]
+        let self.state.contents += [' Date: ' . strftime('%c', str2nr(author_time))]
     endif
 
     if not_committed_yet
@@ -331,13 +279,13 @@ function! s:blame__after_blame(git) dict abort
     else
         let summary = matchstr(stdout[9], '^summary \zs.*')
     endif
-    let self.contents += ['', ' ' . summary, '']
+    let self.state.contents += ['', ' ' . summary, '']
 
     " Reset the state
     let self.prev_commit = ''
-    let self.blame_file = ''
+    let self.state.blame_file = ''
     " Diff target file is fallback to blame target file
-    let self.target_file = self.blame_file
+    let self.state.target_file = self.state.blame_file
 
     " Parse 'previous', 'boundary' and 'filename'
     for line in stdout[10:]
@@ -353,7 +301,7 @@ function! s:blame__after_blame(git) dict abort
         let m = matchlist(line, '^previous \([[:xdigit:]]\+\) \(.\+\)$')
         if m != []
             let self.prev_commit = m[1]
-            let self.blame_file = m[2]
+            let self.state.blame_file = m[2]
             continue
         endif
 
@@ -364,7 +312,7 @@ function! s:blame__after_blame(git) dict abort
         "   it might be renamed.
         let filename = matchstr(line, '^filename \zs.\+$')
         if filename !=# ''
-            let self.target_file = filename
+            let self.state.target_file = filename
             continue
         endif
 
@@ -375,9 +323,9 @@ function! s:blame__after_blame(git) dict abort
 
     " prev_target_file is the same as blame_file at this moment, but stored in
     " another variable since it should be stored in history.
-    let self.prev_target_file = self.blame_file
+    let self.state.prev_target_file = self.state.blame_file
     let self.oldest_commit = hash
-    let self.commit = hash
+    let self.state.commit = hash
 
     " Check hash is 0000000000000000000000 it means that the line is not committed yet
     if hash =~# '^0\+$'
@@ -392,7 +340,7 @@ function! s:blame__after_blame(git) dict abort
         let args = ['--no-pager', 'diff', 'HEAD']
         if g:git_messenger_include_diff ==? 'current'
             let next_diff = 'current'
-            let args += [self.blame_file]
+            let args += [self.state.blame_file]
         endif
         call self.spawn_git(args, funcref('s:blame__after_diff', [next_diff], self))
         return
@@ -401,22 +349,23 @@ function! s:blame__after_blame(git) dict abort
     let args = ['--no-pager', 'log', '-n', '1', '--pretty=format:%b']
     if g:git_messenger_include_diff !=? 'none'
         if g:git_messenger_include_diff ==? 'current'
-            let self.diff = 'current'
+            let self.state.diff = 'current'
         else
-            let self.diff = 'all'
+            let self.state.diff = 'all'
         endif
         let args += ['-p', '-m']
     endif
     let args += [hash]
 
     if g:git_messenger_include_diff ==? 'current'
-        let args += ['--', self.target_file]
-        if self.prev_target_file !=# '' && self.prev_target_file != self.target_file
+        let args += ['--', self.state.target_file]
+        let prev = self.state.prev_target_file
+        if prev !=# '' && prev != self.state.target_file
             " Note: When file was renamed, both file name before rename and file
             " name after rename are necessary to show correct diff.
             " If only file name after rename is specified, it shows diff as if
             " the file was added at the commit not considering rename.
-            let args += [self.prev_target_file]
+            let args += [prev]
         endif
     endif
 
@@ -439,47 +388,32 @@ let s:blame.spawn_git = funcref('s:blame__spawn_git')
 
 function! s:blame__start() dict abort
     call self.spawn_git(
-        \ ['--no-pager', 'blame', self.blame_file, '-L', self.line . ',+1', '--porcelain'],
+        \ ['--no-pager', 'blame', self.state.blame_file, '-L', self.line . ',+1', '--porcelain'],
         \ 's:blame__after_blame')
 endfunction
 let s:blame.start = funcref('s:blame__start')
 
 " interface Blame {
-"   blame_file: string;
-"   target_file: string;
-"   prev_target_file: string;
-"   git_root: string;
+"   state: State;
 "   line: number;
+"   git_root: string;
+"   prev_commit?: string;
+"   oldest_commit?: string;
 "   opts: {
 "     did_open: (b: Blame) => void;
 "     did_close: (p: Popup) => void;
 "     on_error: (errmsg: string) => void;
 "     enter_popup: boolean;
 "   };
-"   index: number;
-"   history: {
-"     contents: string[];
-"     diff: 'none' | 'all' | 'current';
-"     commit: string;
-"   }[];
-"   diff: 'none' | 'all' | 'current';
-"   commit: string;
 " }
 function! gitmessenger#blame#new(file, line, opts) abort
-    let dir = fnamemodify(a:file, ':p:h')
-
     let b = deepcopy(s:blame)
+    let b.state = gitmessenger#state#new(a:file)
     let b.line = a:line
-    let b.blame_file = a:file
-    let b.target_file = a:file
-    let b.self_target_file = a:file
-    let b.prev_target_file = a:file
-    let b.git_root = gitmessenger#git#root_dir(dir)
     let b.opts = a:opts
-    let b.index = 0
-    let b.history = []
-    let b.diff = 'none'
-    let b.commit = ''
+
+    let dir = fnamemodify(a:file, ':p:h')
+    let b.git_root = gitmessenger#git#root_dir(dir)
 
     " Validations
     if b.git_root ==# ''
