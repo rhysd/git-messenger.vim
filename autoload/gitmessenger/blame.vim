@@ -394,7 +394,7 @@ endfunction
 let s:blame.start = funcref('s:blame__start')
 
 " interface Blame {
-"   state: State;
+"   state: BlameHistory;
 "   line: number;
 "   git_root: string;
 "   prev_commit?: string;
@@ -408,7 +408,7 @@ let s:blame.start = funcref('s:blame__start')
 " }
 function! gitmessenger#blame#new(file, line, opts) abort
     let b = deepcopy(s:blame)
-    let b.state = gitmessenger#state#new(a:file)
+    let b.state = gitmessenger#history#new(a:file)
     let b.line = a:line
     let b.opts = a:opts
 
