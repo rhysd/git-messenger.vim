@@ -3,8 +3,8 @@
 " interface State {
 "   contents: string[];
 "   blame_file: string;
-"   target_file: string;
-"   prev_target_file: string;
+"   diff_file_to: string;
+"   diff_file_from: string;
 "   diff: 'none' | 'all' | 'current';
 "   commit: string;
 "   _index: number;
@@ -12,8 +12,8 @@
 "     commit: string;
 "     contents: string[];
 "     blame_file: string;
-"     target_file: string;
-"     prev_target_file: string;
+"     diff_file_to: string;
+"     diff_file_from: string;
 "     diff: 'none' | 'all' | 'current';
 "   }[];
 " }
@@ -22,12 +22,12 @@
 "   Lines of contents of popup
 " blame_file:
 "   File path given to `git blame`. This can be relative to root of repo
-" target_file:
+" diff_file_to:
 "   File path for diff. It represents the file path after the commit.
-"   When the file was renamed while the commit, it is different from 'prev_target_file'
-" prev_target_file:
+"   When the file was renamed while the commit, it is different from 'diff_file_from'
+" diff_file_from:
 "   File path for diff. It represents the file path before the commit.
-"   When the file was renamed while the commit, it is different from 'target_file'
+"   When the file was renamed while the commit, it is different from 'diff_file_to'
 " diff:
 "   Diff type. Please see document for g:git_messenger_include_diff
 " commit:
@@ -62,9 +62,9 @@ function! s:state__save() dict abort
 
     let h.diff = self.diff
     let h.contents = copy(self.contents)
-    let h.target_file = self.target_file
+    let h.diff_file_to = self.diff_file_to
     let h.commit = self.commit
-    let h.prev_target_file = self.prev_target_file
+    let h.diff_file_from = self.diff_file_from
 endfunction
 let s:state.save = funcref('s:state__save')
 
@@ -77,8 +77,8 @@ function! s:state__load(index) dict abort
     let self.contents = copy(h.contents)
     let self.diff = h.diff
     let self.commit = h.commit
-    let self.target_file = h.target_file
-    let self.prev_target_file = h.prev_target_file
+    let self.diff_file_to = h.diff_file_to
+    let self.diff_file_from = h.diff_file_from
     let self._index = a:index
 endfunction
 let s:state._load = funcref('s:state__load')
@@ -123,8 +123,8 @@ function! gitmessenger#state#new(filepath) abort
     let s = deepcopy(s:state)
     let s.contents = []
     let s.blame_file = a:filepath
-    let s.target_file = a:filepath
-    let s.prev_target_file = a:filepath
+    let s.diff_file_to = a:filepath
+    let s.diff_file_from = a:filepath
     let s.diff = 'none'
     let s.commit = ''
     return s

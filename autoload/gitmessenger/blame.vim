@@ -191,9 +191,9 @@ function! s:blame__reveal_diff(include_all) dict abort
     endif
 
     if !a:include_all
-        let args += ['--', self.state.target_file]
-        let prev = self.state.prev_target_file
-        if prev !=# '' && prev != self.state.target_file
+        let args += ['--', self.state.diff_file_to]
+        let prev = self.state.diff_file_from
+        if prev !=# '' && prev != self.state.diff_file_to
             " Note: When file was renamed, both file name before rename and file
             " name after rename are necessary to show correct diff.
             " If only file name after rename is specified, it shows diff as if
@@ -285,7 +285,7 @@ function! s:blame__after_blame(git) dict abort
     let self.prev_commit = ''
     let self.state.blame_file = ''
     " Diff target file is fallback to blame target file
-    let self.state.target_file = self.state.blame_file
+    let self.state.diff_file_to = self.state.blame_file
 
     " Parse 'previous', 'boundary' and 'filename'
     for line in stdout[10:]
@@ -312,7 +312,7 @@ function! s:blame__after_blame(git) dict abort
         "   it might be renamed.
         let filename = matchstr(line, '^filename \zs.\+$')
         if filename !=# ''
-            let self.state.target_file = filename
+            let self.state.diff_file_to = filename
             continue
         endif
 
@@ -321,9 +321,9 @@ function! s:blame__after_blame(git) dict abort
         "   Nothing to do
     endfor
 
-    " prev_target_file is the same as blame_file at this moment, but stored in
+    " diff_file_from is the same as blame_file at this moment, but stored in
     " another variable since it should be stored in history.
-    let self.state.prev_target_file = self.state.blame_file
+    let self.state.diff_file_from = self.state.blame_file
     let self.oldest_commit = hash
     let self.state.commit = hash
 
@@ -358,9 +358,9 @@ function! s:blame__after_blame(git) dict abort
     let args += [hash]
 
     if g:git_messenger_include_diff ==? 'current'
-        let args += ['--', self.state.target_file]
-        let prev = self.state.prev_target_file
-        if prev !=# '' && prev != self.state.target_file
+        let args += ['--', self.state.diff_file_to]
+        let prev = self.state.diff_file_from
+        if prev !=# '' && prev != self.state.diff_file_to
             " Note: When file was renamed, both file name before rename and file
             " name after rename are necessary to show correct diff.
             " If only file name after rename is specified, it shows diff as if
