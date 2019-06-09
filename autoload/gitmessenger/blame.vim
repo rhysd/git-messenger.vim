@@ -39,7 +39,7 @@ function! s:blame__back() dict abort
     " Reset current state
     let self.state.diff = 'none'
 
-    let args = ['--no-pager', 'blame', self.prev_commit, '-L', self.line . ',+1', '--porcelain', '--', self.state.blame_file]
+    let args = ['--no-pager', 'blame', self.prev_commit, '-L', self.line . ',+1', '--porcelain', '--', self.blame_file]
     call self.spawn_git(args, 's:blame__after_blame')
 endfunction
 let s:blame.back = funcref('s:blame__back')
@@ -283,9 +283,9 @@ function! s:blame__after_blame(git) dict abort
 
     " Reset the state
     let self.prev_commit = ''
-    let self.state.blame_file = ''
+    let self.blame_file = ''
     " Diff target file is fallback to blame target file
-    let self.state.diff_file_to = self.state.blame_file
+    let self.state.diff_file_to = self.blame_file
 
     " Parse 'previous', 'boundary' and 'filename'
     for line in stdout[10:]
@@ -301,7 +301,7 @@ function! s:blame__after_blame(git) dict abort
         let m = matchlist(line, '^previous \([[:xdigit:]]\+\) \(.\+\)$')
         if m != []
             let self.prev_commit = m[1]
-            let self.state.blame_file = m[2]
+            let self.blame_file = m[2]
             continue
         endif
 
@@ -323,7 +323,7 @@ function! s:blame__after_blame(git) dict abort
 
     " diff_file_from is the same as blame_file at this moment, but stored in
     " another variable since it should be stored in history.
-    let self.state.diff_file_from = self.state.blame_file
+    let self.state.diff_file_from = self.blame_file
     let self.oldest_commit = hash
     let self.state.commit = hash
 
@@ -340,7 +340,7 @@ function! s:blame__after_blame(git) dict abort
         let args = ['--no-pager', 'diff', 'HEAD']
         if g:git_messenger_include_diff ==? 'current'
             let next_diff = 'current'
-            let args += [self.state.blame_file]
+            let args += [self.blame_file]
         endif
         call self.spawn_git(args, funcref('s:blame__after_diff', [next_diff], self))
         return
@@ -388,7 +388,7 @@ let s:blame.spawn_git = funcref('s:blame__spawn_git')
 
 function! s:blame__start() dict abort
     call self.spawn_git(
-        \ ['--no-pager', 'blame', self.state.blame_file, '-L', self.line . ',+1', '--porcelain'],
+        \ ['--no-pager', 'blame', self.blame_file, '-L', self.line . ',+1', '--porcelain'],
         \ 's:blame__after_blame')
 endfunction
 let s:blame.start = funcref('s:blame__start')
@@ -397,6 +397,7 @@ let s:blame.start = funcref('s:blame__start')
 "   state: BlameHistory;
 "   line: number;
 "   git_root: string;
+"   blame_file: string;
 "   prev_commit?: string;
 "   oldest_commit?: string;
 "   opts: {
@@ -406,10 +407,16 @@ let s:blame.start = funcref('s:blame__start')
 "     enter_popup: boolean;
 "   };
 " }
+"
+" blame_file:
+"   File path given to `git blame`. This can be relative to root of repo.
+"   Note: This does not need to be put in BlameHistory state because it is
+"   used by only `git blame`.
 function! gitmessenger#blame#new(file, line, opts) abort
     let b = deepcopy(s:blame)
     let b.state = gitmessenger#history#new(a:file)
     let b.line = a:line
+    let b.blame_file = a:file
     let b.opts = a:opts
 
     let dir = fnamemodify(a:file, ':p:h')

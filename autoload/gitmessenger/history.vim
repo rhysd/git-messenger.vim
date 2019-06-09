@@ -1,27 +1,22 @@
 " Note: Index 0 means the latest entry of history
 
-" interface BlameHistory {
+" interface BlameState {
 "   commit: string;
 "   contents: string[];
-"   blame_file: string;
 "   diff_file_to: string;
 "   diff_file_from: string;
 "   diff: 'none' | 'all' | 'current';
-"   _index: number;
-"   _history: {
-"     commit: string;
-"     contents: string[];
-"     blame_file: string;
-"     diff_file_to: string;
-"     diff_file_from: string;
-"     diff: 'none' | 'all' | 'current';
-"   }[];
 " }
+"
+" interface BlameHistory extends BlameState {
+"   _index: number;
+"   _history: BlameState[];
+" }
+"
+" History of chain of `git blame` with contents.
 "
 " contents:
 "   Lines of contents of popup
-" blame_file:
-"   File path given to `git blame`. This can be relative to root of repo
 " diff_file_to:
 "   File path for diff. It represents the file path after the commit.
 "   When the file was renamed while the commit, it is different from 'diff_file_from'
@@ -122,7 +117,6 @@ let s:history.forward = funcref('s:history__forward')
 function! gitmessenger#history#new(filepath) abort
     let h = deepcopy(s:history)
     let h.contents = []
-    let h.blame_file = a:filepath
     let h.diff_file_to = a:filepath
     let h.diff_file_from = a:filepath
     let h.diff = 'none'
