@@ -47,6 +47,8 @@ let s:blame.back = funcref('s:blame__back')
 function! s:blame__forward() dict abort
     if self.state.forward()
         call self.render()
+    elseif self.state.commit !=# ''
+        echo 'git-messenger: ' . self.state.commit . ' is the latest commit'
     else
         echo 'git-messenger: The latest commit'
     endif
@@ -224,7 +226,7 @@ function! s:blame__after_blame(git) dict abort
     let self.failed = a:git.exit_status != 0
 
     if self.failed
-        if a:git.stderr[0] =~# 'has only \d\+ lines'
+        if a:git.stderr[0] =~# 'has only \d\+ lines\='
             echo 'git-messenger: ' . get(self, 'oldest_commit', 'It') . ' is the oldest commit'
             return
         endif
