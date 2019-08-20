@@ -136,6 +136,13 @@ function! s:blame__after_diff(next_diff, git) dict abort
         return
     endif
 
+    " When getting diff with `git show --pretty=format:%b`, it may contain
+    " commit body. By removing line until 'diff --git ...' line, the body is
+    " removed (#35)
+    while a:git.stdout !=# [] && stridx(a:git.stdout[0], 'diff --git ') !=# 0
+        let a:git.stdout = a:git.stdout[1:]
+    endwhile
+
     call self.append_lines(a:git.stdout)
     let self.state.diff = a:next_diff
 
