@@ -72,13 +72,8 @@ call minpac#add('rhysd/git-messenger.vim')
 
 When you're using Vim's builtin packager, please follow instruction at `:help pack-add`.
 
-To enable a floating window support, you need to install Neovim 0.4 or later. The version is not
-yet released. You need to install Neovim from [nightly release][nightly] or by building from source
-at this point. If you use macOS, it's quite easy with Homebrew.
-
-```
-$ brew install neovim --HEAD
-```
+To enable a floating window support, you need to install Neovim 0.4 or later.
+Please follow [the official instruction][nvim-install].
 
 To check if Neovim's floating window feature is available, try `:checkhealth`.
 
@@ -290,4 +285,5 @@ Distributed under [the MIT License](LICENSE)
 [travis-ci-badge]: https://travis-ci.org/rhysd/git-messenger.vim.svg?branch=master
 [travis-ci]: https://travis-ci.org/rhysd/git-messenger.vim
 [doc]: ./doc/git-messenger.txt
-[nightly]: https://github.com/neovim/neovim/releases/tag/nightly
+[nvim-install]: https://github.com/neovim/neovim/wiki/Installing-Neovim
+

@@ -30,10 +30,10 @@ function! s:check_floating_window() abort
         noautocmd call nvim_win_close(win_id, v:true)
     catch /^Vim\%((\a\+)\)\=:E118/
         call health#report_error(
-            \ 'Your Neovim is slightly older',
+            \ 'Your Neovim is too old',
             \ [
-            \   'Please update to the HEAD of 0.4.0-dev',
-            \   'If the HEAD version does not fix the error, please make an issue at https://github.com/rhysd/git-messenger.vim',
+            \   'Please update Neovim to 0.4.0 or later',
+            \   'If the version does not fix the error, please make an issue at https://github.com/rhysd/git-messenger.vim',
             \ ])
         return
     endtry

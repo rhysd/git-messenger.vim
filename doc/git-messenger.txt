@@ -87,11 +87,9 @@ dein.vim: https://github.com/Shougo/dein.vim
 minpac: https://github.com/k-takata/minpac
 
 To enable a floating window support, you need to install Neovim 0.4 or later.
-The version is not yet released, so you need to install Neovim by building
-from source at this point. If you use macOS, it's quite easy with Homebrew.
->
-  $ brew install neovim --HEAD
-<
+Please follow the official instruction.
+
+https://github.com/neovim/neovim/wiki/Installing-Neovim
 
 
 ==============================================================================
