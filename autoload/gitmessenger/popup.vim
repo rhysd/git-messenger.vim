@@ -147,7 +147,11 @@ function! s:popup__open() dict abort
         if g:git_messenger_preview_mods !=# ''
             let mods .= ' ' . g:git_messenger_preview_mods
         endif
-        execute mods 'pedit!'
+
+        " :pedit! is not available since it refreshes the file buffer (#39)
+        execute mods 'new'
+        set previewwindow
+
         call setpos('.', curr_pos)
         wincmd P
         execute height . 'wincmd _'
