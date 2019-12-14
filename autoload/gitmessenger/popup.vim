@@ -112,6 +112,7 @@ function! s:popup__floating_win_opts(width, height) dict abort
     \   'col': col,
     \   'width': a:width,
     \   'height': a:height,
+    \   'style': 'minimal',
     \ }
 endfunction
 let s:popup.floating_win_opts = funcref('s:popup__floating_win_opts')
