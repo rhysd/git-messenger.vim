@@ -5,6 +5,7 @@ endif
 syn match gitmessengerHeader '\_^ \%(History\|Commit\|Date\|Author\|Committer\):' display
 syn match gitmessengerHash '\%(\<Commit: \)\@<=[[:xdigit:]]\+' display
 syn match gitmessengerHistory '\%(\<History: \)\@<=#\d\+' display
+syn match gitmessengerEmail '\%(\<\%(Author\|Committer\): .*\)\@<=<.\+>' display
 
 " Diff included in popup
 syn match diffRemoved "^ -.*" display
@@ -29,6 +30,7 @@ syn match diffIndexLine "^ index \x\{7,}\.\.\x\{7,}.*" display
 hi def link gitmessengerHeader      Identifier
 hi def link gitmessengerHash        Comment
 hi def link gitmessengerHistory     Constant
+hi def link gitmessengerEmail       gitmessengerPopupNormal
 hi def link gitmessengerPopupNormal NormalFloat
 
 hi def link diffOldFile   diffFile
