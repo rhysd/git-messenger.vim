@@ -194,6 +194,11 @@ showing a popup does not move the cursor in the window.
 When this value is set to `v:true`, the cursor goes into a popup window when running `:GitMessenger`
 or `<Plug>(git-messenger)`.
 
+#### `g:git_messenger_extra_blame_args` (Default: `""`)
+
+When this variable is set the contents will be appended to the git blame
+command. Use it to add options (like -w).
+
 #### `g:git_messenger_preview_mods` (Default: `""`)
 
 This variable is effective only when opening preview window (on Neovim (0.3.0 or earlier) or Vim).

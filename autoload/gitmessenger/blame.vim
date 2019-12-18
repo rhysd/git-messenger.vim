@@ -397,7 +397,7 @@ let s:blame.spawn_git = funcref('s:blame__spawn_git')
 
 function! s:blame__start() dict abort
     call self.spawn_git(
-        \ ['--no-pager', 'blame', self.blame_file, '-L', self.line . ',+1', '--porcelain'],
+        \ ['--no-pager', 'blame', self.blame_file, '-L', self.line . ',+1', '--porcelain'] + split(g:git_messenger_extra_blame_args, " "),
         \ 's:blame__after_blame')
 endfunction
 let s:blame.start = funcref('s:blame__start')
