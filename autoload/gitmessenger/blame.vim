@@ -39,7 +39,7 @@ function! s:blame__back() dict abort
     " Reset current state
     let self.state.diff = 'none'
 
-    let args = ['--no-pager', 'blame', self.prev_commit, '-L', self.line . ',+1', '--porcelain', '--', self.blame_file]
+    let args = ['--no-pager', 'blame', self.prev_commit, '-L', self.line . ',+1', '--porcelain'] + split(g:git_messenger_extra_blame_args, ' ') + ['--', self.blame_file]
     call self.spawn_git(args, 's:blame__after_blame')
 endfunction
 let s:blame.back = funcref('s:blame__back')
