@@ -34,21 +34,21 @@ Describe git-messenger.vim
             Assert True(len(lines) >= 6, msg)
 
             let history = lines[1]
-            Assert Match(history, '^ History: #0$', msg)
+            Assert Match(history, '^ History: \+#0$', msg)
 
             let commit = lines[2]
-            Assert Match(commit, '^ Commit: [[:xdigit:]]\{7,}$', msg)
+            Assert Match(commit, '^ Commit: \+[[:xdigit:]]\{7,}$', msg)
 
             let author = lines[3]
-            Assert Match(author, '^ Author: \S\+ <[^>]\+>$', msg)
+            Assert Match(author, '^ Author: \+\S\+ <[^>]\+>$', msg)
 
             let date = lines[4]
-            Assert Match(date, '^ Date: .\+$', msg)
+            Assert Match(date, '^ Date: \+.\+$', msg)
 
             let summary = lines[6]
             Assert NotEmpty(summary, msg)
 
-            let hash = matchstr(commit, '^ Commit: \zs[[:xdigit:]]\{7,}$')
+            let hash = matchstr(commit, '^ Commit: \+\zs[[:xdigit:]]\{7,}$')
             let out = system('git show -s ' . hash)
             Assert Falsy(v:shell_error, out)
             Assert True(stridx(out, summary) >= 0, string(out) . ' should contain ' . string(summary))
@@ -169,16 +169,16 @@ Describe git-messenger.vim
             GitMessenger
             Assert Exists('b:__gitmessenger_popup')
 
-            Assert Equals(getline(2), ' History: #0')
+            Assert Match(getline(2), '^ History: \+#0$')
 
             normal o
 
-            let found = WaitUntil({-> getline(2) ==# ' History: #1'})
+            let found = WaitUntil({-> getline(2) =~# '^ History: \+#1$'})
             Assert True(found, 'Got line: ' . string(getline(2)))
 
             normal o
 
-            let found = WaitUntil({-> getline(2) ==# ' History: #2'})
+            let found = WaitUntil({-> getline(2) =~# '^ History: \+#2$'})
             Assert True(found, 'Got line: ' . string(getline(2)))
         End
 
@@ -191,28 +191,28 @@ Describe git-messenger.vim
             GitMessenger
             Assert Exists('b:__gitmessenger_popup')
 
-            Assert Equals(getline(2), ' History: #0')
+            Assert Match(getline(2), '^ History: \+#0$')
 
             normal o
-            call WaitUntil({-> getline(2) ==# ' History: #1'})
+            call WaitUntil({-> getline(2) =~# '^ History: \+#1$'})
 
             normal o
-            call WaitUntil({-> getline(2) ==# ' History: #2'})
+            call WaitUntil({-> getline(2) =~# '^ History: \+#2$'})
 
             normal O
 
-            let found = WaitUntil({-> getline(2) ==# ' History: #1'})
+            let found = WaitUntil({-> getline(2) =~# '^ History: \+#1$'})
             Assert True(found, 'Got line: ' . string(getline(2)))
 
             normal O
 
-            let found = WaitUntil({-> getline(2) ==# ' History: #0'})
+            let found = WaitUntil({-> getline(2) =~# '^ History: \+#0$'})
             Assert True(found, 'Got line: ' . string(getline(2)))
 
             " Check older again
             normal o
 
-            let found = WaitUntil({-> getline(2) ==# ' History: #1'})
+            let found = WaitUntil({-> getline(2) =~# '^ History: \+#1$'})
             Assert True(found, 'Got line: ' . string(getline(2)))
         End
 
@@ -485,14 +485,14 @@ Describe git-messenger.vim
 
             for i in range(3)
                 normal o
-                Assert WaitUntil({-> getline(2) ==# ' History: #1'})
+                Assert WaitUntil({-> getline(2) =~# '^ History: \+#1$'})
 
                 let lines = getline(1, '$')
                 let idx = index(lines, ' diff --git a/README.md b/README.md')
                 Assert Equals(idx, -1, string(lines))
 
                 normal O
-                Assert WaitUntil({-> getline(2) ==# ' History: #0'})
+                Assert WaitUntil({-> getline(2) =~# '^ History: \+#0$'})
 
                 " Check diff is restored
                 let lines = getline(1, '$')
@@ -522,10 +522,10 @@ Describe git-messenger.vim
                 Assert Equal(found, expected, msg)
 
                 normal o
-                Assert WaitUntil({-> getline(2) ==# ' History: #1'})
+                Assert WaitUntil({-> getline(2) =~# '^ History: \+#1$'})
 
                 normal O
-                Assert WaitUntil({-> getline(2) ==# ' History: #0'})
+                Assert WaitUntil({-> getline(2) =~# '^ History: \+#0$'})
 
                 let found = WaitUntil({-> index(getline(1, '$'), ' diff --git a/README.md b/README.md') !=# -1})
                 let msg = 'Got lines: (' . i . ') ' . string(getline(1, '$'))
@@ -593,7 +593,7 @@ Describe git-messenger.vim
                     Assert True(len(lines) >= 6, msg)
 
                     let commit = lines[2]
-                    Assert Match(commit, '^ Commit: 0\{7,}$', msg)
+                    Assert Match(commit, '^ Commit: \+0\{7,}$', msg)
 
                     let summary = lines[6]
                     Assert Equals(summary, ' This line is not committed yet', msg)
@@ -743,14 +743,14 @@ Describe git-messenger.vim
             Assert Exists('b:__gitmessenger_popup')
 
             normal o
-            call WaitUntil({-> getline(2) ==# ' History: #1'})
+            call WaitUntil({-> getline(2) =~# '^ History: \+#1$'})
 
             let lines = getbufline(p.bufnr, 1, '$')
             let idx = index(lines, ' diff --git a/README.md b/README.md')
             Assert NotEqual(idx, -1, string(lines))
 
             normal O
-            call WaitUntil({-> getline(2) ==# ' History: #0'})
+            call WaitUntil({-> getline(2) =~# '^ History: \+#0$'})
 
             let lines = getbufline(p.bufnr, 1, '$')
             let idx = index(lines, ' diff --git a/README.md b/README.md')
@@ -782,14 +782,14 @@ Describe git-messenger.vim
             Assert Exists('b:__gitmessenger_popup')
 
             normal o
-            call WaitUntil({-> getline(2) ==# ' History: #1'})
+            call WaitUntil({-> getline(2) =~# '^ History: \+#1$'})
 
             let lines = getbufline(p.bufnr, 1, '$')
             let idx = index(lines, ' diff --git a/README.md b/README.md')
             Assert NotEqual(idx, -1, string(lines))
 
             normal O
-            call WaitUntil({-> getline(2) ==# ' History: #0'})
+            call WaitUntil({-> getline(2) =~# '^ History: \+#0$'})
 
             let lines = getbufline(p.bufnr, 1, '$')
             let idx = index(lines, ' diff --git a/README.md b/README.md')
@@ -953,11 +953,11 @@ Describe git-messenger.vim
 
             GitMessenger
             Assert Exists('b:__gitmessenger_popup')
-            Assert Equals(getline(2), ' History: #0')
+            Assert Match(getline(2), '^ History: \+#0$')
 
             normal o
 
-            let found = WaitUntil({-> getline(2) ==# ' History: #1'})
+            let found = WaitUntil({-> getline(2) =~# '^ History: \+#1$'})
             Assert True(found, 'Got line: ' . string(getline(2) . ' with messeage:' . execute('message')))
         End
 
@@ -1038,12 +1038,12 @@ Describe git-messenger.vim
 
             normal o
 
-            let found = WaitUntil({-> getline(2) ==# ' History: #1'})
+            let found = WaitUntil({-> getline(2) =~# '^ History: \+#1$'})
             Assert True(found, 'Got line: ' . string(getline(2) . ' with messeage: ' . execute('message')))
 
             normal O
 
-            let found = WaitUntil({-> getline(2) ==# ' History: #0'})
+            let found = WaitUntil({-> getline(2) =~# '^ History: \+#0$'})
             Assert True(found, 'Got line: ' . string(getline(2) . ' with messeage: ' . execute('message')))
 
             normal d
