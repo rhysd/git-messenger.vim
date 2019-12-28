@@ -312,7 +312,7 @@ For example:
       nmap <buffer><C-o> o
       nmap <buffer><C-i> O
   endfunction
-  autocmd FileType gitmessengerpopup call <SID>s:setup_gitmessengerpopup()
+  autocmd FileType gitmessengerpopup call <SID>setup_gitmessengerpopup()
 <
 
 ==============================================================================
