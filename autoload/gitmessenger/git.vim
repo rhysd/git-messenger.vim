@@ -12,35 +12,19 @@ function! gitmessenger#git#root_dir(from) abort
         " [:-2] chops last path separator
         let from = from[:-2]
     endif
-    let gitdir = finddir('.git', from . ';')
-    if gitdir !=# ''
-        if stridx(from, fnamemodify(gitdir, ':p')) == 0
+
+    let git = finddir('.git', from . ';')
+    if git ==# ''
+        let git = findfile('.git', from . ';')
+    endif
+
+    if git !=# ''
+        if stridx(from, fnamemodify(git, ':p')) == 0
             " Inside .git directory is outside repository
             return ''
         endif
         " -5 means chopping '.git'
-        return fnamemodify(gitdir[ : -5], ':p')
-    endif
-
-    let gitfile = findfile('.git', a:from . ';')
-    if gitfile !=# ''
-        let lines = readfile(gitfile)
-        if lines == []
-            return ''
-        endif
-
-        let rel_gitdir = matchstr(lines[0], '^gitdir:\s*\zs.\+$')
-        if rel_gitdir ==# ''
-            return ''
-        endif
-
-        " -5 means chopping '.git'
-        let gitdir = gitfile[ : -5] . rel_gitdir
-
-        " Note: fnamemodify() returns canonical path so we don't need to care
-        " about that 'rel_gitdir' path is absolute or relative.
-        "   fnamemodify('.//foo',  ':p') => /path/to/foo
-        return fnamemodify(gitdir, ':p:h')
+        return fnamemodify(git[ : -5], ':p')
     endif
 
     return ''
