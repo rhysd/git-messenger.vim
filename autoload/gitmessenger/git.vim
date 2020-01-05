@@ -8,12 +8,9 @@ function! s:find_dotgit(from) abort
         return ''
     endif
 
-    " Choose larger (deeper) path. In the following case,
-    "
-    " - Git repositories are nested
-    " - worktree directory is put in its main repository (#48)
-    "
-    " the .git directory which is near to `from` should be chosen.
+    " Choose larger (deeper) path (#48). When worktree directory is put in its
+    " main repository, the .git directory which is near to `from` should be
+    " chosen.
     " When `dir` or `file` is empty, the other is chosen so we don't need to
     " care about empty string here.
     let dotgit = len(dir) > len(file) ? dir : file
