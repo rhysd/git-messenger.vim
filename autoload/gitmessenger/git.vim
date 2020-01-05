@@ -1,5 +1,32 @@
 let s:SEP = has('win32') ? '\' : '/'
 
+function! s:find_dotgit(from) abort
+    let dir = finddir('.git', a:from . ';')
+    let file = findfile('.git', a:from . ';')
+
+    if dir ==# '' && file ==# ''
+        return ''
+    endif
+
+    " Choose larger (deeper) path. In the following case,
+    "
+    " - Git repositories are nested
+    " - worktree directory is put in its main repository (#48)
+    "
+    " the .git directory which is near to `from` should be chosen.
+    " When `dir` or `file` is empty, the other is chosen so we don't need to
+    " care about empty string here.
+    let dotgit = len(dir) > len(file) ? dir : file
+    let dotgit = fnamemodify(dotgit, ':p')
+
+    if dotgit[-1:] ==# s:SEP
+        " [:-2] chops last path separator
+        let dotgit = dotgit[:-2]
+    endif
+
+    return dotgit
+endfunction
+
 " Params:
 "   path: string
 "     base path to find .git in ancestor directories
@@ -8,21 +35,9 @@ let s:SEP = has('win32') ? '\' : '/'
 "     empty string means root directory was not found
 function! gitmessenger#git#root_dir(from) abort
     let from = fnamemodify(a:from, ':p')
-
-    let dotgit = finddir('.git', from . ';')
-    if dotgit ==# ''
-        let dotgit = findfile('.git', from . ';')
-    endif
-
+    let dotgit = s:find_dotgit(from)
     if dotgit ==# ''
         return ''
-    endif
-
-    let dotgit = fnamemodify(dotgit, ':p')
-
-    if dotgit[-1:] ==# s:SEP
-        " [:-2] chops last path separator
-        let dotgit = dotgit[:-2]
     endif
 
     if stridx(from, dotgit) == 0
