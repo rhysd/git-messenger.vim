@@ -14,16 +14,24 @@ function! gitmessenger#git#root_dir(from) abort
         let dotgit = findfile('.git', from . ';')
     endif
 
-    if dotgit !=# ''
-        if stridx(from, fnamemodify(dotgit, ':p')) == 0
-            " Inside .git directory is outside repository
-            return ''
-        endif
-        " -5 means chopping '.git'
-        return fnamemodify(dotgit[ : -5], ':p')
+    if dotgit ==# ''
+        return ''
     endif
 
-    return ''
+    let dotgit = fnamemodify(dotgit, ':p')
+
+    if dotgit[-1:] ==# s:SEP
+        " [:-2] chops last path separator
+        let dotgit = dotgit[:-2]
+    endif
+
+    if stridx(from, dotgit) == 0
+        " Inside .git directory is outside repository
+        return ''
+    endif
+
+    " /path/to/.git => /path/to
+    return fnamemodify(dotgit, ':h')
 endfunction
 
 let s:git = {}
