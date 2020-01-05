@@ -8,23 +8,19 @@ let s:SEP = has('win32') ? '\' : '/'
 "     empty string means root directory was not found
 function! gitmessenger#git#root_dir(from) abort
     let from = fnamemodify(a:from, ':p')
-    if from[-1:] ==# s:SEP
-        " [:-2] chops last path separator
-        let from = from[:-2]
+
+    let dotgit = finddir('.git', from . ';')
+    if dotgit ==# ''
+        let dotgit = findfile('.git', from . ';')
     endif
 
-    let git = finddir('.git', from . ';')
-    if git ==# ''
-        let git = findfile('.git', from . ';')
-    endif
-
-    if git !=# ''
-        if stridx(from, fnamemodify(git, ':p')) == 0
+    if dotgit !=# ''
+        if stridx(from, fnamemodify(dotgit, ':p')) == 0
             " Inside .git directory is outside repository
             return ''
         endif
         " -5 means chopping '.git'
-        return fnamemodify(git[ : -5], ':p')
+        return fnamemodify(dotgit[ : -5], ':p')
     endif
 
     return ''

@@ -434,7 +434,7 @@ function! gitmessenger#blame#new(file, line, opts) abort
 
     " Validations
     if b.git_root ==# ''
-        call b.error("git-messenger: Directory '" . dir . "' is not in the Git repository")
+        call b.error("git-messenger: Directory '" . dir . "' is not inside a Git repository")
         return v:null
     endif
 
