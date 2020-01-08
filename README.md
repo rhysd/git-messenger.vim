@@ -1,6 +1,7 @@
 git-messenger.vim
 =================
 [![Build Status][travis-ci-badge]][travis-ci]
+[![codecov][codecov-badge]][codecov]
 
 [git-messenger.vim][repo] is a Vim/Neovim plugin to reveal the hidden message from Git under the
 cursor quickly. It shows the history of commits under the cursor in popup window.
@@ -289,6 +290,8 @@ Distributed under [the MIT License](LICENSE)
 [repo]: https://github.com/rhysd/git-messenger.vim
 [travis-ci-badge]: https://travis-ci.org/rhysd/git-messenger.vim.svg?branch=master
 [travis-ci]: https://travis-ci.org/rhysd/git-messenger.vim
+[codecov]: https://codecov.io/gh/rhysd/git-messenger.vim
+[codecov-badge]: https://codecov.io/gh/rhysd/git-messenger.vim/branch/master/graph/badge.svg
 [doc]: ./doc/git-messenger.txt
 [nvim-install]: https://github.com/neovim/neovim/wiki/Installing-Neovim
 
