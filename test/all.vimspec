@@ -8,7 +8,7 @@ Describe git-messenger.vim
         normal! gg0
 
         " Move to introduction paragraph
-        normal! }j27l
+        normal! }2j27l
     End
 
     After each
@@ -174,12 +174,12 @@ Describe git-messenger.vim
             normal o
 
             let found = WaitUntil({-> getline(2) =~# '^ History: \+#1$'})
-            Assert True(found, 'Got line: ' . string(getline(2)))
+            Assert True(found, 'Expected #1 but got line: ' . string(getline(2)))
 
             normal o
 
             let found = WaitUntil({-> getline(2) =~# '^ History: \+#2$'})
-            Assert True(found, 'Got line: ' . string(getline(2)))
+            Assert True(found, 'Expected #2 but got line: ' . string(getline(2)))
         End
 
         It shows newer commit on O
