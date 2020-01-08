@@ -47,12 +47,21 @@ before_script:
 
 script:
     - THEMIS_VIM=$(pwd)/nvim-nightly/nvim-${TRAVIS_OS_NAME}64/bin/nvim ./vim-themis/bin/themis ./test/all.vimspec
-    - THEMIS_VIM=$(pwd)/nvim-stable/nvim-${TRAVIS_OS_NAME}64/bin/nvim ./vim-themis/bin/themis ./test/all.vimspec
-    - THEMIS_VIM=vim ./vim-themis/bin/themis ./test/all.vimspec
+    - THEMIS_PROFILE=profile-nvim.txt THEMIS_VIM=$(pwd)/nvim-stable/nvim-${TRAVIS_OS_NAME}64/bin/nvim ./vim-themis/bin/themis ./test/all.vimspec
+    - THEMIS_PROFILE=profile-vim.txt THEMIS_VIM=vim ./vim-themis/bin/themis ./test/all.vimspec
     - |
       if [[ "$RUN_LINT" == "true" ]]; then
         vint ./autoload ./plugin
       fi
+
+after_success:
+    - pip3 install covimerage
+    - covimerage write_coverage --data-file .coverage_covimerage-nvim profile-nvim.txt
+    - covimerage write_coverage --data-file .coverage_covimerage-vim profile-vim.txt
+    - coverage combine .coverage_covimerage-nvim .coverage_covimerage-vim
+    - coverage report
+    - coverage xml
+    - bash <(curl -s https://codecov.io/bash)
 
 addons:
     homebrew:
