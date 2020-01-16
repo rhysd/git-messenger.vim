@@ -32,6 +32,28 @@ function! s:find_dotgit(from) abort
     return dotgit
 endfunction
 
+" Params:
+"   path: string
+"     base path to find .git in ancestor directories
+" Returns:
+"   string
+"     empty string means root directory was not found
+function! gitmessenger#git#root_dir(from) abort
+    let from = fnamemodify(a:from, ':p')
+    let dotgit = s:find_dotgit(from)
+    if dotgit ==# ''
+        return ''
+    endif
+
+    if stridx(from, dotgit) == 0
+        " Inside .git directory is outside repository
+        return ''
+    endif
+
+    " /path/to/.git => /path/to
+    return fnamemodify(dotgit, ':h')
+endfunction
+
 let s:git = {}
 
 if has('nvim')
