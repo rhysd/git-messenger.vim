@@ -430,7 +430,7 @@ function! gitmessenger#blame#new(file, line, opts) abort
     let b.opts = a:opts
 
     let dir = fnamemodify(a:file, ':p:h')
-    let b.git_root = gitmessenger#git#root_dir(dir)
+    let b.git_root = fnamemodify(system('git rev-parse --show-toplevel')[:-2], ':p')
 
     " Validations
     if b.git_root ==# ''
