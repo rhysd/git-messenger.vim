@@ -1,0 +1,125 @@
+name: CI
+on: [push, pull_request]
+
+jobs:
+  test-macos:
+    name: Run unit tests on macOS
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Fetch Git history for unit tests
+        run: git fetch --no-tags --prune --unshallow
+      - name: Checkout themis.vim
+        uses: actions/checkout@v2
+        with:
+          repository: thinca/vim-themis
+          path: vim-themis
+      - name: Install MacVim and Neovim
+        env:
+          HOMEBREW_NO_INSTALL_CLEANUP: 1
+        run: brew install macvim neovim
+      - name: Install Neovim Nightly
+        run: |
+          curl -LO https://github.com/neovim/neovim/releases/download/nightly/nvim-macos.tar.gz
+          tar xzf nvim-macos.tar.gz
+          mv ./nvim-osx64 ./nvim-nightly
+      - name: Show versions
+        run: |
+          set -x
+          uname -a
+          vim --version
+          nvim --version
+          ./nvim-nightly/bin/nvim --version
+      - name: Run unit tests on Vim
+        run: THEMIS_PROFILE=profile-vim.txt THEMIS_VIM=vim ./vim-themis/bin/themis ./test/all.vimspec
+      - name: Run unit tests on Neovim
+        run: THEMIS_PROFILE=profile-nvim.txt THEMIS_VIM=nvim ./vim-themis/bin/themis ./test/all.vimspec
+      - name: Run unit tests on Neovim Nightly
+        run: THEMIS_VIM=$(pwd)/nvim-nightly/bin/nvim ./vim-themis/bin/themis ./test/all.vimspec
+      - name: Report coverage
+        run: |
+          pip install covimerage
+          covimerage write_coverage --data-file .coverage_covimerage-nvim profile-nvim.txt
+          covimerage write_coverage --data-file .coverage_covimerage-vim profile-vim.txt
+          coverage combine .coverage_covimerage-nvim .coverage_covimerage-vim
+          coverage report
+          coverage xml
+      - name: Upload coverage to codecov
+        uses: codecov/codecov-action@v1
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+
+  test-linux:
+    name: Run unit tests on Ubuntu
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Fetch Git history for unit tests
+        run: git fetch --no-tags --prune --unshallow
+      - name: Set Git user for running Git commands in unit tests
+        run: |
+          git config --global user.email "users@noreply.github.com"
+          git config --global user.name "github-action"
+      - name: Checkout themis.vim
+        uses: actions/checkout@v2
+        with:
+          repository: thinca/vim-themis
+          path: vim-themis
+      - name: Checkout Vim
+        uses: actions/checkout@v2
+        with:
+          repository: vim/vim
+          path: build/vim
+      - name: Build and install Vim
+        run: |
+          cd ./build/vim
+          ./configure --prefix="$(pwd)/../../vim" --with-features=huge --enable-fail-if-missing
+          make -j
+          make install
+          cd ../../
+      - name: Install Neovim Nightly
+        run: |
+          curl -LO https://github.com/neovim/neovim/releases/download/nightly/nvim-linux64.tar.gz
+          tar xzf nvim-linux64.tar.gz
+          mv ./nvim-linux64 ./nvim-nightly
+      - name: Install Neovim Stable
+        run: |
+          curl -LO https://github.com/neovim/neovim/releases/download/stable/nvim-linux64.tar.gz
+          tar xzf nvim-linux64.tar.gz
+          mv ./nvim-linux64 ./nvim-stable
+      - name: Show versions
+        run: |
+          set -x
+          uname -a
+          ./vim/bin/vim --version
+          ./nvim-stable/bin/nvim --version
+          ./nvim-nightly/bin/nvim --version
+      - name: Run unit tests on Vim
+        run: THEMIS_PROFILE=profile-vim.txt THEMIS_VIM=./vim/bin/vim ./vim-themis/bin/themis ./test/all.vimspec
+      - name: Run unit tests on Neovim
+        run: THEMIS_PROFILE=profile-nvim.txt THEMIS_VIM=./nvim-stable/bin/nvim ./vim-themis/bin/themis ./test/all.vimspec
+      - name: Run unit tests on Neovim Nightly
+        run: THEMIS_VIM=$(pwd)/nvim-nightly/bin/nvim ./vim-themis/bin/themis ./test/all.vimspec
+      - name: Install Python
+        uses: actions/setup-python@v1
+      - name: Report coverage
+        run: |
+          pip install covimerage
+          covimerage write_coverage --data-file .coverage_covimerage-nvim profile-nvim.txt
+          covimerage write_coverage --data-file .coverage_covimerage-vim profile-vim.txt
+          coverage combine .coverage_covimerage-nvim .coverage_covimerage-vim
+          coverage report
+          coverage xml
+      - name: Upload coverage to codecov
+        uses: codecov/codecov-action@v1
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+
+  vint:
+    name: Run vint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v1
+      - run: pip install vim-vint
+      - run: vint --warning --verbose --enable-neovim ./autoload ./plugin

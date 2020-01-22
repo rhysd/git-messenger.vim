@@ -1,6 +1,6 @@
 git-messenger.vim
 =================
-[![Build Status][travis-ci-badge]][travis-ci]
+[![Build Status][ci-badge]][ci]
 [![codecov][codecov-badge]][codecov]
 
 [git-messenger.vim][repo] is a Vim/Neovim plugin to reveal the hidden message from Git under the
@@ -288,8 +288,8 @@ On Vim, please install [vim-healthcheck](https://github.com/rhysd/vim-healthchec
 Distributed under [the MIT License](LICENSE)
 
 [repo]: https://github.com/rhysd/git-messenger.vim
-[travis-ci-badge]: https://travis-ci.org/rhysd/git-messenger.vim.svg?branch=master
-[travis-ci]: https://travis-ci.org/rhysd/git-messenger.vim
+[ci-badge]: https://github.com/rhysd/git-messenger.vim/workflows/CI/badge.svg?branch=master&event=push
+[ci]: https://github.com/rhysd/git-messenger.vim/actions?query=workflow%3ACI+branch%3Amaster
 [codecov]: https://codecov.io/gh/rhysd/git-messenger.vim
 [codecov-badge]: https://codecov.io/gh/rhysd/git-messenger.vim/branch/master/graph/badge.svg
 [doc]: ./doc/git-messenger.txt
