@@ -65,17 +65,7 @@ jobs:
         with:
           repository: thinca/vim-themis
           path: vim-themis
-      - name: Restore cache
-        id: cache-vim
-        uses: actions/cache@v1
-        with:
-          path: build/vim
-          # Almost always upload Vim repository for next job
-          key: ${{ runner.os }}-vim-${{ hashFiles('.git/refs/heads/*') }}
-          restore-keys: |
-            ${{ runner.os }}-vim-
-      - name: Checkout Vim if not cached
-        if: steps.cache-vim.outputs.cache-hit != 'true'
+      - name: Checkout Vim
         uses: actions/checkout@v2
         with:
           repository: vim/vim
@@ -83,13 +73,6 @@ jobs:
       - name: Build and install Vim
         run: |
           cd ./build/vim
-          if [ ! -f ./src/auto/config.mk ]; then
-            # Fetch history for pulling updates next time
-            git fetch --no-tags --prune --unshallow
-          else
-            # When cache hit, update repository
-            git pull --no-tags
-          fi
           ./configure --prefix="$(pwd)/../../vim" --with-features=huge --enable-fail-if-missing
           make -j
           make install
