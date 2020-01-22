@@ -7,6 +7,8 @@ jobs:
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v2
+      - name: Fetch Git history for unit tests
+        run: git fetch --no-tags --prune --unshallow
       - name: Checkout themis.vim
         uses: actions/checkout@v2
         with:
