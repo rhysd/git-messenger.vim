@@ -53,6 +53,10 @@ jobs:
       - uses: actions/checkout@v2
       - name: Fetch Git history for unit tests
         run: git fetch --no-tags --prune --unshallow
+      - name: Set Git user for running Git commands in unit tests
+        run: |
+          git config --global user.email "users@noreply.github.com"
+          git config --global user.name "github-action"
       - name: Checkout themis.vim
         uses: actions/checkout@v2
         with:
