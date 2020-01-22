@@ -98,9 +98,11 @@ jobs:
         run: THEMIS_PROFILE=profile-nvim.txt THEMIS_VIM=./nvim-stable/bin/nvim ./vim-themis/bin/themis ./test/all.vimspec
       - name: Run unit tests on Neovim Nightly
         run: THEMIS_VIM=$(pwd)/nvim-nightly/bin/nvim ./vim-themis/bin/themis ./test/all.vimspec
+      - name: Install Python
+        uses: actions/setup-python@v1
       - name: Report coverage
         run: |
-          pip3 install covimerage
+          pip install covimerage
           covimerage write_coverage --data-file .coverage_covimerage-nvim profile-nvim.txt
           covimerage write_coverage --data-file .coverage_covimerage-vim profile-vim.txt
           coverage combine .coverage_covimerage-nvim .coverage_covimerage-vim
@@ -116,5 +118,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - run: pip3 install vim-vint
+      - uses: actions/setup-python@v1
+      - run: pip install vim-vint
       - run: vint --warning --verbose --enable-neovim ./autoload ./plugin
