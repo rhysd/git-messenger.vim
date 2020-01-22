@@ -2,7 +2,7 @@ name: CI
 on: [push, pull_request]
 
 jobs:
-  macos:
+  test-macos:
     name: Run unit tests on macOS
     runs-on: macos-latest
     steps:
@@ -46,7 +46,8 @@ jobs:
         uses: codecov/codecov-action@v1
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-  linux:
+
+  test-linux:
     name: Run unit tests on Ubuntu
     runs-on: ubuntu-latest
     steps:
@@ -109,3 +110,11 @@ jobs:
         uses: codecov/codecov-action@v1
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
+
+  vint:
+    name: Run vint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - run: pip3 install vim-vint
+      - run: vint --warning --verbose --enable-neovim ./autoload ./plugin
