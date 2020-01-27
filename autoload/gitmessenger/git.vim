@@ -10,12 +10,12 @@ function! s:find_dotgit(from) abort
 
     " When .git directory is below the current working directory, finddir()
     " returns a relative path. So ensuring an absolute path here.
-    let dir = fnamemodify(dir, ':p')
+    let dir = dir ==# '' ? '' : fnamemodify(dir, ':p')
 
     " When .git exists in current directory, findfile() returns relative path
     " '.git' though finddir() returns an absolute path '/path/to/.git' (#49).
     " Since path length will be compared, they must be both abusolute path.
-    let file = fnamemodify(file, ':p')
+    let file = file ==# '' ? '' : fnamemodify(file, ':p')
 
     " Choose larger (deeper) path (#48). When worktree directory is put in its
     " main repository, the .git directory which is near to `from` should be
