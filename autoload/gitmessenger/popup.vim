@@ -88,25 +88,24 @@ endfunction
 let s:popup.window_size = funcref('s:popup__window_size')
 
 function! s:popup__floating_win_opts(width, height) dict abort
-    let bottom_line = line('w0') + winheight(0) - 1
-    if self.opened_at[1] + a:height <= bottom_line
+    if self.opened_at[0] + a:height <= &lines
         let vert = 'N'
-        let row = 1
+        let row = self.opened_at[0]
     else
         let vert = 'S'
-        let row = 0
+        let row = self.opened_at[0] - 1
     endif
 
-    if self.opened_at[2] + a:width <= &columns
+    if self.opened_at[1] + a:width <= &columns
         let hor = 'W'
-        let col = 0
+        let col = self.opened_at[1] - 1
     else
         let hor = 'E'
-        let col = 1
+        let col = self.opened_at[1]
     endif
 
     return {
-    \   'relative': 'cursor',
+    \   'relative': 'editor',
     \   'anchor': vert . hor,
     \   'row': row,
     \   'col': col,
@@ -131,7 +130,8 @@ endfunction
 let s:popup.get_opener_winnr = funcref('s:popup__get_opener_winnr')
 
 function! s:popup__open() dict abort
-    let self.opened_at = getpos('.')
+    let pos = win_screenpos('.')
+    let self.opened_at = [pos[0] + winline() - 1, pos[1] + wincol() - 1]
     let self.opener_bufnr = bufnr('%')
     let self.opener_winid = win_getid()
     let self.type = s:floating_window_available ? 'floating' : 'preview'
