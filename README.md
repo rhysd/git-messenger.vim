@@ -281,6 +281,10 @@ to check your environment is ready for use of this plugin.
 On Vim, please install [vim-healthcheck](https://github.com/rhysd/vim-healthcheck) and run
 `:CheckHealth`. It's a plugin to run `:checkhealth` on Vim.
 
+### Known Issues
+
+- On Windows, `git` command installed via MSYS does not work. Please use [Git for Windows][git-win]
+  for now. This issue is tracked at [#57](https://github.com/rhysd/git-messenger.vim/issues/57).
 
 
 ## License
@@ -294,4 +298,4 @@ Distributed under [the MIT License](LICENSE)
 [codecov-badge]: https://codecov.io/gh/rhysd/git-messenger.vim/branch/master/graph/badge.svg
 [doc]: ./doc/git-messenger.txt
 [nvim-install]: https://github.com/neovim/neovim/wiki/Installing-Neovim
-
+[git-win]: https://gitforwindows.org/

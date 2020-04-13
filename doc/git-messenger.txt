@@ -13,6 +13,7 @@ Variables               |git-messenger-variables|
 Highlights              |git-messenger-highlights|
 Popup Window Config     |git-messenger-popup-window-config|
 Health Check            |git-messenger-health-check|
+Known Issues            |git-messenger-known-issues|
 Repository              |git-messenger-repository-page|
 License                 |git-messenger-license|
 
@@ -330,6 +331,15 @@ run `:checkhealth` on Vim.
   :CheckHealth
 <
 https://github.com/rhysd/vim-healthcheck
+
+
+==============================================================================
+KNOWN ISSUES                                        *git-messenger-known-issues*
+
+1.
+On Windows, `git` command installed via MSYS does not work. Please use
+Git for Windows for now. This issue is tracked at
+https://github.com/rhysd/git-messenger.vim/issues/57
 
 
 ==============================================================================
