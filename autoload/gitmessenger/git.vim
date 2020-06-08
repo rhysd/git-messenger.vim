@@ -39,7 +39,7 @@ endfunction
 "   string
 "     empty string means root directory was not found
 function! gitmessenger#git#root_dir(from) abort
-    let from = fnamemodify(a:from, ':p')
+    let from = fnameescape(fnamemodify(a:from, ':p'))
     if from[-1:] ==# s:SEP
         " [:-2] chops last path separator
         let from = from[:-2]

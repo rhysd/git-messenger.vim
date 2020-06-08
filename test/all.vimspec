@@ -1058,6 +1058,40 @@ Describe git-messenger.vim
             Assert True(index(lines, '  bbb') > 0, msg)
         End
     End
+   
+    Describe gitmessenger#git#root_dir()
+        Before all
+            let root_dir = './my git root with space'
+            let file = 'file.txt'
+            let path = root_dir . '/' . file
+
+            call mkdir(root_dir)
+            call writefile(['123'], path)
+            
+            call Git(fnameescape(root_dir), 'init', '.')
+            call Git(fnameescape(root_dir), 'add', file)
+            call Git(fnameescape(root_dir), 'commit', '-m', 'init')
+        End
+
+        After all
+            if delete(root_dir, 'rf') != 0
+                throw 'delete() failed'
+            endif
+        End
+
+        It returns correct root when pathname contains space
+
+            " call fnamemodify here the same way
+            " gitmessenger#blame#new() does to get our absolute path
+            let file = './my git root with space/file.txt'
+            let expected_root_dir = fnamemodify(file, ':p:h')
+            let actual_root_dir = gitmessenger#git#root_dir(file)
+            
+            " Failure will return the repo root instead of our created
+            " ad-hoc root directory
+            Assert Equal(actual_root_dir, expected_root_dir)
+        End
+    End
 End
 
 " vim: set ft=vim:
