@@ -216,6 +216,16 @@ Max lines of popup window in an integer value. Setting `v:null` means no limit.
 
 Max characters of popup window in an integer value. Setting `v:null` means no limit.
 
+#### `g:git_messenger_date_format` (Default: `"%c"`)
+
+String value to format dates in popup window. Please see `:help strftime()` to know the details of
+the format.
+
+```vim
+" Example: '2019 May 26 03:27:43'
+let g:git_messenger_date_format = "%Y %b %d %X"
+```
+
 ### Popup Window Highlight
 
 This plugin uses color definitions from your colorscheme for highlighting stuffs in popup window by

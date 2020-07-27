@@ -281,7 +281,7 @@ function! s:blame__after_blame(git) dict abort
     endif
     if exists('*strftime')
         let author_time = matchstr(stdout[3], '^author-time \zs\d\+')
-        let self.state.contents += [' Date:    ' . pad . strftime('%c', str2nr(author_time))]
+        let self.state.contents += [' Date:    ' . pad . strftime(g:git_messenger_date_format, str2nr(author_time))]
     endif
 
     if not_committed_yet
