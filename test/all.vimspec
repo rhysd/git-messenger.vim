@@ -1058,7 +1058,7 @@ Describe git-messenger.vim
             Assert True(index(lines, '  bbb') > 0, msg)
         End
     End
-   
+
     Describe gitmessenger#git#root_dir()
         Before all
             let root_dir = './my git root with space'
@@ -1067,7 +1067,7 @@ Describe git-messenger.vim
 
             call mkdir(root_dir)
             call writefile(['123'], path)
-            
+
             call Git(fnameescape(root_dir), 'init', '.')
             call Git(fnameescape(root_dir), 'add', file)
             call Git(fnameescape(root_dir), 'commit', '-m', 'init')
@@ -1080,16 +1080,36 @@ Describe git-messenger.vim
         End
 
         It returns correct root when pathname contains space
-
             " call fnamemodify here the same way
             " gitmessenger#blame#new() does to get our absolute path
             let file = './my git root with space/file.txt'
             let expected_root_dir = fnamemodify(file, ':p:h')
             let actual_root_dir = gitmessenger#git#root_dir(file)
-            
+
             " Failure will return the repo root instead of our created
             " ad-hoc root directory
             Assert Equal(actual_root_dir, expected_root_dir)
+        End
+    End
+
+    Describe g:git_messenger_date_format
+        Before all
+            let saved_date_format = g:git_messenger_date_format
+        End
+
+        After all
+            let g:git_messenger_date_format = saved_date_format
+        End
+
+        It changes date format
+            " e.g. '2020'
+            let g:git_messenger_date_format = '%Y'
+
+            GitMessenger
+
+            let p = GetPopup()
+            let date = getbufline(p.bufnr, 1, '$')[4]
+            Assert Match(date, '^ Date: \+\d\{4\}$', date)
         End
     End
 End
