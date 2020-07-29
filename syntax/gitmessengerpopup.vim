@@ -2,7 +2,7 @@ if exists('b:current_syntax')
     finish
 endif
 
-syn match gitmessengerHeader '\_^ \%(History\|Commit\|Date\|Author\|Committer\):' display
+syn match gitmessengerHeader '\_^ \%(History\|Commit\|\%(Author \|Committer \)\=Date\|Author\|Committer\):' display
 syn match gitmessengerHash '\%(\_^ \<Commit: \+\)\@<=[[:xdigit:]]\+' display
 syn match gitmessengerHistory '\%(\_^ \<History: \+\)\@<=#\d\+' display
 syn match gitmessengerEmail '\%(\_^ \<\%(Author\|Committer\): \+.*\)\@<=<.\+>' display

@@ -268,21 +268,42 @@ function! s:blame__after_blame(git) dict abort
     let author = matchstr(stdout[1], '^author \zs.\+')
     let author_email = matchstr(stdout[2], '^author-mail \zs\S\+')
     let committer = matchstr(stdout[5], '^committer \zs.\+')
-    let pad = author !=# committer ? '  ' : ''
-    let self.state.contents = [
-        \   '',
-        \   ' History: ' . pad . '#' . self.state.history_no(),
-        \   ' Commit:  ' . pad . hash,
-        \   ' Author:  ' . pad . author . ' ' . author_email,
+    let headers = [
+        \   ['History', '#' . self.state.history_no()],
+        \   ['Commit', hash],
+        \   ['Author', author . ' ' . author_email],
         \ ]
+
     if author !=# committer
         let committer_email = matchstr(stdout[6], '^committer-mail \zs\S\+')
-        let self.state.contents += [' Committer: ' . committer . ' ' . committer_email]
+        let headers += [['Committer', committer . ' ' . committer_email]]
     endif
+
     if exists('*strftime')
         let author_time = matchstr(stdout[3], '^author-time \zs\d\+')
-        let self.state.contents += [' Date:    ' . pad . strftime(g:git_messenger_date_format, str2nr(author_time))]
+        let committer_time = matchstr(stdout[7], '^committer-time \zs\d\+')
+        if author_time ==# committer_time
+            let headers += [['Date', strftime(g:git_messenger_date_format, str2nr(author_time))]]
+        else
+            let headers += [['Author Date', strftime(g:git_messenger_date_format, str2nr(author_time))]]
+            let headers += [['Committer Date', strftime(g:git_messenger_date_format, str2nr(committer_time))]]
+        endif
     endif
+
+    let header_width = 0
+    for [key, _] in headers
+        let len = len(key)
+        if len > header_width
+            let header_width = len
+        endif
+    endfor
+
+    let self.state.contents = ['']
+    for [key, value] in headers
+        let pad = repeat(' ', header_width - len(key))
+        let line = printf(' %s: %s%s', key, pad, value)
+        let self.state.contents += [line]
+    endfor
 
     if not_committed_yet
         let summary = 'This line is not committed yet'
