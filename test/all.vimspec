@@ -548,6 +548,24 @@ Describe git-messenger.vim
             Assert Equal(name, 'gitmessengerHeader')
         End
 
+        It shows author date and committer date separately when they are different
+            " Move to Screenshot title. At point of f1e133c, author date and committer date are
+            " different for this line's commit
+            call search('## Screenshot')
+
+            GitMessenger
+
+            let p = GetPopup()
+            Assert IsNotNone(p)
+            Assert KeyExists(p, 'bufnr')
+
+            let lines = getbufline(p.bufnr, 1, '$')
+            let msg = string(lines)
+
+            Assert Match(lines[4], '^ Author Date: \+\S\+', msg)
+            Assert Match(lines[5], '^ Committer Date: \+\S\+', msg)
+        End
+
         Describe lines not committed yet
             Before all
                 let root_dir = './not-committed-yet-test'
