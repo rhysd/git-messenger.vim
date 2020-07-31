@@ -6,7 +6,7 @@ jobs:
     name: Unit tests
     strategy:
       matrix:
-        os: [macos-latest, ubuntu-latest, windows-latest]
+        os: [macos-latest, ubuntu-latest]
         neovim: [true, false]
         version: [stable, nightly]
     runs-on: ${{ matrix.os }}
@@ -33,21 +33,46 @@ jobs:
           THEMIS_VIM: ${{ steps.vim.outputs.executable }}
           THEMIS_PROFILE: profile.txt
         run: ./vim-themis/bin/themis ./test/all.vimspec
-      - name: Install Python
-        if: matrix.os != 'windows-latest'
-        uses: actions/setup-python@v1
+      - uses: actions/setup-python@v1
       - name: Report coverage
-        if: matrix.os != 'windows-latest'
         run: |
           pip install covimerage
           covimerage write_coverage profile.txt
           coverage report
           coverage xml
       - name: Upload coverage to codecov
-        if: matrix.os != 'windows-latest'
         uses: codecov/codecov-action@v1
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
+
+  test-windows:
+    name: Unit tests on Windows
+    strategy:
+      matrix:
+        neovim: [true, false]
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set Git user for running Git commands in unit tests
+        run: |
+          git config --global user.email "users@noreply.github.com"
+          git config --global user.name "github-action"
+      - name: Fetch Git history for unit tests
+        run: git fetch --no-tags --prune --unshallow
+      - name: Checkout themis.vim
+        uses: actions/checkout@v2
+        with:
+          repository: thinca/vim-themis
+          path: vim-themis
+      - uses: rhysd/action-setup-vim@v1
+        id: vim
+        with:
+          version: stable
+          neovim: ${{ matrix.neovim }}
+      - name: Run unit tests
+        env:
+          THEMIS_VIM: ${{ steps.vim.outputs.executable }}
+        run: ./vim-themis/bin/themis ./test/all.vimspec
 
   vint:
     name: Run vint
