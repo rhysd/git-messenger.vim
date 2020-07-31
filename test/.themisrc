@@ -57,7 +57,7 @@ function! WaitWhile(func, ...) abort
 endfunction
 
 function! Git(dir, ...) abort
-    let cmd = join(['git', '-C', a:dir] + a:000, ' ')
+    let cmd = join(['git', '-C', shellescape(a:dir)] + a:000, ' ')
     let out = system(cmd)
     if v:shell_error
         throw '`' . cmd . '` failed: ' . out
