@@ -6,7 +6,7 @@ jobs:
     name: Unit tests
     strategy:
       matrix:
-        os: [macos-latest, ubuntu-latest]
+        os: [macos-latest, ubuntu-latest, windows-latest]
         neovim: [true, false]
         version: [stable, nightly]
     runs-on: ${{ matrix.os }}
@@ -31,15 +31,20 @@ jobs:
       - name: Run unit tests
         env:
           THEMIS_VIM: ${{ steps.vim.outputs.executable }}
-        run: THEMIS_PROFILE=profile.txt ./vim-themis/bin/themis ./test/all.vimspec
-      - uses: actions/setup-python@v1
+          THEMIS_PROFILE: profile.txt
+        run: ./vim-themis/bin/themis ./test/all.vimspec
+      - name: Install Python
+        if: matrix.os != 'windows-latest'
+        uses: actions/setup-python@v1
       - name: Report coverage
+        if: matrix.os != 'windows-latest'
         run: |
           pip install covimerage
           covimerage write_coverage profile.txt
           coverage report
           coverage xml
       - name: Upload coverage to codecov
+        if: matrix.os != 'windows-latest'
         uses: codecov/codecov-action@v1
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
