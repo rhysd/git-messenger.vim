@@ -1086,9 +1086,9 @@ Describe git-messenger.vim
             call mkdir(root_dir)
             call writefile(['123'], path)
 
-            call Git(fnameescape(root_dir), 'init', '.')
-            call Git(fnameescape(root_dir), 'add', file)
-            call Git(fnameescape(root_dir), 'commit', '-m', 'init')
+            call Git(root_dir, 'init', '.')
+            call Git(root_dir, 'add', file)
+            call Git(root_dir, 'commit', '-m', 'init')
         End
 
         After all
