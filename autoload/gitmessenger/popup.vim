@@ -189,7 +189,7 @@ function! s:popup__open() dict abort
     execute 'autocmd BufWipeout,BufLeave <buffer> call getbufvar(' . popup_bufnr . ', "__gitmessenger_popup").close()'
 
     if has_key(self.opts, 'enter') && !self.opts.enter
-        wincmd p
+        noautocmd wincmd p
     endif
 
     let self.bufnr = popup_bufnr
