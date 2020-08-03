@@ -108,6 +108,8 @@ COMMANDS                                                *git-messenger-commands*
   - Committer: Committer name and mail address of the commit when
     committer is different from author
   - Date: Author date of the commit in system format
+    - When a committer date and an author date are different, both
+      'Author Date' and 'Committer Date' are shown
   - Summary: First line after a date header line is a summary of commit
   - Body: After summary, commit body is put (if the commit has body)
 
