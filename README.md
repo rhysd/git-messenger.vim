@@ -282,7 +282,7 @@ function! s:setup_git_messenger_popup() abort
     nmap <buffer><C-o> o
     nmap <buffer><C-i> O
 endfunction
-autocmd FileType gitmessengerpopup call <SID>s:setup_git_messenger_popup()
+autocmd FileType gitmessengerpopup call <SID>setup_git_messenger_popup()
 ```
 
 ### Health Check

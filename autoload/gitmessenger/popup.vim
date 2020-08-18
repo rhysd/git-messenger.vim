@@ -166,9 +166,6 @@ function! s:popup__open() dict abort
     \ buftype=nofile bufhidden=wipe nomodified nobuflisted noswapfile nonumber
     \ nocursorline wrap nonumber norelativenumber signcolumn=no nofoldenable
     \ nospell nolist nomodeline
-    if has_key(self.opts, 'filetype')
-        let &l:filetype = self.opts.filetype
-    endif
     call setline(1, self.contents)
     setlocal nomodified nomodifiable
 
@@ -182,6 +179,10 @@ function! s:popup__open() dict abort
             execute printf('nnoremap <buffer><silent><nowait>%s :<C-u>call b:__gitmessenger_popup.opts.mappings["%s"][0]()<CR>', m, m)
         endfor
         nnoremap <buffer><silent><nowait>? :<C-u>call b:__gitmessenger_popup.echo_help()<CR>
+    endif
+
+    if has_key(self.opts, 'filetype')
+        let &l:filetype = self.opts.filetype
     endif
 
     " Ensure to close popup
