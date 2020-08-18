@@ -238,6 +238,37 @@ Describe git-messenger.vim
             Assert Equal(win_getid(), prev_win_id)
         End
 
+        Describe #63
+            Before all
+                augroup gitmessenger-test-issue-63
+                    autocmd!
+                    autocmd FileType gitmessengerpopup nunmap <buffer>d
+                augroup END
+            End
+
+            After all
+                autocmd! gitmessenger-test-issue-63
+            End
+
+            It is not reproducible
+                GitMessenger
+
+                let p = GetPopup()
+                Assert IsNotNone(p)
+
+                " Enter popup
+                GitMessenger
+                Assert Exists('b:__gitmessenger_popup')
+
+                " 'd' mapping should be unmapped by hook at gitmessengerpopup
+                " filetype event
+                let output = execute('nmap d')
+                " Example of `output` content:
+                "   n  d           *@:<C-U>call b:__gitmessenger_popup.opts.mappings["d"][0]()<CR>
+                Assert NotMatch(output, 'gitmessenger', string(output))
+            End
+        End
+
         Describe diff support
             " LICENSE and README.md was added at the same commit.
             " So 'current' diffs in LICENSE only shows changes of LICENSE.
