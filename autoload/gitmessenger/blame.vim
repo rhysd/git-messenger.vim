@@ -193,10 +193,10 @@ function! s:blame__reveal_diff(include_all) dict abort
     if hash !~# '^0\+$'
         " `git diff hash^..hash` is not available since hash^ is invalid when
         " it is an initial commit.
-        let args = ['--no-pager', 'show', '--pretty=format:%b', hash]
+        let args = ['--no-pager', 'show', '--no-color', '--pretty=format:%b', hash]
     else
         " When the line is not committed yet, show diff against HEAD (#26)
-        let args = ['--no-pager', 'diff', 'HEAD']
+        let args = ['--no-pager', 'diff', '--no-color', 'HEAD']
     endif
 
     if !a:include_all
@@ -377,7 +377,7 @@ function! s:blame__after_blame(git) dict abort
         return
     endif
 
-    let args = ['--no-pager', 'log', '-n', '1', '--pretty=format:%b']
+    let args = ['--no-pager', 'log', '--no-color', '-n', '1', '--pretty=format:%b']
     if g:git_messenger_include_diff !=? 'none'
         if g:git_messenger_include_diff ==? 'current'
             let self.state.diff = 'current'
