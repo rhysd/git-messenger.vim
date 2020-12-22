@@ -1,7 +1,7 @@
 def run(target)
   target = target.to_s
   success = if target.endwith? 'nvim.vimspec'
-    system('THEMIS_VIM=nvim ../vim-themis/bin/themis', target)
+    system({ 'THEMIS_VIM' => 'nvim' }, '../vim-themis/bin/themis', target)
   else
     system('../vim-themis/bin/themis', target)
   end
