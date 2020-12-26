@@ -19,7 +19,7 @@ License                 |git-messenger-license|
 
 
 ==============================================================================
-SCREENSHOT                                            *git-messenger-screenshot*
+INTRODUCTION                                        *git-messenger-introduction*
 
 *git-messenger.vim* is a Vim/Neovim plugin to reveal the hidden message under
 the cursor quickly. It shows the last commit message under the cursor in popup
@@ -43,7 +43,7 @@ If you see some error message, please try |git-messenger-health-check|.
 
 
 ==============================================================================
-SCREENCAST                                            *git-messenger-screencast*
+SCREENSHOT                                            *git-messenger-screenshot*
 
 1. Show popup window with Neovim v0.4.0-dev
 
