@@ -47,6 +47,10 @@ especially in message of the last commit which modifies the line.
 
 ## Installation
 
+Please ensure the following requirement before installing this plugin.
+
+- Git v1.8.5 or later (for `-C` option of `git` command)
+
 If you use any package manager, please follow its instruction.
 
 With [vim-plug](https://github.com/junegunn/vim-plug):
@@ -71,7 +75,7 @@ With [minpac](https://github.com/k-takata/minpac):
 call minpac#add('rhysd/git-messenger.vim')
 ```
 
-When you're using Vim's builtin packager, please follow instruction at `:help pack-add`.
+if you use Vim's builtin packager, please follow the instruction at `:help pack-add`.
 
 To enable a floating window support, you need to install Neovim 0.4 or later.
 Please follow [the official instruction][nvim-install].

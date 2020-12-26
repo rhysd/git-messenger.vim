@@ -63,6 +63,10 @@ You may be also interested in |g:git_messenger_include_diff|
 ==============================================================================
 INSTALL                                                  *git-messenger-install*
 
+Please ensure the following requirement before installing this plugin.
+
+- Git v1.8.5 (for -C option of "git" command)
+
 If you use any package manager, please follow its instruction.
 
 With vim-plug:
