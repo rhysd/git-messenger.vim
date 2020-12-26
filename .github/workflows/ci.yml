@@ -9,6 +9,10 @@ jobs:
         os: [macos-latest, ubuntu-latest]
         neovim: [true, false]
         version: [stable, nightly]
+        # XXX: Neovim nightly builds are broken. Disable them for now
+        exclude:
+          - version: nightly
+            neovim: true
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v2
