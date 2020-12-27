@@ -42,16 +42,15 @@ function! s:check_floating_window() abort
 endfunction
 
 function! s:check_git_binary() abort
-    let cmd = 'git'
     let cmd = get(g:, 'git_messenger_git_command', 'git')
     if !executable(cmd)
         call health#report_error('`' . cmd . '` command is not found. Please set proper command to g:git_messenger_git_command')
         return
     endif
 
-    let output = substitute(system(cmd . ' --version'), '\n', '', 'g')
+    let output = substitute(system(cmd . ' -C . --version'), '\n', '', 'g')
     if v:shell_error
-        call health#report_error('Git command `' . cmd . '` is broken: ' . output)
+        call health#report_error('Git command `' . cmd . '` is broken (v1.8.5 or later is required): ' . output)
         return
     endif
 
