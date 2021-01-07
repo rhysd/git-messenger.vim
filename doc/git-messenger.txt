@@ -135,6 +135,8 @@ COMMANDS                                                *git-messenger-commands*
   |    O    | Opposite to older. Forward to newer commit at the line       |
   |    d    | Toggle diff hunks only related to current file in the commit |
   |    D    | Toggle all diff hunks in the commit                          |
+  |    r    | Toggle current file's word diffs of current commit           |
+  |    R    | Toggle all word diffs of current commit                      |
   |    ?    | Show mappings help                                           |
 
 *:GitMessengerClose*
@@ -203,8 +205,8 @@ Some global variables are available to configure the behavior of this plugin.
 
   When this value is set to |v:true|, a popup window includes diff hunks of the
   commit by default.
-  Note: Typing "d" in popup window reveals diff hunks even if this value is
-  set to |v:false|.
+  Note: Typing "d" or "r" in popup window reveals diff hunks even if this
+  value is set to |v:false|.
 
   One of "none", "current", "all".
 
@@ -212,8 +214,8 @@ Some global variables are available to configure the behavior of this plugin.
   the commit at showing up. "current" includes diff hunks of only current file
   in the commit. "all" includes all diff hunks in the commit.
 
-  Note: Typing d and D mappings in popup window reveal diff hunks even if this
-  value is set to "none".
+  Note: Typing d/D or r/R mappings in popup window reveal diff hunks even if
+  this value is set to "none".
 
 *g:git_messenger_git_command* (Default: "git")
 
