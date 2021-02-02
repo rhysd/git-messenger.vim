@@ -6,7 +6,7 @@ jobs:
     name: Unit tests
     strategy:
       matrix:
-        os: [macos-latest, ubuntu-latest]
+        os: [macos-latest, ubuntu-18.04]
         neovim: [true, false]
         version: [stable, nightly]
     runs-on: ${{ matrix.os }}
