@@ -10,8 +10,8 @@ syn match gitmessengerEmail '\%(\_^ \<\%(Author\|Committer\): \+.*\)\@<=<.\+>' d
 " Diff included in popup
 syn match diffRemoved "^ -.*" display
 syn match diffAdded "^ +.*" display
-syn match diffWordsRemoved "\[\-.\{-}\-\]" display
-syn match diffWordsAdded "{+.\{-}+}" display
+syn region diffWordsRemoved start=/\[\-/ end=/\-\]/
+syn region diffWordsAdded start=/{+/ end=/+}/
 
 syn match diffSubname "  @@..*"ms=s+3 contained display
 syn match diffLine "^ @.*" contains=diffSubname display
