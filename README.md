@@ -134,6 +134,8 @@ Following mappings are defined within popup window.
 |   `O`   | Opposite to `o`. Forward to newer commit at the line         |
 |   `d`   | Toggle diff hunks only related to current file in the commit |
 |   `D`   | Toggle all diff hunks in the commit                          |
+|   `r`   | Toggle current file's word diffs of current commit           |
+|   `R`   | Toggle all word diffs of current commit                      |
 |   `?`   | Show mappings help                                           |
 
 ### Mappings
@@ -178,8 +180,8 @@ When this value is not set to `"none"`, a popup window includes diff hunks of th
 up. `"current"` includes diff hunks of only current file in the commit. `"all"` includes all diff
 hunks in the commit.
 
-Please note that typing `d` and `D` in popup window toggle showing diff hunks even if this value is
-set to `"none"`.
+Please note that typing `d`/`D` or `r`/`R` in popup window toggle showing diff
+hunks even if this value is set to `"none"`.
 
 #### `g:git_messenger_git_command` (Default: `"git"`)
 

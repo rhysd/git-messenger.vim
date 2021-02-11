@@ -72,8 +72,10 @@ function! s:blame__open_popup() dict abort
         \       'q': [{-> execute('close', '')}, 'Close popup window'],
         \       'o': [funcref(self.back, [], self), 'Back to older commit'],
         \       'O': [funcref(self.forward, [], self), 'Forward to newer commit'],
-        \       'd': [funcref(self.reveal_diff, [v:false], self), "Toggle current file's diffs of current commit"],
-        \       'D': [funcref(self.reveal_diff, [v:true], self), 'Toggle all diffs of current commit'],
+        \       'd': [funcref(self.reveal_diff, [v:false, v:false], self), "Toggle current file's diffs of current commit"],
+        \       'D': [funcref(self.reveal_diff, [v:true, v:false], self), 'Toggle all diffs of current commit'],
+        \       'r': [funcref(self.reveal_diff, [v:false, v:true], self), "Toggle current file's word diffs of current commit"],
+        \       'R': [funcref(self.reveal_diff, [v:true, v:true], self), 'Toggle all word diffs of current commit'],
         \   },
         \ }
     if has_key(self.opts, 'did_close')
@@ -158,7 +160,7 @@ function! s:blame__after_diff(next_diff, git) dict abort
     endif
 endfunction
 
-function! s:blame__reveal_diff(include_all) dict abort
+function! s:blame__reveal_diff(include_all, word_diff) dict abort
     if a:include_all
         let next_diff = 'all'
     else
@@ -197,6 +199,10 @@ function! s:blame__reveal_diff(include_all) dict abort
     else
         " When the line is not committed yet, show diff against HEAD (#26)
         let args = ['--no-pager', 'diff', '--no-color', 'HEAD']
+    endif
+
+    if a:word_diff
+        let args += ['--word-diff=plain']
     endif
 
     if !a:include_all

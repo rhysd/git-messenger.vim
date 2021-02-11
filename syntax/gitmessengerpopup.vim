@@ -10,6 +10,8 @@ syn match gitmessengerEmail '\%(\_^ \<\%(Author\|Committer\): \+.*\)\@<=<.\+>' d
 " Diff included in popup
 syn match diffRemoved "^ -.*" display
 syn match diffAdded "^ +.*" display
+syn region diffWordsRemoved start=/\[\-/ end=/\-\]/
+syn region diffWordsAdded start=/{+/ end=/+}/
 
 syn match diffSubname "  @@..*"ms=s+3 contained display
 syn match diffLine "^ @.*" contains=diffSubname display
@@ -33,13 +35,15 @@ hi def link gitmessengerHistory     Constant
 hi def link gitmessengerEmail       gitmessengerPopupNormal
 hi def link gitmessengerPopupNormal NormalFloat
 
-hi def link diffOldFile   diffFile
-hi def link diffNewFile   diffFile
-hi def link diffIndexLine PreProc
-hi def link diffFile      Type
-hi def link diffRemoved   Special
-hi def link diffAdded     Identifier
-hi def link diffLine      Statement
-hi def link diffSubname   PreProc
+hi def link diffOldFile      diffFile
+hi def link diffNewFile      diffFile
+hi def link diffIndexLine    PreProc
+hi def link diffFile         Type
+hi def link diffRemoved      Special
+hi def link diffAdded        Identifier
+hi def link diffWordsRemoved diffRemoved
+hi def link diffWordsAdded   diffAdded
+hi def link diffLine         Statement
+hi def link diffSubname      PreProc
 
 let b:current_syntax = 'gitmessengerpopup'
