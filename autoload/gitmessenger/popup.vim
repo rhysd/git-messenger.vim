@@ -162,6 +162,7 @@ function! s:popup__open() dict abort
     " Setup content
     enew!
     let popup_bufnr = bufnr('%')
+    " Note: Set conceallevel for hiding word diff markers
     setlocal
     \ buftype=nofile bufhidden=wipe nomodified nobuflisted noswapfile nonumber
     \ nocursorline wrap nonumber norelativenumber signcolumn=no nofoldenable
