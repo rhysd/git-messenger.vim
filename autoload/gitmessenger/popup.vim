@@ -165,7 +165,7 @@ function! s:popup__open() dict abort
     setlocal
     \ buftype=nofile bufhidden=wipe nomodified nobuflisted noswapfile nonumber
     \ nocursorline wrap nonumber norelativenumber signcolumn=no nofoldenable
-    \ nospell nolist nomodeline
+    \ nospell nolist nomodeline conceallevel=2
     call setline(1, self.contents)
     setlocal nomodified nomodifiable
 

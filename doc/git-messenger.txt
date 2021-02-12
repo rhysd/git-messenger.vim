@@ -272,6 +272,10 @@ the details of the format.
   " Example: '2019 May 26 03:27:43'
   let g:git_messenger_date_format = "%Y %b %d %X"
 <
+*g:git_messenger_conceal_word_diff_marker* (Default: |v:true|)
+
+When this value is set to |v:true|, markers for word diffs like "[-", "-]",
+"{+", "+}" are concealed. Set |v:false| when you don't want to hide them.
 
 ==============================================================================
 HIGHLIGHTS                                            *git-messenger-highlights*

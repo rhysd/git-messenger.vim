@@ -10,8 +10,13 @@ syn match gitmessengerEmail '\%(\_^ \<\%(Author\|Committer\): \+.*\)\@<=<.\+>' d
 " Diff included in popup
 syn match diffRemoved "^ -.*" display
 syn match diffAdded "^ +.*" display
-syn region diffWordsRemoved start=/\[\-/ end=/\-\]/
-syn region diffWordsAdded start=/{+/ end=/+}/
+if get(g:, 'git_messenger_conceal_word_diff_marker', v:true)
+    syn region diffWordsRemoved matchgroup=diffWordsRemoved start=/\[\-/ end=/\-\]/ concealends
+    syn region diffWordsAdded matchgroup=diffWordsAdded start=/{+/ end=/+}/ concealends
+else
+    syn region diffWordsRemoved start=/\[\-/ end=/\-\]/
+    syn region diffWordsAdded start=/{+/ end=/+}/
+endif
 
 syn match diffSubname "  @@..*"ms=s+3 contained display
 syn match diffLine "^ @.*" contains=diffSubname display

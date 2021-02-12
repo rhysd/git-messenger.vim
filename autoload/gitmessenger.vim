@@ -9,6 +9,7 @@ let g:git_messenger_include_diff = get(g:, 'git_messenger_include_diff', 'none')
 let g:git_messenger_max_popup_height = get(g:, 'git_messenger_max_popup_height', v:null)
 let g:git_messenger_max_popup_width = get(g:, 'git_messenger_max_popup_width', v:null)
 let g:git_messenger_date_format = get(g:, 'git_messenger_date_format', '%c')
+let g:git_messenger_conceal_word_diff_marker = get(g:, 'git_messenger_conceal_word_diff_marker', 1)
 
 " All popup instances keyed by opener's bufnr to manage lifetime of popups
 let s:all_popups = {}

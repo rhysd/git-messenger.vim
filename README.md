@@ -234,6 +234,11 @@ the format.
 let g:git_messenger_date_format = "%Y %b %d %X"
 ```
 
+#### `g:git_messenger_conceal_word_diff_marker` (Default: `v:true`)
+
+When this value is set to `v:true`, markers for word diffs like `[-`, `-]`, `{+`, `+}` are concealed.
+Set `v:false` when you don't want to hide them.
+
 ### Popup Window Highlight
 
 This plugin uses color definitions from your colorscheme for highlighting stuffs in popup window by
