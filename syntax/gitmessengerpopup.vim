@@ -11,11 +11,11 @@ syn match gitmessengerEmail '\%(\_^ \<\%(Author\|Committer\): \+.*\)\@<=<.\+>' d
 syn match diffRemoved "^ -.*" display
 syn match diffAdded "^ +.*" display
 if has('conceal') && get(g:, 'git_messenger_conceal_word_diff_marker', v:true)
-    syn region diffWordsRemoved matchgroup=Conceal start=/\[-/ end=/-]/ concealends
-    syn region diffWordsAdded matchgroup=Conceal start=/{+/ end=/+}/ concealends
+    syn region diffWordsRemoved matchgroup=Conceal start=/\[-/ end=/-]/ concealends oneline
+    syn region diffWordsAdded matchgroup=Conceal start=/{+/ end=/+}/ concealends oneline
 else
-    syn region diffWordsRemoved start=/\[\-/ end=/\-\]/
-    syn region diffWordsAdded start=/{+/ end=/+}/
+    syn region diffWordsRemoved start=/\[\-/ end=/\-\]/ oneline
+    syn region diffWordsAdded start=/{+/ end=/+}/ oneline
 endif
 
 syn match diffSubname "  @@..*"ms=s+3 contained display
