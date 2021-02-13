@@ -4,6 +4,8 @@ call themis#option('exclude', 'test/Guardfile')
 if $THEMIS_PROFILE !=# ''
   execute 'profile' 'start' $THEMIS_PROFILE
   profile! file ./autoload/*
+  profile! file ./plugin/*
+  profile! file ./syntax/*
 endif
 
 let s:helper = themis#helper('assert')
