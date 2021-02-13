@@ -166,6 +166,9 @@ function! s:blame__reveal_diff(include_all, word_diff) dict abort
     else
         let next_diff = 'current'
     endif
+    if a:word_diff
+        let next_diff .= '.word'
+    endif
 
     if self.state.diff ==# next_diff
         " Toggle diff
