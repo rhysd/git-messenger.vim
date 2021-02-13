@@ -177,12 +177,15 @@ function! s:blame__reveal_diff(include_all, word_diff) dict abort
 
     " Remove diff hunks from popup
     let saved = getpos('.')
-    keepjumps execute 1
-    let diff_start = search('^ diff --git ', 'ncW')
-    if diff_start > 1
-        let self.state.contents = self.state.contents[ : diff_start-2]
-    endif
-    keepjumps call setpos('.', saved)
+    try
+        keepjumps execute 1
+        let diff_start = search('^ diff --git ', 'ncW')
+        if diff_start > 1
+            let self.state.contents = self.state.contents[ : diff_start-2]
+        endif
+    finally
+        keepjumps call setpos('.', saved)
+    endtry
 
     if next_diff ==# 'none'
         call self.render()
