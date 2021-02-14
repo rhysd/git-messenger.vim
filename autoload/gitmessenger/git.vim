@@ -24,8 +24,15 @@ function! s:find_dotgit(from) abort
     " care about empty string here.
     let dotgit = len(dir) > len(file) ? dir : file
 
+    " Inside .git directory is outside repository
+    " This check must be done before chopping last path separator otherwise it
+    " matches to directory like /path/to/.github/ (#70)
+    if stridx(a:from, dotgit) == 0
+        return ''
+    endif
+
     if dotgit[-1:] ==# s:SEP
-        " [:-2] chops last path separator
+        " [:-2] chops last path separator (/path/to/.git/ => /path/to/.git)
         let dotgit = dotgit[:-2]
     endif
 
@@ -46,11 +53,6 @@ function! gitmessenger#git#root_dir(from) abort
     endif
     let dotgit = s:find_dotgit(from)
     if dotgit ==# ''
-        return ''
-    endif
-
-    if stridx(from, dotgit) == 0
-        " Inside .git directory is outside repository
         return ''
     endif
 
