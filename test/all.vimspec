@@ -87,6 +87,17 @@ Describe git-messenger.vim
             let mes = execute('message')
             Assert Match(mes, '\<git-messenger: ', mes)
         End
+
+        It works under .github directory (#70)
+            " Close README.md
+            bwipeout!
+
+            view! .github/workflows/ci.yml
+            GitMessenger
+            let p = GetPopup()
+            Assert IsNotNone(p)
+            Assert KeyExists(p, 'bufnr')
+        End
     End
 
     Describe Popup window
