@@ -8,14 +8,21 @@ syn match gitmessengerHistory '\%(\_^ \<History: \+\)\@<=#\d\+' display
 syn match gitmessengerEmail '\%(\_^ \<\%(Author\|Committer\): \+.*\)\@<=<.\+>' display
 
 " Diff included in popup
-syn match diffRemoved "^ -.*" display
-syn match diffAdded "^ +.*" display
-if has('conceal') && get(g:, 'git_messenger_conceal_word_diff_marker', v:true)
-    syn region diffWordsRemoved matchgroup=Conceal start=/\[-/ end=/-]/ concealends oneline
-    syn region diffWordsAdded matchgroup=Conceal start=/{+/ end=/+}/ concealends oneline
+" There are two types of diff format; 'none' 'current', 'all', 'current.word', 'all.word'.
+" 'current.word' and 'all.word' are for word diff. And 'current' and 'all' are " for unified diff.
+" Define different highlights for unified diffs and word diffs.
+" b:__gitmessenger_diff is set by Blame.render() in blame.vim.
+if get(b:, '__gitmessenger_diff', '') =~# '\.word$'
+    if has('conceal') && get(g:, 'git_messenger_conceal_word_diff_marker', v:true)
+        syn region diffWordsRemoved matchgroup=Conceal start=/\[-/ end=/-]/ concealends oneline
+        syn region diffWordsAdded matchgroup=Conceal start=/{+/ end=/+}/ concealends oneline
+    else
+        syn region diffWordsRemoved start=/\[\-/ end=/\-\]/ oneline
+        syn region diffWordsAdded start=/{+/ end=/+}/ oneline
+    endif
 else
-    syn region diffWordsRemoved start=/\[\-/ end=/\-\]/ oneline
-    syn region diffWordsAdded start=/{+/ end=/+}/ oneline
+    syn match diffRemoved "^ -.*" display
+    syn match diffAdded "^ +.*" display
 endif
 
 syn match diffSubname "  @@..*"ms=s+3 contained display
@@ -52,3 +59,5 @@ hi def link diffLine         Statement
 hi def link diffSubname      PreProc
 
 let b:current_syntax = 'gitmessengerpopup'
+
+echom 'syntax update!: ' . get(b:, '__gitmessenger_diff', 'not yet')

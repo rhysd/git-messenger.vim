@@ -35,6 +35,22 @@ function! s:popup__get_winnr() dict abort
 endfunction
 let s:popup.get_winnr = funcref('s:popup__get_winnr')
 
+function! s:popup__get_buf_var(name, default) dict abort
+    if has_key(self, 'bufnr')
+        return getbufvar(self.bufnr, a:name, a:default)
+    else
+        return a:default
+    endif
+endfunction
+let s:popup.get_buf_var = funcref('s:popup__get_buf_var')
+
+function! s:popup__set_buf_var(name, value) dict abort
+    if has_key(self, 'bufnr')
+        call setbufvar(self.bufnr, a:name, a:value)
+    endif
+endfunction
+let s:popup.set_buf_var = funcref('s:popup__set_buf_var')
+
 function! s:popup__scroll(map) dict abort
     let winnr = self.get_winnr()
     if winnr == 0

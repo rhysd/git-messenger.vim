@@ -21,6 +21,13 @@ let s:blame.error = funcref('s:blame__error')
 
 function! s:blame__render() dict abort
     let self.popup.contents = self.state.contents
+    let prev_diff = self.popup.get_buf_var('__gitmessenger_diff', '')
+    if prev_diff !=# self.state.diff
+        call self.popup.set_buf_var('__gitmessenger_diff', self.state.diff)
+        if self.state.diff !=# 'none'
+            call self.popup.set_buf_var('&syntax', 'gitmessengerpopup')
+        endif
+    endif
     call self.popup.update()
 endfunction
 let s:blame.render = funcref('s:blame__render')
@@ -188,8 +195,8 @@ function! s:blame__reveal_diff(include_all, word_diff) dict abort
     endtry
 
     if next_diff ==# 'none'
-        call self.render()
         let self.state.diff = next_diff
+        call self.render()
         return
     endif
 
