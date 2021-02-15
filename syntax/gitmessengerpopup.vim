@@ -17,7 +17,7 @@ if get(b:, '__gitmessenger_diff', '') =~# '\.word$'
         syn region diffWordsRemoved matchgroup=Conceal start=/\[-/ end=/-]/ concealends oneline
         syn region diffWordsAdded matchgroup=Conceal start=/{+/ end=/+}/ concealends oneline
     else
-        syn region diffWordsRemoved start=/\[\-/ end=/\-\]/ oneline
+        syn region diffWordsRemoved start=/\[-/ end=/-]/ oneline
         syn region diffWordsAdded start=/{+/ end=/+}/ oneline
     endif
 else
@@ -59,5 +59,3 @@ hi def link diffLine         Statement
 hi def link diffSubname      PreProc
 
 let b:current_syntax = 'gitmessengerpopup'
-
-echom 'syntax update!: ' . get(b:, '__gitmessenger_diff', 'not yet')
