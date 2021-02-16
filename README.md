@@ -132,14 +132,14 @@ Following mappings are defined within popup window.
 
 | Mapping | Description                                                  |
 |---------|--------------------------------------------------------------|
-|   `q`   | Close the popup window                                       |
-|   `o`   | **o**lder. Back to older commit at the line                  |
-|   `O`   | Opposite to `o`. Forward to newer commit at the line         |
-|   `d`   | Toggle diff hunks only related to current file in the commit |
-|   `D`   | Toggle all diff hunks in the commit                          |
-|   `r`   | Toggle current file's word diffs of current commit           |
-|   `R`   | Toggle all word diffs of current commit                      |
-|   `?`   | Show mappings help                                           |
+| `q`     | Close the popup window                                       |
+| `o`     | **o**lder. Back to older commit at the line                  |
+| `O`     | Opposite to `o`. Forward to newer commit at the line         |
+| `d`     | Toggle unified diff hunks only in current file of the commit |
+| `D`     | Toggle all unified diff hunks of the commit                  |
+| `r`     | Toggle word diff hunks only in current file of the commit    |
+| `R`     | Toggle all word diff hunks of current commit                 |
+| `?`     | Show mappings help                                           |
 
 ### Mappings
 
