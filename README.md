@@ -31,19 +31,19 @@ especially in message of the last commit which modifies the line.
 
 ## Screenshot
 
-### Show popup window with Neovim v0.4.0-dev
+#### Show popup window with Neovim v0.4.0-dev
 
 <img alt="main screenshot" src="https://github.com/rhysd/ss/blob/master/git-messenger.vim/demo.gif?raw=true" width=763 height=556 />
 
-### Exploring older commits
+#### Exploring older commits
 
 <img alt="history screenshot" src="https://github.com/rhysd/ss/blob/master/git-messenger.vim/history.gif?raw=true" width=510 height=252 />
 
-### Exploring diff of the commit (you may be also interested in `g:git_messenger_include_diff`)
+#### Exploring diff of the commit (you may be also interested in `g:git_messenger_include_diff`)
 
 <img alt="diff screenshot" src="https://github.com/rhysd/ss/blob/master/git-messenger.vim/diff.gif?raw=true" width=742 height=492 />
 
-### Switching unified diffs and word diffs
+#### Switching unified diffs and word diffs
 
 <img alt="word diff screenshot" src="https://github.com/rhysd/ss/blob/master/git-messenger.vim/worddiff.gif?raw=true" width=661 height=492 />
 
