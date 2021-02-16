@@ -70,7 +70,7 @@ function! s:history__load(index) dict abort
     " for diff. Without copy(), it modifies array in self.history directly
     " but that's not intended.
     let self.contents = copy(e.contents)
-    let self.diff = e.diff
+    call self.set_diff(e.diff)
     let self.commit = e.commit
     let self.diff_file_to = e.diff_file_to
     let self.diff_file_from = e.diff_file_from
@@ -82,6 +82,12 @@ function! s:history__history_no() dict abort
     return len(self._history)
 endfunction
 let s:history.history_no = funcref('s:history__history_no')
+
+function! s:history__set_diff(diff) dict abort
+    let self.prev_diff = self.diff
+    let self.diff = a:diff
+endfunction
+let s:history.set_diff = funcref('s:history__set_diff')
 
 " Go back to older. Load older history entry to current history.
 " Returns boolean which is true when older entry was found.
@@ -120,6 +126,7 @@ function! gitmessenger#history#new(filepath) abort
     let h.diff_file_to = a:filepath
     let h.diff_file_from = a:filepath
     let h.diff = 'none'
+    let h.prev_diff = ''
     let h.commit = ''
     return h
 endfunction

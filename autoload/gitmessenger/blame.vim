@@ -21,8 +21,7 @@ let s:blame.error = funcref('s:blame__error')
 
 function! s:blame__render() dict abort
     let self.popup.contents = self.state.contents
-    let prev_diff = self.popup.get_buf_var('__gitmessenger_diff', '')
-    if prev_diff !=# self.state.diff
+    if self.state.prev_diff !=# self.state.diff
         call self.popup.set_buf_var('__gitmessenger_diff', self.state.diff)
         if self.state.diff !=# 'none'
             call self.popup.set_buf_var('&syntax', 'gitmessengerpopup')
@@ -44,7 +43,7 @@ function! s:blame__back() dict abort
     endif
 
     " Reset current state
-    let self.state.diff = 'none'
+    call self.state.set_diff('none')
 
     let args = ['--no-pager', 'blame', self.prev_commit, '-L', self.line . ',+1', '--porcelain'] + split(g:git_messenger_extra_blame_args, ' ') + ['--', self.blame_file]
     call self.spawn_git(args, 's:blame__after_blame')
@@ -153,7 +152,7 @@ function! s:blame__after_diff(next_diff, git) dict abort
     endwhile
 
     call self.append_lines(a:git.stdout)
-    let self.state.diff = a:next_diff
+    call self.state.set_diff(a:next_diff)
 
     if popup_open
         call self.render()
@@ -399,9 +398,9 @@ function! s:blame__after_blame(git) dict abort
     let args = ['--no-pager', 'log', '--no-color', '-n', '1', '--pretty=format:%b']
     if g:git_messenger_include_diff !=? 'none'
         if g:git_messenger_include_diff ==? 'current'
-            let self.state.diff = 'current'
+            call self.state.set_diff('current')
         else
-            let self.state.diff = 'all'
+            call self.state.set_diff('all')
         endif
         let args += ['-p', '-m']
     endif
