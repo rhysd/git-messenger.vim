@@ -23,7 +23,9 @@ function! s:blame__render() dict abort
     let self.popup.contents = self.state.contents
     if self.state.prev_diff !=# self.state.diff
         call self.popup.set_buf_var('__gitmessenger_diff', self.state.diff)
-        if self.state.diff !=# 'none'
+        let prev_is_word = self.state.prev_diff =~# '\.word$'
+        let is_word = self.state.diff =~# '\.word$'
+        if self.state.diff !=# 'none' && prev_is_word != is_word
             call self.popup.set_buf_var('&syntax', 'gitmessengerpopup')
         endif
     endif
