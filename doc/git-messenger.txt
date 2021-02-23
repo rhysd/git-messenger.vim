@@ -149,8 +149,8 @@ COMMANDS                                                *git-messenger-commands*
 ==============================================================================
 MAPPINGS                                                *git-messenger-mappings*
 
-Some <Plug> mappings are available to operate a popup window. They can be mapped to your favorite
-key sequences. For example:
+Some <Plug> mappings are available to operate a popup window. They can be
+mapped to your favorite key sequences. For example:
 
 *<Plug>(git-messenger)*
 
