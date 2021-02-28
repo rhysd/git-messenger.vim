@@ -2,10 +2,10 @@ if exists('b:current_syntax')
     finish
 endif
 
-syn match gitmessengerHeader '\_^ \%(History\|Commit\|\%(Author \|Committer \)\=Date\|Author\|Committer\):' display
-syn match gitmessengerHash '\%(\_^ \<Commit: \+\)\@<=[[:xdigit:]]\+' display
-syn match gitmessengerHistory '\%(\_^ \<History: \+\)\@<=#\d\+' display
-syn match gitmessengerEmail '\%(\_^ \<\%(Author\|Committer\): \+.*\)\@<=<.\+>' display
+syn match gitmessengerHeader '^ \%(History\|Commit\|\%(Author \|Committer \)\=Date\|Author\|Committer\):' display
+syn match gitmessengerHash '\%(^ \<Commit: \+\)\@<=[[:xdigit:]]\+' display
+syn match gitmessengerHistory '\%(^ \<History: \+\)\@<=#\d\+' display
+syn match gitmessengerEmail '\%(^ \<\%(Author\|Committer\): \+.*\)\@<=<.\+>' display
 
 " Diff included in popup
 " There are two types of diff format; 'none' 'current', 'all', 'current.word', 'all.word'.
