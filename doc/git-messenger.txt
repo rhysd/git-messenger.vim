@@ -313,7 +313,10 @@ colors with |:hi| works fine as follows.
   hi gitmessengerEmail term=None guifg=#999999 ctermfg=245
 <
 Note: If your colorscheme does not allocate proper color for |hl-NormalFloat|,
-you may need to set proper color to "gitmessengerPopupNormal".
+you may need to set proper color to "gitmessengerPopupNormal". For example, if
+your colorscheme use the same color for both normal background color and popup
+background color, linking "gitmessengerPopupNormal" to different background
+color like |hl-CursorLine| would be better.
 
 Note: "gitmessengerPopupNormal" is only available on Neovim since
 'winhighlight' option is used. On Vim, simply |hl-Normal| is used for normal
