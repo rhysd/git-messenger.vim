@@ -104,7 +104,7 @@ else
     let s:git.finalize_vim = funcref('s:git__finalize_vim')
 
     function! s:on_output_vim(event, ch, msg) dict abort
-        call extend(self[a:event], split(a:msg, "\n", 1))
+        call extend(self[a:event], split(a:msg, '\r\=\n', 1))
     endfunction
 
     function! s:on_exit_vim(ch, code) dict abort

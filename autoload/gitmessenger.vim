@@ -78,7 +78,7 @@ endfunction
 function! s:on_error(errmsg) abort
     echohl ErrorMsg
     " Avoid ^@
-    for line in split(a:errmsg, "\n")
+    for line in split(a:errmsg, '\r\=\n')
         echomsg line
     endfor
     echohl None

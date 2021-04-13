@@ -48,7 +48,7 @@ function! s:check_git_binary() abort
         return
     endif
 
-    let output = substitute(system(cmd . ' -C . --version'), '\n', '', 'g')
+    let output = substitute(system(cmd . ' -C . --version'), '\r\=\n', '', 'g')
     if v:shell_error
         call health#report_error('Git command `' . cmd . '` is broken (v1.8.5 or later is required): ' . output)
         return
