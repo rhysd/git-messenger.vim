@@ -112,16 +112,15 @@ function! s:popup__floating_win_opts(width, height) dict abort
     endif
 
     return extend({
-    \   'relative': 'editor',
-    \   'anchor': vert . hor,
-    \   'row': row,
-    \   'col': col,
-    \   'width': a:width,
-    \   'height': a:height,
-    \   'style': 'minimal',
-    \ },
-    \ get(g:, 'git_messenger_floating_win_opts', {}),
-    \ 'force')
+        \   'relative': 'editor',
+        \   'anchor': vert . hor,
+        \   'row': row,
+        \   'col': col,
+        \   'width': a:width,
+        \   'height': a:height,
+        \   'style': 'minimal',
+        \ },
+        \ g:git_messenger_floating_win_opts)
 endfunction
 let s:popup.floating_win_opts = funcref('s:popup__floating_win_opts')
 
