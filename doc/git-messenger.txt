@@ -277,6 +277,15 @@ the details of the format.
 When this value is set to |v:true|, markers for word diffs like "[-", "-]",
 "{+", "+}" are concealed. Set |v:false| when you don't want to hide them.
 
+*g:git_messenger_floating_win_opts* (Default: {})
+
+Options passed to |nvim_open_win| on opening a popup window. This is useful
+when you want to override some window options.
+The following example will add single border line to the window.
+>
+  let g:git_messenger_floating_win_opts = { 'border': 'single' }
+<
+
 ==============================================================================
 HIGHLIGHTS                                            *git-messenger-highlights*
 
