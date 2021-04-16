@@ -64,10 +64,11 @@ endfunction
 let s:popup.into = funcref('s:popup__into')
 
 function! s:popup__window_size() dict abort
+    let margin = g:git_messenger_popup_content_margins ? 1 : 0
     let has_max_width = type(g:git_messenger_max_popup_width) == v:t_number
     if has_max_width
         " ` - 1` for considering right margin
-        let max_width = g:git_messenger_max_popup_width - 1
+        let max_width = g:git_messenger_max_popup_width - margin
     endif
 
     let width = 0
@@ -84,7 +85,7 @@ function! s:popup__window_size() dict abort
         endif
         let height += 1
     endfor
-    let width += 1 " right margin
+    let width += margin " right margin
 
     if type(g:git_messenger_max_popup_height) == v:t_number && height > g:git_messenger_max_popup_height
         let height = g:git_messenger_max_popup_height
