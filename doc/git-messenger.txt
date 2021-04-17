@@ -285,6 +285,15 @@ The following example will add single border line to the window.
 >
   let g:git_messenger_floating_win_opts = { 'border': 'single' }
 <
+*g:git_messenger_popup_content_margins* (Default: |v:true|)
+
+Setting |v:true| means adding margins in popup window. Blank lines at the top
+and bottom of popup content are inserted. And every line is indented with one
+whitespace character.
+
+Setting |v:false| to this variable removes all the margins. Removing margins
+might be useful when you enable borders of popup window with
+|g:git_messenger_floating_win_opts|.
 
 ==============================================================================
 HIGHLIGHTS                                            *git-messenger-highlights*
