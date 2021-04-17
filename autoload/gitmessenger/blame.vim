@@ -104,6 +104,10 @@ endfunction
 let s:blame.open_popup = funcref('s:blame__open_popup')
 
 function! s:blame__append_lines(lines) dict abort
+    if !g:git_messenger_popup_content_margins
+        let self.state.contents += ['']
+    endif
+
     let lines = a:lines
     if lines[-1] ==# ''
         " Strip last newline
@@ -118,14 +122,18 @@ function! s:blame__append_lines(lines) dict abort
             let skip_first_nl = v:false
         endif
 
-        if line ==# ''
-            let self.state.contents += ['']
+        if g:git_messenger_popup_content_margins
+            if line ==# ''
+                let self.state.contents += ['']
+            else
+                let self.state.contents += [' ' . line]
+            endif
         else
-            let self.state.contents += [' ' . line]
+            let self.state.contents += [line]
         endif
     endfor
 
-    if self.state.contents[-1] !~# '^\s*$'
+    if g:git_messenger_popup_content_margins && self.state.contents[-1] !~# '^\s*$'
         let self.state.contents += ['']
     endif
 endfunction
@@ -318,10 +326,15 @@ function! s:blame__after_blame(git) dict abort
         endif
     endfor
 
-    let self.state.contents = ['']
+    let self.state.contents = []
+    if g:git_messenger_popup_content_margins
+        let self.state.contents += ['']
+    endif
+
+    let margin = g:git_messenger_popup_content_margins ? ' ' : ''
     for [key, value] in headers
         let pad = repeat(' ', header_width - len(key))
-        let line = printf(' %s: %s%s', key, pad, value)
+        let line = printf('%s%s: %s%s', margin, key, pad, value)
         let self.state.contents += [line]
     endfor
 
@@ -330,7 +343,10 @@ function! s:blame__after_blame(git) dict abort
     else
         let summary = matchstr(stdout[9], '^summary \zs.*')
     endif
-    let self.state.contents += ['', ' ' . summary, '']
+    let self.state.contents += ['', margin . summary]
+    if g:git_messenger_popup_content_margins
+        let self.state.contents += ['']
+    endif
 
     " Reset the state
     let self.prev_commit = ''

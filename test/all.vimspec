@@ -1,6 +1,8 @@
 Describe git-messenger.vim
     Before all
         syntax enable
+        " Ensure to load autoload/gitmessenger.vim
+        call gitmessenger#close_popup(-1)
     End
 
     Before each
@@ -1170,6 +1172,80 @@ Describe git-messenger.vim
             let p = GetPopup()
             let date = getbufline(p.bufnr, 1, '$')[4]
             Assert Match(date, '^ Date: \+\d\{4\}$', date)
+        End
+    End
+
+    Describe g:git_messenger_popup_content_margins
+        Before all
+            let saved_popup_content_margins = g:git_messenger_popup_content_margins
+        End
+
+        After all
+            let g:git_messenger_popup_content_margins = saved_popup_content_margins
+        End
+
+        It adds margins when v:true is set
+            let g:git_messenger_popup_content_margins = v:true
+
+            GitMessenger
+
+            let p = GetPopup()
+            let lines = getbufline(p.bufnr, 1, '$')
+            Assert True(len(lines) > 3)
+
+            " Check margins exist
+            Assert Equal(lines[0], '')
+            Assert Equal(lines[len(lines)-1], '')
+            for line in lines[1:-2]
+                if line !=# ''
+                    Assert Match(line, '^ ')
+                endif
+            endfor
+
+            " With diffs
+            GitMessenger
+            normal d
+
+            " Check margins exist
+            Assert Equal(lines[0], '')
+            Assert Equal(lines[len(lines)-1], '')
+            for line in lines[1:-2]
+                if line !=# ''
+                    Assert Match(line, '^ ')
+                endif
+            endfor
+        End
+
+        It removes margins when v:false is set
+            let g:git_messenger_popup_content_margins = v:false
+
+            GitMessenger
+
+            let p = GetPopup()
+            let lines = getbufline(p.bufnr, 1, '$')
+            Assert True(len(lines) > 3)
+
+            " Check margins don't exist
+            Assert NotEqual(lines[0], '')
+            Assert NotEqual(lines[len(lines)-1], '')
+            for line in lines[1:-2]
+                if line !=# ''
+                    Assert NotMatch(line, '^ ')
+                endif
+            endfor
+
+            " With diffs
+            GitMessenger
+            normal d
+
+            " Check margins don't exist
+            Assert NotEqual(lines[0], '')
+            Assert NotEqual(lines[len(lines)-1], '')
+            for line in lines[1:-2]
+                if line !=# ''
+                    Assert NotMatch(line, '^ ')
+                endif
+            endfor
         End
     End
 End

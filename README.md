@@ -242,6 +242,25 @@ let g:git_messenger_date_format = "%Y %b %d %X"
 When this value is set to `v:true`, markers for word diffs like `[-`, `-]`, `{+`, `+}` are concealed.
 Set `v:false` when you don't want to hide them.
 
+Note: Word diff is enabled by typing "r" in a popup window.
+
+#### `g:git_messenger_floating_win_opts` (Default `{}`)
+
+Options passed to `nvim_open_win()` on opening a popup window. This is useful when you want to
+override some window options.
+
+The following example will add single border line to the window.
+
+```vim
+let g:git_messenger_floating_win_opts = { 'border': 'single' }
+```
+
+#### `g:git_messenger_popup_content_margins` (Default: `v:true`)
+
+Setting `v:true` means adding margins in popup window. Blank lines at the top and bottom of popup
+content are inserted. And every line is indented with one whitespace character.
+Setting `v:false` to this variable removes all the margins.
+
 ### Popup Window Highlight
 
 This plugin uses color definitions from your colorscheme for highlighting stuffs in popup window by
@@ -298,6 +317,17 @@ function! s:setup_git_messenger_popup() abort
 endfunction
 autocmd FileType gitmessengerpopup call <SID>setup_git_messenger_popup()
 ```
+
+Recent Neovim supports adding border lines to floating windows. `git_messenger_floating_win_opts`
+is available to set the options. And `g:git_messenger_popup_content_margins` can remove margins
+within popup content if you feel margins are unnecessary.
+
+```vim
+let g:git_messenger_floating_win_opts = { 'border': 'single' }
+let g:git_messenger_popup_content_margins = v:false
+```
+
+<img alt="popup with border" src="https://github.com/rhysd/ss/blob/master/git-messenger.vim/border_popup.png?raw=true" width=684 height=203 />
 
 ### Health Check
 
