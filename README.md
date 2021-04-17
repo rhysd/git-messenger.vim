@@ -242,6 +242,27 @@ let g:git_messenger_date_format = "%Y %b %d %X"
 When this value is set to `v:true`, markers for word diffs like `[-`, `-]`, `{+`, `+}` are concealed.
 Set `v:false` when you don't want to hide them.
 
+Note: Word diff is enabled by typing "r" in a popup window.
+
+#### `g:git_messenger_floating_win_opts` (Default `{}`)
+
+Options passed to `nvim_open_win()` on opening a popup window. This is useful when you want to
+override some window options.
+
+The following example will add single border line to the window.
+
+```vim
+let g:git_messenger_floating_win_opts = { 'border': 'single' }
+```
+
+#### `g:git_messenger_popup_content_margins` (Default: `v:true`)
+
+Setting `v:true` means adding margins in popup window. Blank lines at the top and bottom of popup
+content are inserted. And every line is indented with one whitespace character.
+
+Setting `v:false` to this variable removes all the margins. Removing margins might be useful when
+you enable borders of popup window with `g:git_messenger_floating_win_opts`.
+
 ### Popup Window Highlight
 
 This plugin uses color definitions from your colorscheme for highlighting stuffs in popup window by

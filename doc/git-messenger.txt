@@ -277,6 +277,8 @@ the details of the format.
 When this value is set to |v:true|, markers for word diffs like "[-", "-]",
 "{+", "+}" are concealed. Set |v:false| when you don't want to hide them.
 
+Note: Word diff is enabled by typing "r" in a popup window.
+
 *g:git_messenger_floating_win_opts* (Default: {})
 
 Options passed to |nvim_open_win| on opening a popup window. This is useful
