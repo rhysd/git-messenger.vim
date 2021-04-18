@@ -1249,6 +1249,26 @@ Describe git-messenger.vim
         End
     End
 
+    if has('nvim')
+        Describe g:git_messenger_floating_win_opts
+            Before all
+                let saved_floating_win_opts = g:git_messenger_floating_win_opts
+            End
+
+            After all
+                let g:git_messenger_floating_win_opts = saved_floating_win_opts
+            End
+
+            It overrides floating window options
+                let g:git_messenger_floating_win_opts = {'height': 10000}
+                GitMessenger
+                let p = GetPopup()
+                let c = nvim_win_get_config(p.win_id)
+                Assert Equal(c.height, 10000)
+            End
+        End
+    endif
+
     Describe gitmessenger#git#new
         It runs Git command at specified directory using -C
             let git = gitmessenger#git#new('echo', '.')
