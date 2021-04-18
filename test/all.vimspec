@@ -1248,6 +1248,48 @@ Describe git-messenger.vim
             endfor
         End
     End
+
+    Describe gitmessenger#git#new
+        It runs Git command at specified directory using -C
+            let git = gitmessenger#git#new('echo', '.')
+            let state = {}
+            let OnExit = {g -> extend(state, {'exit': g.exit_status})}
+
+            call git.spawn([], OnExit)
+            call WaitUntil({-> has_key(state, 'exit')})
+
+            Assert True(len(git.stdout) > 0, string(git.stdout))
+            let stdout = git.stdout[0]
+            Assert True(stridx(stdout, '-C .') >= 0, string(stdout))
+        End
+
+        It trims trailing \r (#75)
+            let git = gitmessenger#git#new('echo', '.')
+            let state = {}
+            let OnExit = {g -> extend(state, {'exit': g.exit_status})}
+
+            if has('win32')
+                " 'echo' command on Windows use \r\n for newlines. So `echo "foo\r"` outputs
+                " "foo\r\r\n" at terminal
+                let input = "this\nis\ntest"
+            else
+                let input = "this\r\nis\r\ntest"
+            endif
+
+            call git.spawn([input], OnExit)
+            call WaitUntil({-> has_key(state, 'exit')})
+
+            Assert Equals(state.exit, 0)
+            Assert True(len(git.stdout) > 0, string(git.stdout))
+
+            let stdout = substitute(substitute(string(git.stdout), '\r', '\\r', 'g'), '\n', '\\n', 'g')
+
+            for n in range(len(git.stdout))
+                let l = git.stdout[n]
+                Assert NotMatch(l, '\r$', stdout . ' at ' . n)
+            endfor
+        End
+    End
 End
 
 " vim: set ft=vim:
