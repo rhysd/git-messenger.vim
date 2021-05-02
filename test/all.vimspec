@@ -513,6 +513,58 @@ Describe git-messenger.vim
                     Assert True(found, 'Lines: ' . string(getline(1, '$')) . ' Messages: ' . execute('message'))
                 End
             End
+
+            It reveals word diffs with r and dismisses it with r again
+                GitMessenger
+                Assert IsNotNone(GetPopup())
+                GitMessenger
+                Assert Exists('b:__gitmessenger_popup')
+
+                " Check diff is not shown
+                Assert False(LicenseDiffExists(), string(getline(1, '$')))
+
+                normal r
+
+                let found = WaitUntil(LicenseDiffExists)
+                let lines = getline(1, '$')
+                let msg = 'Got lines: ' . string(lines)
+                Assert True(found, msg)
+                Assert False(ReadmeDiffExists(), lines)
+
+                let add_lines = filter(copy(lines), 'v:val =~# "{+.\\++}"')
+                Assert NotEmpty(add_lines, msg)
+
+                normal r
+
+                let removed = WaitWhile(LicenseDiffExists)
+                Assert True(removed, 'Got lines: ' . string(getline(1, '$')))
+            End
+
+            It reveals all word diffs with R and dismisses it with R again
+                GitMessenger
+                Assert IsNotNone(GetPopup())
+                GitMessenger
+                Assert Exists('b:__gitmessenger_popup')
+
+                " Check diff is not shown
+                Assert False(LicenseDiffExists(), string(getline(1, '$')))
+
+                normal R
+
+                let found = WaitUntil(LicenseDiffExists)
+                let lines = getline(1, '$')
+                let msg = 'Got lines: ' . string(lines)
+                Assert True(found, msg)
+                Assert True(ReadmeDiffExists(), msg)
+
+                let add_lines = filter(copy(lines), 'v:val =~# "{+.\\++}"')
+                Assert NotEmpty(add_lines, msg)
+
+                normal R
+
+                let removed = WaitWhile(LicenseDiffExists)
+                Assert True(removed, 'Got lines: ' . string(getline(1, '$')))
+            End
         End
 
         It preserves diff hunks after going back to older commit
