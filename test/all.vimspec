@@ -565,6 +565,44 @@ Describe git-messenger.vim
                 let removed = WaitWhile(LicenseDiffExists)
                 Assert True(removed, 'Got lines: ' . string(getline(1, '$')))
             End
+
+            It switches between normal diffs and word diffs
+                GitMessenger
+                Assert IsNotNone(GetPopup())
+                GitMessenger
+                Assert Exists('b:__gitmessenger_popup')
+
+                " Check diff is not shown
+                Assert False(LicenseDiffExists(), string(getline(1, '$')))
+
+                let WordDiffMarkerExists = {-> !empty(filter(getline(1, '$'), 'v:val =~# "{+.\\++}"'))}
+
+                " none -> word diff
+                normal r
+
+                let found = WaitUntil(LicenseDiffExists)
+                let msg = 'Got lines: ' . string(getline(1, '$'))
+                Assert True(found, msg)
+                Assert True(LicenseDiffExists(), msg)
+
+                Assert WordDiffMarkerExists()
+
+                " word diff -> diff
+                normal d
+
+                let marker_removed = WaitWhile(WordDiffMarkerExists)
+                let msg = 'Got lines: ' . string(getline(1, '$'))
+                Assert True(marker_removed, msg)
+                Assert True(LicenseDiffExists(), msg)
+
+                " diff -> word diff
+                normal r
+
+                let found = WaitUntil(WordDiffMarkerExists)
+                let msg = 'Got lines: ' . string(getline(1, '$'))
+                Assert True(found, msg)
+            End
+
         End
 
         It preserves diff hunks after going back to older commit
