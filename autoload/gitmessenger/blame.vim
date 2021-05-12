@@ -80,10 +80,10 @@ function! s:blame__open_popup() dict abort
         \       'q': [{-> execute('close', '')}, 'Close popup window'],
         \       'o': [funcref(self.back, [], self), 'Back to older commit'],
         \       'O': [funcref(self.forward, [], self), 'Forward to newer commit'],
-        \       'd': [funcref(self.reveal_diff, [v:false, v:false], self), "Toggle current file's diffs of current commit"],
-        \       'D': [funcref(self.reveal_diff, [v:true, v:false], self), 'Toggle all diffs of current commit'],
-        \       'r': [funcref(self.reveal_diff, [v:false, v:true], self), "Toggle current file's word diffs of current commit"],
-        \       'R': [funcref(self.reveal_diff, [v:true, v:true], self), 'Toggle all word diffs of current commit'],
+        \       'd': [funcref(self.reveal_diff, [v:false, v:false], self), "Toggle current file's diffs"],
+        \       'D': [funcref(self.reveal_diff, [v:true, v:false], self), 'Toggle all diffs'],
+        \       'r': [funcref(self.reveal_diff, [v:false, v:true], self), "Toggle current file's word diffs"],
+        \       'R': [funcref(self.reveal_diff, [v:true, v:true], self), 'Toggle all word diffs'],
         \   },
         \ }
     if has_key(self.opts, 'did_close')
