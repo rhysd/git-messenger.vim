@@ -36,6 +36,8 @@ jobs:
       - uses: actions/setup-python@v1
       - name: Report coverage
         run: |
+          # https://github.com/Vimjas/covimerage/issues/95
+          pip install 'click<8.0.0'
           pip install covimerage
           covimerage write_coverage profile.txt
           coverage report
