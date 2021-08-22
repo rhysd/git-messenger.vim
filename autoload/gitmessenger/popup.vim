@@ -96,20 +96,24 @@ endfunction
 let s:popup.window_size = funcref('s:popup__window_size')
 
 function! s:popup__floating_win_opts(width, height) dict abort
-    if self.opened_at[0] + a:height <= &lines
+    let border = has_key(g:git_messenger_floating_win_opts, 'border')
+                \ && index(['single', 'double', 'rounded', 'solid'],
+                \ g:git_messenger_floating_win_opts['border']) != -1 ? 2 : 0
+
+    if self.opened_at[0] + a:height + border < &lines
         let vert = 'N'
         let row = self.opened_at[0]
     else
         let vert = 'S'
-        let row = self.opened_at[0] - 1
+        let row = self.opened_at[0] - 1 - border
     endif
 
-    if self.opened_at[1] + a:width <= &columns
+    if self.opened_at[1] + a:width + border <= &columns
         let hor = 'W'
         let col = self.opened_at[1] - 1
     else
         let hor = 'E'
-        let col = self.opened_at[1]
+        let col = self.opened_at[1] - border
     endif
 
     return extend({
