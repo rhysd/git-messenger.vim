@@ -97,10 +97,13 @@ let s:popup.window_size = funcref('s:popup__window_size')
 
 function! s:popup__floating_win_opts(width, height) dict abort
     let border = has_key(g:git_messenger_floating_win_opts, 'border')
-                \ && index(['single', 'double', 'rounded', 'solid'],
-                \ g:git_messenger_floating_win_opts['border']) != -1 ? 2 : 0
+                    \ && index(
+                    \   ['single', 'double', 'rounded', 'solid'], g:git_messenger_floating_win_opts['border']
+                    \ ) != -1 ? 2 : 0
 
-    if self.opened_at[0] + a:height + border < &lines
+    " &lines - 1 because it is not allowed to overlay a floating window on a status line.
+    " Bottom line of a floating window must be less than line of command line. (#80)
+    if self.opened_at[0] + a:height + border <= &lines - 1
         let vert = 'N'
         let row = self.opened_at[0]
     else
