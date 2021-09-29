@@ -9,6 +9,10 @@ jobs:
         os: [macos-latest, ubuntu-latest]
         neovim: [true, false]
         version: [stable, nightly]
+        # Exclude Neovim nightly since Neovim's release workflow is fairly unstable: https://github.com/neovim/neovim/actions/workflows/release.yml
+        exclude:
+          - neovim: true
+            version: nightly
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v2
