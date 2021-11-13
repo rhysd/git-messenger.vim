@@ -480,13 +480,14 @@ let s:blame.start = funcref('s:blame__start')
 "   Note: This does not need to be put in BlameHistory state because it is
 "   used by only `git blame`.
 function! gitmessenger#blame#new(file, line, opts) abort
+    let file = resolve(a:file)
     let b = deepcopy(s:blame)
-    let b.state = gitmessenger#history#new(a:file)
+    let b.state = gitmessenger#history#new(file)
     let b.line = a:line
-    let b.blame_file = resolve(a:file)
+    let b.blame_file = file
     let b.opts = a:opts
 
-    let dir = fnamemodify(b.blame_file, ':p:h')
+    let dir = fnamemodify(file, ':p:h')
     let b.git_root = gitmessenger#git#root_dir(dir)
 
     " Validations
