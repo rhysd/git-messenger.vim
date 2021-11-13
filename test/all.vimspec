@@ -107,10 +107,23 @@ Describe git-messenger.vim
             GitMessenger
             Assert IsNotNone(GetPopup())
 
+            " Add this check for fd4feb03edf3b0b659a3a0722e333ec312642daf
+            doautocmd CursorMoved
+            Assert IsNotNone(GetPopup())
+
             normal! h
             doautocmd CursorMoved
 
             Assert IsNone(GetPopupNoWait())
+        End
+
+        It is not closed on CursorHold
+            " Test for fd4feb03edf3b0b659a3a0722e333ec312642daf
+            GitMessenger
+            Assert IsNotNone(GetPopup())
+
+            doautocmd CursorHold
+            Assert IsNotNone(GetPopup())
         End
 
         It is closed on BufEnter
