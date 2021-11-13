@@ -1,6 +1,11 @@
 let s:popup = {}
 let s:floating_window_available = has('nvim') && exists('*nvim_win_set_config')
 
+function! s:get_global_pos() abort
+    let pos = win_screenpos('.')
+    return [pos[0] + winline() - 1, pos[1] + wincol() - 1]
+endfunction
+
 function! s:popup__close() dict abort
     if !has_key(self, 'bufnr')
         " Already closed
@@ -146,8 +151,7 @@ endfunction
 let s:popup.get_opener_winnr = funcref('s:popup__get_opener_winnr')
 
 function! s:popup__open() dict abort
-    let pos = win_screenpos('.')
-    let self.opened_at = [pos[0] + winline() - 1, pos[1] + wincol() - 1]
+    let self.opened_at = s:get_global_pos()
     let self.opener_bufnr = bufnr('%')
     let self.opener_winid = win_getid()
     let self.type = s:floating_window_available ? 'floating' : 'preview'
@@ -208,6 +212,14 @@ function! s:popup__open() dict abort
 
     if has_key(self.opts, 'enter') && !self.opts.enter
         noautocmd wincmd p
+        if self.type !=# 'floating'
+            " Opening a preview window may move global position of the cursor.
+            " `opened_at` is used for checking if the popup window should be
+            " closed on `CursorMoved` event. If the position is not updated
+            " here, the event wrongly will refer the position before opening
+            " the preview window.
+            let self.opened_at = s:get_global_pos()
+        endif
     endif
 
     let self.bufnr = popup_bufnr
@@ -266,6 +278,12 @@ function! s:popup__update() dict abort
     endtry
 endfunction
 let s:popup.update = funcref('s:popup__update')
+
+" Returns if the cursor moved since this popup window had opened
+function! s:popup__cursor_moved() dict abort
+    return s:get_global_pos() != self.opened_at
+endfunction
+let s:popup.cursor_moved = funcref('s:popup__cursor_moved')
 
 function! s:popup__echo_help() dict abort
     if has_key(self.opts, 'mappings')

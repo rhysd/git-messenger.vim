@@ -22,9 +22,7 @@ function! s:on_cursor_moved() abort
         autocmd! plugin-git-messenger-close * <buffer>
         return
     endif
-    let popup = s:all_popups[bufnr]
-    let pos = win_screenpos('.')
-    if popup.opened_at != [pos[1] + wincol() - 1, pos[0] + winline() - 1]
+    if s:all_popups[bufnr].cursor_moved()
         autocmd! plugin-git-messenger-close * <buffer>
         call gitmessenger#close_popup(bufnr)
     endif
