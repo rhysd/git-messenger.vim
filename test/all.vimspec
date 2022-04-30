@@ -404,6 +404,30 @@ Describe git-messenger.vim
                 endfor
             End
 
+            It toggles file diff on d -> d when margins are off
+                let g:git_messenger_popup_content_margins = v:false
+                let LicenseDiffNoMarginsExists = {-> index(getline(1, '$'), 'diff --git a/LICENSE b/LICENSE') !=# -1}
+                let ReadmeDiffNoMarginsExists = {-> index(getline(1, '$'), 'diff --git a/README.md b/README.md') !=# -1}
+
+                GitMessenger
+                Assert IsNotNone(GetPopup())
+                GitMessenger
+                Assert Exists('b:__gitmessenger_popup')
+
+                let expected = v:true
+                for i in range(3)
+                    normal d
+                    let found = WaitUntil(LicenseDiffNoMarginsExists)
+                    let lines = 'Got lines (' . i . '): ' . string(getline(1, '$'))
+                    Assert Equal(found, expected, lines)
+                    Assert False(ReadmeDiffNoMarginsExists(), lines)
+                    " Flip expectation because d toggles file diff
+                    let expected = !expected
+                endfor
+
+                let g:git_messenger_popup_content_margins = v:true
+            End
+
             It toggles commit diff on D -> D
                 GitMessenger
                 Assert IsNotNone(GetPopup())
@@ -420,6 +444,30 @@ Describe git-messenger.vim
                     " Flip expectation because D toggles commit diff
                     let expected = !expected
                 endfor
+            End
+
+            It toggles commit diff on D -> D when margins are off
+                let g:git_messenger_popup_content_margins = v:false
+                let LicenseDiffNoMarginsExists = {-> index(getline(1, '$'), 'diff --git a/LICENSE b/LICENSE') !=# -1}
+                let ReadmeDiffNoMarginsExists = {-> index(getline(1, '$'), 'diff --git a/README.md b/README.md') !=# -1}
+
+                GitMessenger
+                Assert IsNotNone(GetPopup())
+                GitMessenger
+                Assert Exists('b:__gitmessenger_popup')
+
+                let expected = v:true
+                for i in range(3)
+                    normal D
+                    let found = WaitUntil(ReadmeDiffNoMarginsExists)
+                    let lines = 'Got lines (' . i . '): ' . string(getline(1, '$'))
+                    Assert Equal(found, expected, lines)
+                    Assert Equal(LicenseDiffNoMarginsExists(), expected, lines)
+                    " Flip expectation because D toggles commit diff
+                    let expected = !expected
+                endfor
+
+                let g:git_messenger_popup_content_margins = v:true
             End
 
             It switches diff between 'all' and 'current' repeatedly
