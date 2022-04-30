@@ -196,9 +196,10 @@ function! s:blame__reveal_diff(include_all, word_diff) dict abort
     try
         keepjumps execute 1
         let diff_pattern = g:git_messenger_popup_content_margins ? '^ diff --git ' : '^diff --git '
+        let diff_offset = g:git_messenger_popup_content_margins ? 2 : 3
         let diff_start = search(diff_pattern, 'ncW')
         if diff_start > 1
-            let self.state.contents = self.state.contents[ : diff_start-2]
+            let self.state.contents = self.state.contents[ : diff_start-diff_offset]
         endif
     finally
         keepjumps call setpos('.', saved)

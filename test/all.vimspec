@@ -410,10 +410,14 @@ Describe git-messenger.vim
                 let ReadmeDiffNoMarginsExists = {-> index(getline(1, '$'), 'diff --git a/README.md b/README.md') !=# -1}
 
                 GitMessenger
-                Assert IsNotNone(GetPopup())
+
+                let p = GetPopup()
+                Assert IsNotNone(p)
+
                 GitMessenger
                 Assert Exists('b:__gitmessenger_popup')
 
+                let num_lines = len(getbufline(p.bufnr, 1, '$'))
                 let expected = v:true
                 for i in range(3)
                     normal d
@@ -421,6 +425,10 @@ Describe git-messenger.vim
                     let lines = 'Got lines (' . i . '): ' . string(getline(1, '$'))
                     Assert Equal(found, expected, lines)
                     Assert False(ReadmeDiffNoMarginsExists(), lines)
+                    " Repeated toggling should not grow the buffer size
+                    if !expected
+                        Assert Equal(len(getline(1, '$')), num_lines, lines)
+                    endif
                     " Flip expectation because d toggles file diff
                     let expected = !expected
                 endfor
@@ -452,10 +460,14 @@ Describe git-messenger.vim
                 let ReadmeDiffNoMarginsExists = {-> index(getline(1, '$'), 'diff --git a/README.md b/README.md') !=# -1}
 
                 GitMessenger
-                Assert IsNotNone(GetPopup())
+
+                let p = GetPopup()
+                Assert IsNotNone(p)
+
                 GitMessenger
                 Assert Exists('b:__gitmessenger_popup')
 
+                let num_lines = len(getbufline(p.bufnr, 1, '$'))
                 let expected = v:true
                 for i in range(3)
                     normal D
@@ -463,6 +475,10 @@ Describe git-messenger.vim
                     let lines = 'Got lines (' . i . '): ' . string(getline(1, '$'))
                     Assert Equal(found, expected, lines)
                     Assert Equal(LicenseDiffNoMarginsExists(), expected, lines)
+                    " Repeated toggling should not grow the buffer size
+                    if !expected
+                        Assert Equal(len(getline(1, '$')), num_lines, lines)
+                    endif
                     " Flip expectation because D toggles commit diff
                     let expected = !expected
                 endfor
