@@ -68,7 +68,7 @@ With [dein.vim](https://github.com/Shougo/dein.vim):
 call dein#add('rhysd/git-messenger.vim', {
             \   'lazy' : 1,
             \   'on_cmd' : 'GitMessenger',
-            \   'on_map' : '<Plug>(git-messenger',
+            \   'on_map' : '<Plug>(git-messenger)',
             \ })
 ```
 
