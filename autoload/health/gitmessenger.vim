@@ -2,7 +2,7 @@ function! s:check_job() abort
     if !has('nvim') && !has('job')
         call health#report_error('Not supported since +job feature is not enabled')
     else
-        call health#report_ok('+job is available to execute Git command')
+        call v:lua.vim.health.ok('+job is available to execute Git command')
     endif
 endfunction
 
@@ -12,7 +12,7 @@ function! s:check_floating_window() abort
     endif
 
     if !exists('*nvim_win_set_config')
-        call health#report_warn(
+        call v:lua.vim.health.warn(
             \ 'Neovim 0.3.0 or earlier does not support floating window feature. Preview window is used instead',
             \ 'Please install Neovim 0.4.0 or later')
         return
@@ -29,7 +29,7 @@ function! s:check_floating_window() abort
                     \ })
         noautocmd call nvim_win_close(win_id, v:true)
     catch /^Vim\%((\a\+)\)\=:E118/
-        call health#report_error(
+        call v:lua.vim.health.error(
             \ 'Your Neovim is too old',
             \ [
             \   'Please update Neovim to 0.4.0 or later',
@@ -38,23 +38,23 @@ function! s:check_floating_window() abort
         return
     endtry
 
-    call health#report_ok('Floating window is available for popup window')
+    call v:lua.vim.health.ok('Floating window is available for popup window')
 endfunction
 
 function! s:check_git_binary() abort
     let cmd = get(g:, 'git_messenger_git_command', 'git')
     if !executable(cmd)
-        call health#report_error('`' . cmd . '` command is not found. Please set proper command to g:git_messenger_git_command')
+        call v:lua.vim.health.error('`' . cmd . '` command is not found. Please set proper command to g:git_messenger_git_command')
         return
     endif
 
     let output = substitute(system(cmd . ' -C . --version'), '\r\=\n', '', 'g')
     if v:shell_error
-        call health#report_error('Git command `' . cmd . '` is broken (v1.8.5 or later is required): ' . output)
+        call v:lua.vim.health.error('Git command `' . cmd . '` is broken (v1.8.5 or later is required): ' . output)
         return
     endif
 
-    call health#report_ok('Git command `' . cmd . '` is available: ' . output)
+    call v:lua.vim.health.ok('Git command `' . cmd . '` is available: ' . output)
 endfunction
 
 function! s:check_vim_version() abort
@@ -69,7 +69,7 @@ function! s:check_vim_version() abort
         return
     endif
 
-    call health#report_ok('Vim version is fine: ' . v:version)
+    call health#report_error('Vim version is fine: ' . v:version)
 endfunction
 
 function! health#gitmessenger#check() abort
