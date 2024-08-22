@@ -348,8 +348,8 @@ On Vim, please install [vim-healthcheck](https://github.com/rhysd/vim-healthchec
 Distributed under [the MIT License](LICENSE)
 
 [repo]: https://github.com/rhysd/git-messenger.vim
-[ci-badge]: https://github.com/rhysd/git-messenger.vim/workflows/CI/badge.svg?branch=master&event=push
-[ci]: https://github.com/rhysd/git-messenger.vim/actions?query=workflow%3ACI+branch%3Amaster
+[ci-badge]: https://github.com/rhysd/git-messenger.vim/actions/workflows/ci.yml/badge.svg
+[ci]: https://github.com/rhysd/git-messenger.vim/actions/workflows/ci.yml
 [codecov]: https://codecov.io/gh/rhysd/git-messenger.vim
 [codecov-badge]: https://codecov.io/gh/rhysd/git-messenger.vim/branch/master/graph/badge.svg
 [doc]: ./doc/git-messenger.txt
