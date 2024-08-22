@@ -15,7 +15,7 @@ jobs:
             version: nightly
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - name: Set Git user for running Git commands in unit tests
         run: |
           git config --global user.email "users@noreply.github.com"
@@ -23,7 +23,7 @@ jobs:
       - name: Fetch Git history for unit tests
         run: git fetch --no-tags --prune --unshallow
       - name: Checkout themis.vim
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           repository: thinca/vim-themis
           path: vim-themis
@@ -37,17 +37,17 @@ jobs:
           THEMIS_VIM: ${{ steps.vim.outputs.executable }}
           THEMIS_PROFILE: profile.txt
         run: ./vim-themis/bin/themis ./test/all.vimspec
-      - uses: actions/setup-python@v1
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3'
       - name: Report coverage
         run: |
-          # https://github.com/Vimjas/covimerage/issues/95
-          pip install 'click<8.0.0'
           pip install covimerage
           covimerage write_coverage profile.txt
           coverage report
           coverage xml
       - name: Upload coverage to codecov
-        uses: codecov/codecov-action@v1
+        uses: codecov/codecov-action@v4
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
 
@@ -58,7 +58,7 @@ jobs:
         neovim: [true, false]
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - name: Set Git user for running Git commands in unit tests
         run: |
           git config --global user.email "users@noreply.github.com"
@@ -66,7 +66,7 @@ jobs:
       - name: Fetch Git history for unit tests
         run: git fetch --no-tags --prune --unshallow
       - name: Checkout themis.vim
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           repository: thinca/vim-themis
           path: vim-themis
@@ -84,7 +84,9 @@ jobs:
     name: Run vint
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-python@v1
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3'
       - run: pip install vim-vint
       - run: vint --warning --verbose --enable-neovim ./autoload ./plugin
