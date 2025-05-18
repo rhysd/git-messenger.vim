@@ -1290,7 +1290,7 @@ Describe git-messenger.vim
         End
     End
 
-    Describe gitmessenger#git#root_dir()
+    Describe gitmessenger#git#gitdir()
         Before all
             let root_dir = './my git root with space'
             let file = 'file.txt'
@@ -1314,12 +1314,12 @@ Describe git-messenger.vim
             " call fnamemodify here the same way
             " gitmessenger#blame#new() does to get our absolute path
             let file = './my git root with space/file.txt'
-            let expected_root_dir = fnamemodify(file, ':p:h')
-            let actual_root_dir = gitmessenger#git#root_dir(file)
+            let expected_gitdir = fnamemodify(file, ':p:h') .. '/.git'
+            let actual_gitdir = gitmessenger#git#gitdir(file)
 
             " Failure will return the repo root instead of our created
             " ad-hoc root directory
-            Assert Equal(actual_root_dir, expected_root_dir)
+            Assert Equal(actual_gitdir, expected_gitdir)
         End
     End
 
@@ -1441,8 +1441,8 @@ Describe git-messenger.vim
     End
 
     Describe gitmessenger#git#new
-        It runs Git command at specified directory using -C
-            let git = gitmessenger#git#new('echo', '.')
+        It runs Git command at specified directory using --git-dir and --work-tree
+            let git = gitmessenger#git#new('echo', '.', '.')
             let state = {}
             let OnExit = {g -> extend(state, {'exit': g.exit_status})}
 
@@ -1451,11 +1451,11 @@ Describe git-messenger.vim
 
             Assert True(len(git.stdout) > 0, string(git.stdout))
             let stdout = git.stdout[0]
-            Assert True(stridx(stdout, '-C .') >= 0, string(stdout))
+            Assert True(stridx(stdout, '--git-dir . --work-tree .') >= 0, string(stdout))
         End
 
         It trims trailing \r (#75)
-            let git = gitmessenger#git#new('echo', '.')
+            let git = gitmessenger#git#new('echo', '.', '.')
             let state = {}
             let OnExit = {g -> extend(state, {'exit': g.exit_status})}
 
