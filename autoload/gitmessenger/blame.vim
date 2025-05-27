@@ -192,18 +192,26 @@ function! s:blame__reveal_diff(include_all, word_diff) dict abort
     endif
 
     " Remove diff hunks from popup
-    let saved = getpos('.')
-    try
-        keepjumps execute 1
-        let diff_pattern = g:git_messenger_popup_content_margins ? '^ diff --git ' : '^diff --git '
-        let diff_offset = g:git_messenger_popup_content_margins ? 2 : 3
-        let diff_start = search(diff_pattern, 'ncW')
-        if diff_start > 1
+    let diff_pattern = g:git_messenger_popup_content_margins ? '^ diff --git ' : '^diff --git '
+    if has_key(self, 'popup') && has_key(self.popup, 'type') && self.popup.type ==# 'popup'
+        let diff_offset = g:git_messenger_popup_content_margins ? 1 : 2
+        let diff_start = match(self.state.contents, diff_pattern)
+        if diff_start > 0
             let self.state.contents = self.state.contents[ : diff_start-diff_offset]
         endif
-    finally
-        keepjumps call setpos('.', saved)
-    endtry
+    else
+        let diff_offset = g:git_messenger_popup_content_margins ? 2 : 3
+        let saved = getpos('.')
+        try
+            keepjumps execute 1
+            let diff_start = search(diff_pattern, 'ncW')
+            if diff_start > 1
+                let self.state.contents = self.state.contents[ : diff_start-diff_offset]
+            endif
+        finally
+            keepjumps call setpos('.', saved)
+        endtry
+    endif
 
     if next_diff ==# 'none'
         let self.state.diff = next_diff

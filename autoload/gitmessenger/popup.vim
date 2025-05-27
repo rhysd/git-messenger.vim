@@ -12,11 +12,15 @@ function! s:popup__close() dict abort
         return
     endif
 
-    let winnr = self.get_winnr()
-    if winnr > 0
-        " Without this 'noautocmd', the BufWipeout event will be triggered and
-        " this function will be called again.
-        noautocmd execute winnr . 'wincmd c'
+    if self.type ==# 'popup'
+        call popup_close(self.win_id)
+    else
+        let winnr = self.get_winnr()
+        if winnr > 0
+            " Without this 'noautocmd', the BufWipeout event will be triggered and
+            " this function will be called again.
+            noautocmd execute winnr . 'wincmd c'
+        endif
     endif
 
     unlet self.bufnr
@@ -48,6 +52,9 @@ endfunction
 let s:popup.set_buf_var = funcref('s:popup__set_buf_var')
 
 function! s:popup__scroll(map) dict abort
+    if self.type ==# 'popup'
+        return
+    endif
     let winnr = self.get_winnr()
     if winnr == 0
         return
@@ -60,6 +67,9 @@ endfunction
 let s:popup.scroll = funcref('s:popup__scroll')
 
 function! s:popup__into() dict abort
+    if self.type ==# 'popup'
+        return
+    endif
     let winnr = self.get_winnr()
     if winnr == 0
         return
@@ -150,10 +160,138 @@ function! s:popup__get_opener_winnr() dict abort
 endfunction
 let s:popup.get_opener_winnr = funcref('s:popup__get_opener_winnr')
 
+function! s:popup__vimpopup_keymaps() dict abort
+    " TODO: allow customisation via config var once happy with dict key names
+    return {
+        \   'scroll_down_1': ["\<c-e>", "\<c-n>", "\<Down>"],
+        \   'scroll_up_1': ["\<c-y>", "\<c-p>", "\<Up>"],
+        \   'scroll_down_page': ["\<c-f>", "\<PageDown>"],
+        \   'scroll_up_page': ["\<c-b>", "\<PageUp>"],
+        \   'scroll_down_half': ["\<c-d>"],
+        \   'scroll_up_half': ["\<c-u>"],
+        \ }
+endfunction
+let s:popup.vimpopup_keymaps = funcref('s:popup__vimpopup_keymaps')
+
+function! s:popup__vimpopup_win_filter(win_id, key) dict abort
+    " Note: default q handler assumes we are in the popup window, but in Vim we
+    " cannot enter the popup window, so we override the handling here for now
+    let keymaps = self.vimpopup_keymaps()
+    if a:key ==# 'q'
+        call self.close()
+    elseif a:key ==# '?'
+        call self.echo_help()
+    elseif has_key(self.opts, 'mappings') && has_key(self.opts.mappings, a:key)
+        call self.opts.mappings[a:key][0]()
+    elseif index(keymaps['scroll_down_1'], a:key) >= 0
+        call win_execute(a:win_id, "normal! \<c-e>")
+    elseif index(keymaps['scroll_up_1'], a:key) >= 0
+        call win_execute(a:win_id, "normal! \<c-y>")
+    elseif index(keymaps['scroll_down_page'], a:key) >= 0
+        call win_execute(a:win_id, "normal! \<c-f>")
+    elseif index(keymaps['scroll_up_page'], a:key) >= 0
+        call win_execute(a:win_id, "normal! \<c-b>")
+    elseif index(keymaps['scroll_down_half'], a:key) >= 0
+        call win_execute(a:win_id, "normal! \<c-d>")
+    elseif index(keymaps['scroll_up_half'], a:key) >= 0
+        call win_execute(a:win_id, "normal! \<c-u>")
+    elseif a:key ==? "\<ScrollWheelUp>"
+        let pos = getmousepos()
+        if pos.winid == a:win_id
+            call win_execute(a:win_id, "normal! 3\<c-y>")
+        else
+            return 0
+        endif
+    elseif a:key ==? "\<ScrollWheelDown>"
+        let pos = getmousepos()
+        if pos.winid == a:win_id
+            call win_execute(a:win_id, "normal! 3\<c-e>")
+        else
+            return 0
+        endif
+    else
+        return 0
+    endif
+    return 1
+endfunction
+let s:popup.vimpopup_win_filter = funcref('s:popup__vimpopup_win_filter')
+
+function! s:popup__vimpopup_win_opts(width, height) dict abort
+    " Note: calculations here are not the same as for Neovim floating window as
+    " Vim popup positioning relative to the editor window is slightly different,
+    " but the end result is that the popup is in same position in Vim as Neovim
+    if self.opened_at[0] + a:height <= &lines
+        let vert = 'top'
+        let row = self.opened_at[0] + 1
+    else
+        let vert = 'bot'
+        let row = self.opened_at[0] - 1
+    endif
+
+    if self.opened_at[1] + a:width <= &columns
+        let hor = 'left'
+        let col = self.opened_at[1]
+    else
+        let hor = 'right'
+        let col = self.opened_at[1]
+    endif
+
+    " Note: scrollbar disabled as seems buggy, even in Vim 9.1, scrollbar does
+    " not reliably appear when content does not fit, which means scroll is not
+    " always enabled when needed, so handle scroll in filter function instead.
+    " This now works the same as Neovim, no scrollbar, but mouse scroll works.
+    return extend({
+        \   'line': row,
+        \   'col': col,
+        \   'pos': vert . hor,
+        \   'filtermode': 'n',
+        \   'filter': self.vimpopup_win_filter,
+        \   'minwidth': a:width,
+        \   'maxwidth': a:width,
+        \   'minheight': a:height,
+        \   'maxheight': a:height,
+        \   'scrollbar': v:false,
+        \   'highlight': 'gitmessengerPopupNormal'
+        \ },
+        \ g:git_messenger_vimpopup_win_opts)
+endfunction
+let s:popup.vimpopup_win_opts = funcref('s:popup__vimpopup_win_opts')
+
+function! s:popup__vimpopup_win_callback(win_id, result) dict abort
+    " Hacky custom cleanup for vimpopup, necessary as buffer never entered
+    silent! unlet b:__gitmessenger_popup
+    autocmd! plugin-git-messenger-close * <buffer>
+    autocmd! plugin-git-messenger-buf-enter
+endfunction
+let s:popup.vimpopup_win_callback = funcref('s:popup__vimpopup_win_callback')
+
 function! s:popup__open() dict abort
     let self.opened_at = s:get_global_pos()
     let self.opener_bufnr = bufnr('%')
     let self.opener_winid = win_getid()
+
+    if g:git_messenger_vimpopup_enabled && has('popupwin')
+        let self.type = 'popup'
+        let [width, height] = self.window_size()
+        let win_id = popup_create('', self.vimpopup_win_opts(width, height))
+        " Note: all local options are automatically set for new popup buffers
+        " in Vim so we only need to override a few, see :help popup-buffer
+        call win_execute(win_id, 'setlocal nomodified nofoldenable nomodeline conceallevel=2')
+        call popup_settext(win_id, self.contents)
+        call win_execute(win_id, 'setlocal nomodified nomodifiable')
+        if has_key(self.opts, 'filetype')
+            " Note: setbufvar() seems necessary to trigger Filetype autocmds
+            call setbufvar(winbufnr(win_id), '&filetype', self.opts.filetype)
+        endif
+        " Allow multiple invocations of :GitMessenger command to toggle popup
+        " See gitmessenger#popup#close_current_popup() and gitmessenger#new()
+        let b:__gitmessenger_popup = self " local to opener, removed by callback
+        call popup_setoptions(win_id, { 'callback': self.vimpopup_win_callback })
+        let self.bufnr = winbufnr(win_id)
+        let self.win_id = win_id
+        return
+    endif
+
     let self.type = s:floating_window_available ? 'floating' : 'preview'
 
     let [width, height] = self.window_size()
@@ -228,6 +366,17 @@ endfunction
 let s:popup.open = funcref('s:popup__open')
 
 function! s:popup__update() dict abort
+
+    if self.type ==# 'popup'
+        let [width, height] = self.window_size()
+        let win_id = self.win_id
+        call popup_setoptions(self.win_id, self.vimpopup_win_opts(width, height))
+        call win_execute(win_id, 'setlocal modifiable')
+        call popup_settext(win_id, self.contents)
+        call win_execute(win_id, 'setlocal nomodified nomodifiable')
+        return
+    endif
+
     " Note: `:noautocmd` to prevent BufLeave autocmd event (#13)
     " It should be ok because the cursor position is finally back to the first
     " position.
@@ -290,6 +439,15 @@ function! s:popup__echo_help() dict abort
         let maps = keys(self.opts.mappings)
         call sort(maps, 'i')
         let maps += ['?']
+
+        " When using Vim popup only one echo command output is shown in cmdline
+        if self.type ==# 'popup'
+            let lines = map(maps, {_, map ->
+                \ map . ' : ' . ( map ==# '?' ? 'Show this help' : self.opts.mappings[map][1] )
+                \ })
+            echo join(lines, "\n")
+            return
+        endif
 
         for map in maps
             if map ==# '?'
