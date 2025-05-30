@@ -241,11 +241,14 @@ function! s:popup__vimpopup_win_opts(width, height) dict abort
     " always enabled when needed, so handle scroll in filter function instead.
     " This now works the same as Neovim, no scrollbar, but mouse scroll works.
     return extend({
+        \   'filter': self.vimpopup_win_filter,
+        \   'callback': self.vimpopup_win_callback,
+        \ },
+        \ extend({
         \   'line': row,
         \   'col': col,
         \   'pos': vert . hor,
         \   'filtermode': 'n',
-        \   'filter': self.vimpopup_win_filter,
         \   'minwidth': a:width,
         \   'maxwidth': a:width,
         \   'minheight': a:height,
@@ -253,7 +256,7 @@ function! s:popup__vimpopup_win_opts(width, height) dict abort
         \   'scrollbar': v:false,
         \   'highlight': 'gitmessengerPopupNormal'
         \ },
-        \ g:git_messenger_vimpopup_win_opts)
+        \ g:git_messenger_vimpopup_win_opts), 'error')
 endfunction
 let s:popup.vimpopup_win_opts = funcref('s:popup__vimpopup_win_opts')
 
@@ -286,7 +289,6 @@ function! s:popup__open() dict abort
         " Allow multiple invocations of :GitMessenger command to toggle popup
         " See gitmessenger#popup#close_current_popup() and gitmessenger#new()
         let b:__gitmessenger_popup = self " local to opener, removed by callback
-        call popup_setoptions(win_id, { 'callback': self.vimpopup_win_callback })
         let self.bufnr = winbufnr(win_id)
         let self.win_id = win_id
         return
