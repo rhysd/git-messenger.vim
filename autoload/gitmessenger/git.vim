@@ -1,6 +1,6 @@
 let s:SEP = has('win32') ? '\' : '/'
 
-function! s:find_dotgit(from) abort
+function! s:find_gitdir(from) abort
     let dir = finddir('.git', a:from . ';')
     let file = findfile('.git', a:from . ';')
 
@@ -22,21 +22,21 @@ function! s:find_dotgit(from) abort
     " chosen.
     " When `dir` or `file` is empty, the other is chosen so we don't need to
     " care about empty string here.
-    let dotgit = len(dir) > len(file) ? dir : file
+    let gitdir = len(dir) > len(file) ? dir : file
 
     " Inside .git directory is outside repository
     " This check must be done before chopping last path separator otherwise it
     " matches to directory like /path/to/.github/ (#70)
-    if stridx(a:from, dotgit) == 0
+    if stridx(a:from, gitdir) == 0
         return ''
     endif
 
-    if dotgit[-1:] ==# s:SEP
+    if gitdir[-1:] ==# s:SEP
         " [:-2] chops last path separator (/path/to/.git/ => /path/to/.git)
-        let dotgit = dotgit[:-2]
+        let gitdir = gitdir[:-2]
     endif
 
-    return dotgit
+    return gitdir
 endfunction
 
 " Params:
@@ -44,20 +44,16 @@ endfunction
 "     base path to find .git in ancestor directories
 " Returns:
 "   string
-"     empty string means root directory was not found
-function! gitmessenger#git#root_dir(from) abort
+"     empty string means git dir was not found
+function! gitmessenger#git#gitdir(from) abort
     let from = fnameescape(fnamemodify(a:from, ':p'))
     if from[-1:] ==# s:SEP
         " [:-2] chops last path separator
         let from = from[:-2]
     endif
-    let dotgit = s:find_dotgit(from)
-    if dotgit ==# ''
-        return ''
-    endif
+    let gitdir = s:find_gitdir(from)
 
-    " /path/to/.git => /path/to
-    return fnamemodify(dotgit, ':h')
+    return gitdir
 endfunction
 
 let s:git = {}
@@ -124,12 +120,12 @@ endif
 " Returns:
 "   Job ID of the spawned process
 function! s:git__spawn(args, on_exit) dict abort
-    let cmdline = [self.cmd, '-C', self.dir] + a:args
+    let cmdline = [self.cmd, '--git-dir', self.gitdir, '--work-tree', self.worktree] + a:args
     if has('nvim')
         let self.stdout = ['']
         let self.stderr = ['']
         let job_id = jobstart(cmdline, {
-                    \   'cwd': self.dir,
+                    \   'cwd': self.worktree,
                     \   'on_stdout' : funcref('s:on_output_nvim', [], self),
                     \   'on_stderr' : funcref('s:on_output_nvim', [], self),
                     \   'on_exit' : funcref('s:on_exit_nvim', [], self),
@@ -143,7 +139,7 @@ function! s:git__spawn(args, on_exit) dict abort
         let self.stdout = []
         let self.stderr = []
         let job_id = job_start(cmdline, {
-                    \   'cwd': self.dir,
+                    \   'cwd': self.worktree,
                     \   'out_cb' : funcref('s:on_output_vim', ['stdout'], self),
                     \   'err_cb' : funcref('s:on_output_vim', ['stderr'], self),
                     \   'exit_cb' : funcref('s:on_exit_vim', [], self),
@@ -166,9 +162,10 @@ let s:git.spawn = funcref('s:git__spawn')
 "     Directory path to run Git
 " Returns:
 "   Git object
-function! gitmessenger#git#new(cmd, dir) abort
+function! gitmessenger#git#new(cmd, gitdir, worktree) abort
     let g = deepcopy(s:git)
     let g.cmd = a:cmd
-    let g.dir = a:dir
+    let g.gitdir = a:gitdir
+    let g.worktree = a:worktree
     return g
 endfunction

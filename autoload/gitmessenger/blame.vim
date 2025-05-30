@@ -442,7 +442,7 @@ function! s:blame__after_blame(git) dict abort
 endfunction
 
 function! s:blame__spawn_git(args, callback) dict abort
-    let git = gitmessenger#git#new(g:git_messenger_git_command, self.git_root)
+    let git = gitmessenger#git#new(g:git_messenger_git_command, self.gitdir, self.worktree)
     let CB = a:callback
     if type(CB) == v:t_string
         let CB = funcref(CB, [], self)
@@ -465,7 +465,8 @@ let s:blame.start = funcref('s:blame__start')
 " interface Blame {
 "   state: BlameHistory;
 "   line: number;
-"   git_root: string;
+"   gitdir: string;
+"   worktree: string;
 "   blame_file: string;
 "   prev_commit?: string;
 "   oldest_commit?: string;
@@ -490,10 +491,12 @@ function! gitmessenger#blame#new(file, line, opts) abort
     let b.opts = a:opts
 
     let dir = fnamemodify(file, ':p:h')
-    let b.git_root = gitmessenger#git#root_dir(dir)
+    let gitdir = gitmessenger#git#gitdir(dir)
+    let b.gitdir = gitdir !=# '' ? gitdir : $GIT_DIR
+    let b.worktree = $GIT_WORK_TREE !=# '' ? fnamemodify($GIT_WORK_TREE, ':p') : fnamemodify(gitdir, ':h')
 
     " Validations
-    if b.git_root ==# ''
+    if b.gitdir ==# ''
         call b.error("git-messenger: Directory '" . dir . "' is not inside a Git repository")
         return v:null
     endif
