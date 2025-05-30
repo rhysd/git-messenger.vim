@@ -37,19 +37,25 @@ jobs:
           THEMIS_VIM: ${{ steps.vim.outputs.executable }}
           THEMIS_PROFILE: profile.txt
         run: ./vim-themis/bin/themis ./test/all.vimspec
+
+      # Covimerage no longer seems to work with the latest version of Vim.
+      # I need to dig into the reason and determine to continue or stop using it.
       - uses: actions/setup-python@v5
         with:
           python-version: '3'
+        if: false
       - name: Report coverage
         run: |
           pip install covimerage
           covimerage write_coverage profile.txt
           coverage report
           coverage xml
+        if: false
       - name: Upload coverage to codecov
         uses: codecov/codecov-action@v4
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
+        if: false
 
   test-windows:
     name: Unit tests on Windows
