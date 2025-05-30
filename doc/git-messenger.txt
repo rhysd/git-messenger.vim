@@ -297,6 +297,23 @@ Setting |v:false| to this variable removes all the margins. Removing margins
 might be useful when you enable borders of popup window with
 |g:git_messenger_floating_win_opts|.
 
+*g:git_messenger_vimpopup_enabled* (Default: |v:false|)
+
+When this value is set to |v:true|, enables the use of popup windows in Vim.
+This feature is experimental, and has some limitations as it is not possible
+to enter a popup window in Vim (unlike floating windows in Neovim). Similar
+to using Neovim with |g:git_messenger_always_into_popup| set to |v:true|.
+
+*g:git_messenger_vimpopup_win_opts* (Default |{}|)
+
+Options passed to `popup_create()` on opening a popup window in Vim. This is
+useful when you want to override some window options. See |popup-usage|.
+
+The following example will add a border to the window in the default style.
+>
+  let g:git_messenger_vimpopup_win_opts = { 'border': [] }
+<
+
 ==============================================================================
 HIGHLIGHTS                                            *git-messenger-highlights*
 

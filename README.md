@@ -261,6 +261,23 @@ Setting `v:true` means adding margins in popup window. Blank lines at the top an
 content are inserted. And every line is indented with one whitespace character.
 Setting `v:false` to this variable removes all the margins.
 
+#### `g:git_messenger_vimpopup_enabled` (Default: `v:false`)
+
+When this value is set to `v:true`, enables the use of popup windows in Vim. This feature is
+experimental, and has some limitations as it is not possible to enter a popup window in Vim (unlike
+floating windows in Neovim). Similar to using Neovim with `g:git_messenger_always_into_popup` set to `v:true`.
+
+#### `g:git_messenger_vimpopup_win_opts` (Default `{}`)
+
+Options passed to `popup_create()` on opening a popup window in Vim. This is useful when you want to
+override some window options. See `:help popup-usage`.
+
+The following example will add a border to the window in the default style.
+
+```vim
+let g:git_messenger_vimpopup_win_opts = { 'border': [] }
+```
+
 ### Popup Window Highlight
 
 This plugin uses color definitions from your colorscheme for highlighting stuffs in popup window by
