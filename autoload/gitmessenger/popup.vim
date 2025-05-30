@@ -211,7 +211,7 @@ function! s:popup__open() dict abort
     execute 'autocmd BufWipeout,BufLeave <buffer> call getbufvar(' . popup_bufnr . ', "__gitmessenger_popup").close()'
 
     if has_key(self.opts, 'enter') && !self.opts.enter
-        noautocmd wincmd p
+        wincmd p
         if self.type !=# 'floating'
             " Opening a preview window may move global position of the cursor.
             " `opened_at` is used for checking if the popup window should be
