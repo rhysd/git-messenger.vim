@@ -263,8 +263,8 @@ let s:popup.vimpopup_win_opts = funcref('s:popup__vimpopup_win_opts')
 function! s:popup__vimpopup_win_callback(win_id, result) dict abort
     " Hacky custom cleanup for vimpopup, necessary as buffer never entered
     silent! unlet b:__gitmessenger_popup
-    autocmd! plugin-git-messenger-close * <buffer>
-    autocmd! plugin-git-messenger-buf-enter
+    silent! autocmd! plugin-git-messenger-close * <buffer>
+    silent! autocmd! plugin-git-messenger-buf-enter
 endfunction
 let s:popup.vimpopup_win_callback = funcref('s:popup__vimpopup_win_callback')
 
