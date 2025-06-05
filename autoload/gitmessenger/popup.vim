@@ -68,6 +68,7 @@ let s:popup.scroll = funcref('s:popup__scroll')
 
 function! s:popup__into() dict abort
     if self.type ==# 'popup'
+        let self.entered = v:true
         return
     endif
     let winnr = self.get_winnr()
@@ -174,6 +175,10 @@ endfunction
 let s:popup.vimpopup_keymaps = funcref('s:popup__vimpopup_keymaps')
 
 function! s:popup__vimpopup_win_filter(win_id, key) dict abort
+    " if popup not marked as entered, do not handle any keys
+    if !self.entered
+        return 0
+    endif
     " Note: default q handler assumes we are in the popup window, but in Vim we
     " cannot enter the popup window, so we override the handling here for now
     let keymaps = self.vimpopup_keymaps()
@@ -285,6 +290,11 @@ function! s:popup__open() dict abort
         if has_key(self.opts, 'filetype')
             " Note: setbufvar() seems necessary to trigger Filetype autocmds
             call setbufvar(winbufnr(win_id), '&filetype', self.opts.filetype)
+        endif
+        if has_key(self.opts, 'enter') && self.opts.enter
+            let self.entered = v:true
+        else
+            let self.entered = v:false
         endif
         " Allow multiple invocations of :GitMessenger command to toggle popup
         " See gitmessenger#popup#close_current_popup() and gitmessenger#new()
@@ -491,6 +501,9 @@ endfunction
 " Returns true when popup window was closed
 function! gitmessenger#popup#close_current_popup() abort
     if !exists('b:__gitmessenger_popup')
+        return 0
+    endif
+    if b:__gitmessenger_popup.type ==# 'popup' && !b:__gitmessenger_popup.entered
         return 0
     endif
     call b:__gitmessenger_popup.close()

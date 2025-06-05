@@ -301,8 +301,11 @@ might be useful when you enable borders of popup window with
 
 When this value is set to |v:true|, enables the use of popup windows in Vim.
 This feature is experimental, and has some limitations as it is not possible
-to enter a popup window in Vim (unlike floating windows in Neovim). Similar
-to using Neovim with |g:git_messenger_always_into_popup| set to |v:true|.
+to enter a popup window in Vim (unlike floating windows in Neovim). Entering a
+popup is emulated by initially disabling keyboard mappings for the popup
+window, and only enabling them when it been marked as "entered", either by
+running the |:GitMessenger| command a second time, or with
+|g:git_messenger_always_into_popup| set to |v:true|.
 
 *g:git_messenger_vimpopup_win_opts* (Default |{}|)
 
