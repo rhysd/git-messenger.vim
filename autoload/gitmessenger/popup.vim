@@ -299,6 +299,8 @@ function! s:popup__open() dict abort
         " Allow multiple invocations of :GitMessenger command to toggle popup
         " See gitmessenger#popup#close_current_popup() and gitmessenger#new()
         let b:__gitmessenger_popup = self " local to opener, removed by callback
+        " Also ensure popup closed and callback called when leaving opener
+        autocmd BufWipeout,BufLeave <buffer> ++once silent! call b:__gitmessenger_popup.close()
         let self.bufnr = winbufnr(win_id)
         let self.win_id = win_id
         return
