@@ -139,6 +139,7 @@ Following mappings are defined within popup window.
 | `D`     | Toggle all unified diff hunks of the commit                  |
 | `r`     | Toggle word diff hunks only in current file of the commit    |
 | `R`     | Toggle all word diff hunks of current commit                 |
+| `c`     | Yank/copy the current commit hash to `v:register`            |
 | `?`     | Show mappings help                                           |
 
 ### Mappings
@@ -260,6 +261,25 @@ let g:git_messenger_floating_win_opts = { 'border': 'single' }
 Setting `v:true` means adding margins in popup window. Blank lines at the top and bottom of popup
 content are inserted. And every line is indented with one whitespace character.
 Setting `v:false` to this variable removes all the margins.
+
+#### `g:git_messenger_vimpopup_enabled` (Default: `v:false`)
+
+When this value is set to `v:true`, enables the use of popup windows in Vim. This feature is
+experimental, and has some limitations as it is not possible to enter a popup window in Vim (unlike
+floating windows in Neovim). Entering a popup is emulated by initially disabling keyboard mappings
+for the popup window, and only enabling them when it been marked as "entered", either by running the
+`:GitMessenger` command a second time, or with `g:git_messenger_always_into_popup` set to `v:true`.
+
+#### `g:git_messenger_vimpopup_win_opts` (Default `{}`)
+
+Options passed to `popup_create()` on opening a popup window in Vim. This is useful when you want to
+override some window options. See `:help popup-usage`.
+
+The following example will add a border to the window in the default style.
+
+```vim
+let g:git_messenger_vimpopup_win_opts = { 'border': [] }
+```
 
 ### Popup Window Highlight
 
