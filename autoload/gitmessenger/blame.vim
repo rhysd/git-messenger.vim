@@ -63,6 +63,22 @@ function! s:blame__forward() dict abort
 endfunction
 let s:blame.forward = funcref('s:blame__forward')
 
+function! s:blame__yank_hash() dict abort
+    " Note: v:register is blackhole here when vim-cutlass plugin used
+    " TODO: investigate further, it should be possible to use v:register
+    let register = '"'
+    if has('clipboard')
+        if stridx(&clipboard, 'unnamedplus') != -1
+            let register = '+'
+        elseif stridx(&clipboard, 'unnamed') != -1
+            let register = '*'
+        endif
+    endif
+    call setreg(register, self.state.commit)
+    echo 'git-messenger: yanked commit hash ' . self.state.commit
+endfunction
+let s:blame.yank_hash = funcref('s:blame__yank_hash')
+
 function! s:blame__open_popup() dict abort
     if has_key(self, 'popup') && has_key(self.popup, 'bufnr')
         " Already popup is open. It means that now older commit is showing up.
@@ -80,6 +96,7 @@ function! s:blame__open_popup() dict abort
         \       'q': [{-> execute('close', '')}, 'Close popup window'],
         \       'o': [funcref(self.back, [], self), 'Back to older commit'],
         \       'O': [funcref(self.forward, [], self), 'Forward to newer commit'],
+        \       'c': [funcref(self.yank_hash, [], self), 'Yank/copy current commit hash'],
         \       'd': [funcref(self.reveal_diff, [v:false, v:false], self), "Toggle current file's diffs"],
         \       'D': [funcref(self.reveal_diff, [v:true, v:false], self), 'Toggle all diffs'],
         \       'r': [funcref(self.reveal_diff, [v:false, v:true], self), "Toggle current file's word diffs"],

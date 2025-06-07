@@ -139,6 +139,7 @@ Following mappings are defined within popup window.
 | `D`     | Toggle all unified diff hunks of the commit                  |
 | `r`     | Toggle word diff hunks only in current file of the commit    |
 | `R`     | Toggle all word diff hunks of current commit                 |
+| `c`     | Yank/copy the current commit hash to `v:register`            |
 | `?`     | Show mappings help                                           |
 
 ### Mappings
