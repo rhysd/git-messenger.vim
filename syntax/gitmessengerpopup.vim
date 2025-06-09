@@ -35,7 +35,11 @@ hi def link gitmessengerHeader      Identifier
 hi def link gitmessengerHash        Comment
 hi def link gitmessengerHistory     Constant
 hi def link gitmessengerEmail       gitmessengerPopupNormal
-hi def link gitmessengerPopupNormal NormalFloat
+if has('nvim')
+    hi def link gitmessengerPopupNormal NormalFloat
+else
+    hi def link gitmessengerPopupNormal Pmenu
+endif
 
 hi def link diffOldFile      diffFile
 hi def link diffNewFile      diffFile

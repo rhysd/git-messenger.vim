@@ -242,6 +242,33 @@ Describe git-messenger.vim
             Assert True(found, 'Got line: ' . string(getline(2)))
         End
 
+       It yanks current commit on c
+            GitMessenger
+            Assert IsNotNone(GetPopup())
+
+            GitMessenger
+            Assert Exists('b:__gitmessenger_popup')
+
+            call setreg(v:register, 'foo')
+            Assert Equal(getreg(v:register), 'foo')
+
+            normal c
+
+            let lines = getline(1, '$')
+            let commit = lines[2]
+            let hash = matchstr(commit, '^ Commit: \+\zs[[:xdigit:]]\{7,}$')
+            Assert Equal(getreg(v:register), hash)
+
+            " Confirm also works after moving to a different commit
+            normal o
+            normal c
+
+            let lines = getline(1, '$')
+            let commit = lines[2]
+            let hash = matchstr(commit, '^ Commit: \+\zs[[:xdigit:]]\{7,}$')
+            Assert Equal(getreg(v:register), hash)
+        End
+
         It does not cause #23 again
             " 1. Open the same buffer with multiple window
             " 2. Move cursror to the second window which opens the same

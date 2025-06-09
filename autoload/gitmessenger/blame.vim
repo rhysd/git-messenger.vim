@@ -63,6 +63,22 @@ function! s:blame__forward() dict abort
 endfunction
 let s:blame.forward = funcref('s:blame__forward')
 
+function! s:blame__yank_hash() dict abort
+    " Note: v:register is blackhole here when vim-cutlass plugin used
+    " TODO: investigate further, it should be possible to use v:register
+    let register = '"'
+    if has('clipboard')
+        if stridx(&clipboard, 'unnamedplus') != -1
+            let register = '+'
+        elseif stridx(&clipboard, 'unnamed') != -1
+            let register = '*'
+        endif
+    endif
+    call setreg(register, self.state.commit)
+    echo 'git-messenger: yanked commit hash ' . self.state.commit
+endfunction
+let s:blame.yank_hash = funcref('s:blame__yank_hash')
+
 function! s:blame__open_popup() dict abort
     if has_key(self, 'popup') && has_key(self.popup, 'bufnr')
         " Already popup is open. It means that now older commit is showing up.
@@ -80,6 +96,7 @@ function! s:blame__open_popup() dict abort
         \       'q': [{-> execute('close', '')}, 'Close popup window'],
         \       'o': [funcref(self.back, [], self), 'Back to older commit'],
         \       'O': [funcref(self.forward, [], self), 'Forward to newer commit'],
+        \       'c': [funcref(self.yank_hash, [], self), 'Yank/copy current commit hash'],
         \       'd': [funcref(self.reveal_diff, [v:false, v:false], self), "Toggle current file's diffs"],
         \       'D': [funcref(self.reveal_diff, [v:true, v:false], self), 'Toggle all diffs'],
         \       'r': [funcref(self.reveal_diff, [v:false, v:true], self), "Toggle current file's word diffs"],
@@ -192,18 +209,26 @@ function! s:blame__reveal_diff(include_all, word_diff) dict abort
     endif
 
     " Remove diff hunks from popup
-    let saved = getpos('.')
-    try
-        keepjumps execute 1
-        let diff_pattern = g:git_messenger_popup_content_margins ? '^ diff --git ' : '^diff --git '
-        let diff_offset = g:git_messenger_popup_content_margins ? 2 : 3
-        let diff_start = search(diff_pattern, 'ncW')
-        if diff_start > 1
+    let diff_pattern = g:git_messenger_popup_content_margins ? '^ diff --git ' : '^diff --git '
+    if has_key(self, 'popup') && has_key(self.popup, 'type') && self.popup.type ==# 'popup'
+        let diff_offset = g:git_messenger_popup_content_margins ? 1 : 2
+        let diff_start = match(self.state.contents, diff_pattern)
+        if diff_start > 0
             let self.state.contents = self.state.contents[ : diff_start-diff_offset]
         endif
-    finally
-        keepjumps call setpos('.', saved)
-    endtry
+    else
+        let diff_offset = g:git_messenger_popup_content_margins ? 2 : 3
+        let saved = getpos('.')
+        try
+            keepjumps execute 1
+            let diff_start = search(diff_pattern, 'ncW')
+            if diff_start > 1
+                let self.state.contents = self.state.contents[ : diff_start-diff_offset]
+            endif
+        finally
+            keepjumps call setpos('.', saved)
+        endtry
+    endif
 
     if next_diff ==# 'none'
         let self.state.diff = next_diff
